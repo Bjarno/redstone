@@ -243,6 +243,125 @@ var generate_selfclosing = function generate_selfclosing(context, tag, indent) {
 	return resultHTML;
 };
 
+// TODO: JSDoc
+var find_varnames_expression = function find_varnames_expression(expression) {
+	switch (expression.type) {
+		case esprima.syntax.Literal:
+			return [];
+
+		case esprima.syntax.BinaryExpression:
+			var result = find_varnames_expression(expression.left);
+			result = result.concat(find_varnames_expression(expression.right));
+			return result;
+			break;
+
+		case esprima.syntax.Identifier:
+			return [expression.name];
+
+		default:
+			throw "Unknown ExpressionStatement type.";
+	}
+	return [];
+}
+
+// TODO: JSDoc
+var find_varnames_argument = function find_varnames_argument(argument) {
+	var type = argument.type;
+
+	switch (type) {
+		case esprima.syntax.Identifier:
+			return [argument.name];
+
+		case esprima.syntax.ExpressionStatement:
+			var expression = argument.expression;
+			return find_varnames_expression(expression);
+
+		default:
+			throw "Unknown type of statement as argument.";
+	}
+
+}
+
+// TODO: JSDoc
+var find_varnames_arguments = function find_varnames_arguments(arguments) {
+	var result = [];
+
+	var subresult;
+	for (var i = 0; i < arguments.length; i++) {
+		var argument = arguments[i];
+		subresult = find_varnames_argument(argument);
+		result.concat(subresult);
+	}
+
+	filteredResult = result.filter(function(item, pos, self) {
+	    return self.indexOf(item) == pos;
+	});
+
+	return filteredResult;
+}
+
+// TODO: JSDoc
+var parse_ast = function parse_ast(AST) {
+	if (AST.type !== esprima.Syntax.Program) {
+		throw "AST should start with Program"
+	}
+
+	var body = AST.body;
+	if (body.length != 1) {
+		throw "Literal expression should only have one expression."
+	}
+
+	var statement = body[0];
+	if (statement.type !== esprima.Syntax.ExpressionStatement) {
+		throw "The inner contents of a literal expression should be, as the name applies, an expression.";
+	}
+
+	var expression = statement.expression;
+
+	switch (expression.type) {
+		 case esprima.Syntax.Identifier:
+		 	var varname = expression.name;
+		 	return [
+		 		{
+		 			"type": "VariableName",
+		 			"variables": [
+		 				varname
+		 			]
+		 		}
+		 	];
+		 	break;
+
+		 case esprima.Syntax.CallExpression:
+		 	var callee = expression.callee;
+		 	var arguments = expression.arguments;
+
+		 	// Get variablenames in arguments
+		 	var varnames = find_varnames_arguments(arguments);
+
+		 	// Check if format is obj.func(args) or func(args)
+		 	
+		 	switch (callee.type) {
+		 		case esprima.Syntax.Identifier:
+
+		 			break;
+
+		 		case esprima.Syntax.MemberExpression:
+
+		 			break;
+
+		 		default:
+		 			throw "Unsupported type of CallExpression.";
+		 	}
+		 	break;
+
+		 default:
+		 	throw "Unsupported type of Expression.";
+	}
+}
+
+var AST = esprima.parse("test(1)");
+console.log(parse_ast(AST));
+
 /**
  * Generates HTML for a dynamic segment.
  * @param {DynamicSegment} dynamic The segment to generate code for.
@@ -254,10 +373,10 @@ var generate_dynamic = function generate_dynamic(context, dynamic, indent) {
 	var randomid = randomstring.generate(context.random_length);
 	var expression = dynamic.expression;
 	var AST = esprima.parse(expression);
-	var variablenames = ASTToVarnames(AST);
+	var variablenames = parse_ast(AST);
 	
 	return "";
-	// TODO: Finish procedure, depending on ASTToVarnames
+	// TODO: Finish procedure, depending on parse_ast
 	/*
 	var dynamics = context.dynamics;
 	// Create new entry if first occurance of varname

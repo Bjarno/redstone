@@ -1,3 +1,5 @@
+var esprima = require("esprima");
+
 /**
  * Aid function to return the index of the smallest element of an array,
  * ignorning elements with a certain value (e.g. -1).
@@ -27,9 +29,10 @@ var array_indexOfSmallest = function array_indexOfSmallest(arr, ignores) {
 	return idx;
 };
 
-var ASTToVarnames = function ASTToVarnames(AST) {
-	// TODO: Loop over AST to find identifiers of variable names
+var util = require('util');
+var dump = function dump(obj) {
+	console.log(util.inspect(obj, {showHidden: false, depth: null}));
 }
 
-exports.ASTToVarnames = ASTToVarnames;
 exports.array_indexOfSmallest = array_indexOfSmallest;
+exports.dump = dump;
