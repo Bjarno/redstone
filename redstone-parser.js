@@ -8,9 +8,7 @@ var NextBlockType = {
 	"EXTENDED_TEXT": 3
 };
 
-/*********************/
-/* Private functions */
-/*********************/
+var array_indexOfSmallest = require("./utils.js").array_indexOfSmallest;
 
 /**
  * Splits a line in an identation level, and the content.
@@ -89,34 +87,7 @@ var parse_tagline = function parse_tagline(data) {
 	}
 };
 
-/**
- * Aid function to return the index of the smallest element of an array,
- * ignorning elements with a certain value (e.g. -1).
- * @param {array} arr The array to search for the smallest value.
- * @param {any} ignores The value that should be ignored.
- * @private
- * @returns The index of the smallest element in the given array, ignoring
- * certain values. If the array only contains ignored value, or is empty,
- * it will return -1, as it is an invalid index.
- */
-var array_indexOfSmallest = function array_indexOfSmallest(arr, ignores) {
-	var idx = -1;
-	var cmp = null;
-	for (var i = 0; i < arr.length; i++) {
-		var v = arr[i];
-		if (v == ignores) { continue; }
-		if (cmp === null) {
-			cmp = v;
-			idx = i;
-		} else {
-			if (cmp > v) {
-				cmp = v;
-				idx = i;
-			}
-		}
-	}
-	return idx;
-};
+
 
 /**
  * Returns the tagname, as well as the remaining soras (selectors or
@@ -508,11 +479,6 @@ var parse_block = function parse_block(lines, idx) {
 	var method = get_method_of_next_type(next_type);
 	return method(lines, tag, next_idx, identation);
 };
-
-
-/********************/
-/* Public functions */
-/********************/
 
 /**
  * Parses an input string, and returns a list of trees (Tags).
