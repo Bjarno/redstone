@@ -1,0 +1,28 @@
+\/* @assumes [random():Num] */
+
+/* @server */ 
+{
+  function broadcast(name, message) {
+      displayMessage(name, message);
+  }
+}
+    
+/* @client */
+  {
+    var name = "user"  + random(),
+        btn  = $("#btn"),
+        text = $("#text");
+
+    function chatHandler () {
+       var msg = text.value();
+       broadcast(name, msg);
+    }
+    btn.onClick(chatHandler);
+    function displayMessage(name, message) {
+        text.value(name + ":said " + message)
+    }
+}
+
+/* @ui */
+
+UI here
