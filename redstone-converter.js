@@ -394,6 +394,46 @@ var parse_ast = function parse_ast(AST) {
 	}
 };
 
+// TODO: JSDoc
+var install_crumbs_identifier = function install_crumbs_identifier(id, parsed) {
+
+};
+
+// TODO: JSDoc
+var install_crumbs_call = function install_crumbs_call(id, parsed) {
+
+};
+
+// TODO: JSDoc
+var install_crumbs_membercall = function install_crumbs_membercall(id, parsed) {
+
+};
+
+// TODO: JSDoc
+var install_crumbs_memberexpr = function install_crumbs_memberexpr(id, parsed) {
+
+};
+
+// TODO: JSDoc
+var dispatch_install_crumbs = function dispatch_install_crumbs(type) {
+	switch (type) {
+		case "Identifier": // abc
+			return install_crumbs_identifier;
+
+		case "CallExpression": // abc(args)
+			return install_crumbs_call;
+
+		case "MemberCallExpression": // abc.def(args)
+			return install_crumbs_membercall;
+
+		case "MemberExpression": // abc.def
+			return install_crumbs_memberexpr;
+
+		default:
+			throw "Unknown type";
+	}
+};
+
 /**
  * Generates HTML for a dynamic segment.
  * @param {DynamicSegment} dynamic The segment to generate code for.
@@ -405,10 +445,18 @@ var generate_dynamic = function generate_dynamic(context, dynamic, indent) {
 	var randomid = randomstring.generate(context.random_length);
 	var expression = dynamic.expression;
 	var AST = esprima.parse(expression);
-	var variablenames = parse_ast(AST);
+	var parsed_expression = parse_ast(AST);
 	
 	return "";
 	// TODO: Finish procedure, depending on parse_ast
+
+	// Generate HTML and "install" breadcrumbs in context, depending on type
+
+	// Note:
+	// Args can only be identifiers, literals or combination using BinaryExpressions
+	var func = dispatch_install_crumbs(parsed_expression.type);
+	func(randomid, parsed_expression);
+
 	/*
 	var dynamics = context.dynamics;
 	// Create new entry if first occurance of varname
