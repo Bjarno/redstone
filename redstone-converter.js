@@ -265,6 +265,9 @@ var find_varnames_argument = function find_varnames_argument(argument) {
 	var type = argument.type;
 
 	switch (type) {
+		case esprima.Syntax.Literal:
+			return [];
+
 		case esprima.Syntax.Identifier:
 			return [argument.name];
 
@@ -273,7 +276,7 @@ var find_varnames_argument = function find_varnames_argument(argument) {
 			return find_varnames_expression(expression);
 
 		default:
-			throw "Unknown type of statement as argument.";
+			throw "Unknown type " + type + " of statement as argument.";
 	}
 };
 
