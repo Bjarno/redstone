@@ -244,15 +244,15 @@ var generate_selfclosing = function generate_selfclosing(context, tag, indent) {
 // TODO: JSDoc
 var find_varnames_expression = function find_varnames_expression(expression) {
 	switch (expression.type) {
-		case esprima.syntax.Literal:
+		case esprima.Syntax.Literal:
 			return [];
 
-		case esprima.syntax.BinaryExpression:
+		case esprima.Syntax.BinaryExpression:
 			var result = find_varnames_expression(expression.left);
 			result = result.concat(find_varnames_expression(expression.right));
 			return result;
 
-		case esprima.syntax.Identifier:
+		case esprima.Syntax.Identifier:
 			return [expression.name];
 
 		default:
@@ -265,10 +265,10 @@ var find_varnames_argument = function find_varnames_argument(argument) {
 	var type = argument.type;
 
 	switch (type) {
-		case esprima.syntax.Identifier:
+		case esprima.Syntax.Identifier:
 			return [argument.name];
 
-		case esprima.syntax.ExpressionStatement:
+		case esprima.Syntax.ExpressionStatement:
 			var expression = argument.expression;
 			return find_varnames_expression(expression);
 
