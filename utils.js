@@ -1,4 +1,4 @@
-var esprima = require("esprima");
+var util = require('util');
 
 /**
  * Aid function to return the index of the smallest element of an array,
@@ -29,7 +29,10 @@ var array_indexOfSmallest = function array_indexOfSmallest(arr, ignores) {
 	return idx;
 };
 
-var util = require('util');
+/**
+ * Fully writes an object on standard output using console.log.
+ * @param {any} obj The object to dump.
+ */
 var dump = function dump(obj) {
 	console.log(util.inspect(obj, {showHidden: false, depth: null}));
 }
