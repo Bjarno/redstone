@@ -394,9 +394,6 @@ var parse_ast = function parse_ast(AST) {
 	}
 };
 
-var AST = esprima.parse("test(1)");
-console.log(parse_ast(AST));
-
 /**
  * Generates HTML for a dynamic segment.
  * @param {DynamicSegment} dynamic The segment to generate code for.
