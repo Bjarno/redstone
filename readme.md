@@ -5,5 +5,5 @@
 Solve dependencies using npm.
 
 ```
-$ npm install --save array-uniq
+$ npm install
 ```
