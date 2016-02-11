@@ -1,8 +1,6 @@
 var DynamicSegment = require("./redstone-types.js").DynamicSegment;
 var ConverterContext = require("./redstone-types.js").ConverterContext;
 
-var ASTToVarnames = require("./utils.js").ASTToVarnames;
-
 var randomstring = require("randomstring");
 var esprima = require("esprima");
 
@@ -253,7 +251,6 @@ var find_varnames_expression = function find_varnames_expression(expression) {
 			var result = find_varnames_expression(expression.left);
 			result = result.concat(find_varnames_expression(expression.right));
 			return result;
-			break;
 
 		case esprima.syntax.Identifier:
 			return [expression.name];
@@ -261,8 +258,7 @@ var find_varnames_expression = function find_varnames_expression(expression) {
 		default:
 			throw "Unknown ExpressionStatement type.";
 	}
-	return [];
-}
+};
 
 // TODO: JSDoc
 var find_varnames_argument = function find_varnames_argument(argument) {
@@ -279,36 +275,35 @@ var find_varnames_argument = function find_varnames_argument(argument) {
 		default:
 			throw "Unknown type of statement as argument.";
 	}
-
-}
+};
 
 // TODO: JSDoc
-var find_varnames_arguments = function find_varnames_arguments(arguments) {
+var find_varnames_arguments = function find_varnames_arguments(args) {
 	var result = [];
 
 	var subresult;
-	for (var i = 0; i < arguments.length; i++) {
-		var argument = arguments[i];
+	for (var i = 0; i < args.length; i++) {
+		var argument = args[i];
 		subresult = find_varnames_argument(argument);
 		result.concat(subresult);
 	}
 
-	filteredResult = result.filter(function(item, pos, self) {
-	    return self.indexOf(item) == pos;
+	var filteredResult = result.filter(function(item, pos, self) {
+		return self.indexOf(item) == pos;
 	});
 
 	return filteredResult;
-}
+};
 
 // TODO: JSDoc
 var parse_ast = function parse_ast(AST) {
 	if (AST.type !== esprima.Syntax.Program) {
-		throw "AST should start with Program"
+		throw "AST should start with Program";
 	}
 
 	var body = AST.body;
 	if (body.length != 1) {
-		throw "Literal expression should only have one expression."
+		throw "Literal expression should only have one expression.";
 	}
 
 	var statement = body[0];
@@ -320,44 +315,81 @@ var parse_ast = function parse_ast(AST) {
 
 	switch (expression.type) {
 		 case esprima.Syntax.Identifier:
-		 	var varname = expression.name;
-		 	return [
-		 		{
-		 			"type": "VariableName",
-		 			"variables": [
-		 				varname
-		 			]
-		 		}
-		 	];
-		 	break;
+			var varname = expression.name;
+			return {
+				"type": "Identifier",
+				"variable": varname
+			};
 
 		 case esprima.Syntax.CallExpression:
-		 	var callee = expression.callee;
-		 	var arguments = expression.arguments;
+			var callee = expression.callee;
+			var args = expression.arguments;
 
-		 	// Get variablenames in arguments
-		 	var varnames = find_varnames_arguments(arguments);
+			// Get variablenames in arguments
+			var varnames = find_varnames_arguments(args);
 
-		 	// Check if format is obj.func(args) or func(args)
-		 	
-		 	switch (callee.type) {
-		 		case esprima.Syntax.Identifier:
+			// Check if format is obj.func(args) or func(args)
+			
+			switch (callee.type) {
+				case esprima.Syntax.Identifier:
+					return {
+						"type": "SimpleCallExpression",
+						"variables": varnames,
+						"function": callee.name
+					};
 
-		 			break;
+				case esprima.Syntax.MemberExpression:
+					if (callee.computed) {
+						throw "Unknown what to do when value is computed.";
+					}
 
-		 		case esprima.Syntax.MemberExpression:
+					if (callee.object.type !== esprima.Syntax.Identifier) {
+						throw "Only supports identifiers for MemberExpressions's object.";
+					}
 
-		 			break;
+					if (callee.property.type !== esprima.Syntax.Identifier) {
+						throw "Only supports identifiers for MemberExpressions's property.";
+					}
+					
+					return {
+						"type": "MemberCallExpression",
+						"variables": varnames,
+						"property": callee.property.name,
+						"object": callee.object.name
+					};
 
-		 		default:
-		 			throw "Unsupported type of CallExpression.";
-		 	}
-		 	break;
+				default:
+					throw "Unsupported type of CallExpression.";
+			}
+			break;
+
+		 case esprima.Syntax.MemberExpressions:
+			if (expression.computed) {
+				throw "Unknown what to do when value is computed.";
+			}
+
+			var object = expression.object;
+			var property = expression.property;
+
+			if (object.type !== esprima.Syntax.Identifier) {
+				throw "Only supports identifiers for MemberExpression's object.";
+			}
+
+			if (property.type !== esprima.Syntax.Identifier) {
+				throw "Only supports identifiers for MemberExpression's property.";
+			}
+
+			return {
+				"type": "MemberExpression",
+				"variables": [],
+				"property": property.name,
+				"object": object.name
+			};
 
 		 default:
-		 	throw "Unsupported type of Expression.";
+			throw "Unsupported type of Expression.";
 	}
-}
+};
 
 var AST = esprima.parse("test(1)");
 console.log(parse_ast(AST));
