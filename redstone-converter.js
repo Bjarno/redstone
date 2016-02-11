@@ -262,6 +262,10 @@ var find_varnames_expression = function find_varnames_expression(expression) {
 
 // TODO: JSDoc
 var find_varnames_argument = function find_varnames_argument(argument) {
+	// Note about arguments:
+	// Args can only be identifiers, literals or combination using
+	// BinaryExpressions.
+
 	var type = argument.type;
 
 	switch (type) {
@@ -446,29 +450,15 @@ var generate_dynamic = function generate_dynamic(context, dynamic, indent) {
 	var expression = dynamic.expression;
 	var AST = esprima.parse(expression);
 	var parsed_expression = parse_ast(AST);
-	
-	return "";
-	// TODO: Finish procedure, depending on parse_ast
 
-	// Generate HTML and "install" breadcrumbs in context, depending on type
-
-	// Note:
-	// Args can only be identifiers, literals or combination using BinaryExpressions
+	// Install breadcrumbs in context, depending on type
 	var func = dispatch_install_crumbs(parsed_expression.type);
 	func(randomid, parsed_expression);
 
-	/*
-	var dynamics = context.dynamics;
-	// Create new entry if first occurance of varname
-	if (!(dynamics.hasOwnProperty(varname))) {
-		dynamics[varname] = [];
-	}
-	dynamics[varname].push(randomid);
-
+	// Generate placeholder HTML code
 	var html = create_indent(indent) + "<span id=\"" + randomid + "\">";
 	html += "<!-- {{" + varname + "}} --></span>";
 	return html;
-	*/
 };
 
 /**
