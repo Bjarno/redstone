@@ -24,8 +24,9 @@ var Tag = function Tag(tagname, id, classes, attributes, content) {
  * used to dynamically update this segment.
  * @public
  */
-var DynamicSegment = function DynamicSegment(expression) {
+var DynamicSegment = function DynamicSegment(expression, idName) {
 	this.expression = expression;
+	this.idName = idName;
 };
 
 /**

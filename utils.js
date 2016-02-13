@@ -1,4 +1,5 @@
 var util = require('util');
+var fs = require("fs");
 
 /**
  * Aid function to return the index of the smallest element of an array,
@@ -37,5 +38,16 @@ var dump = function dump(obj) {
 	console.log(util.inspect(obj, {showHidden: false, depth: null}));
 }
 
+/**
+ * Reads a file into a string.
+ * This is a blocking function.
+ * @param {String} path The file path (can be relative)
+ * @returns {String} The contents of the file.
+ */
+var readFile = function readFile(path) {
+	return fs.readFileSync(path, "utf-8");
+}
+
 exports.array_indexOfSmallest = array_indexOfSmallest;
 exports.dump = dump;
+exports.readFile = readFile;
