@@ -6,8 +6,18 @@
 
 var array_indexOfSmallest = require("./utils.js").array_indexOfSmallest;
 
-var split = function split(input) {
-	var blocks = ["server", "client", "ui"];
+/**
+ * Splits a string document, by using tagged comment blocks.
+ * @param {String} input The input file
+ * @param {Array} blocks Array of strings of the different blocks.
+ * @returns {Object} Object containing key pairs of the different blocks, with
+ * its values arrays of the different blocks.
+ */
+var split = function split(input, blocks) {
+	if (blocks === undefined) {
+		blocks = ["server", "client", "ui"];
+	}
+
 	var blockcomments = blocks.map(function(val) {
 		return "/* @" + val + " */";
 	});
