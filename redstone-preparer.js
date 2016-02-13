@@ -3,7 +3,13 @@ var DynamicSegment = require("./redstone-types.js").DynamicSegment;
 var randomstring = require("randomstring");
 var esprima = require("esprima");
 
-// TODO: JSDoc
+/**
+ * Recursively finds all the variable names in the given expression for 
+ * a function's arguments.
+ * @param {Expression} expression The expression to look for variable names for.
+ * @private
+ * @returns {Array} List of variable names in this expression.
+ */
 var find_varnames_expression = function find_varnames_expression(expression) {
 	switch (expression.type) {
 		case esprima.Syntax.Literal:
@@ -18,11 +24,17 @@ var find_varnames_expression = function find_varnames_expression(expression) {
 			return [expression.name];
 
 		default:
-			throw "Unknown ExpressionStatement type.";
+			throw "Unknown ExpressionStatement type '" + expression.type + "'.";
 	}
 };
 
-// TODO: JSDoc
+/**
+ * Finds all the variable names in the argument.
+ * @param {Argument} argument The argument of a function to find variable names
+ * in.
+ * @private
+ * @returns {Array} List of variable names in the argument.
+ */
 var find_varnames_argument = function find_varnames_argument(argument) {
 	// Note about arguments:
 	// Args can only be identifiers, literals or combination using
@@ -46,7 +58,13 @@ var find_varnames_argument = function find_varnames_argument(argument) {
 	}
 };
 
-// TODO: JSDoc
+/**
+ * Finds all the variable names in the arguments.
+ * Results are filtered, so each variable name only occurs once.
+ * @param {Array} args List of arguments of a method call.
+ * @private
+ * @returns {Array} List of variable names as Strings.
+ */
 var find_varnames_arguments = function find_varnames_arguments(args) {
 	var result = [];
 
@@ -64,7 +82,16 @@ var find_varnames_arguments = function find_varnames_arguments(args) {
 	return filteredResult;
 };
 
-// TODO: JSDoc
+/**
+ * Parses an AST tree of a dynamic expression, and outputs the type, and 
+ * information about the arguments (variable names) if it is a method call,
+ * or how to treat the object (simple identifier, or a member expression).
+ * @param {AST} AST The AST tree of a dynamic expression.
+ * @private
+ * @returns {Object} Object with the type of the expression (key: type), and
+ * depending on the type, more information about the variable names of the
+ * arguments if it is a method call.
+ */
 var parse_ast = function parse_ast(AST) {
 	if (AST.type !== esprima.Syntax.Program) {
 		throw "AST should start with Program";
@@ -184,7 +211,13 @@ var install_crumbs_memberexpr = function install_crumbs_memberexpr(id, parsed) {
 	// TODO: Finish procedure
 };
 
-// TODO: JSDoc
+/**
+ * Returns the correct crumbs installer, depending on the type of a dynamic
+ * expression.
+ * @param {String} type The type of the dynamic expression.
+ * @private
+ * @returns {Callback} Function to install the correct crumbs.
+ */
 var dispatch_install_crumbs = function dispatch_install_crumbs(type) {
 	switch (type) {
 		case "Identifier": // abc
@@ -241,7 +274,7 @@ var generate_js_event = function generate_js_event(context, tag, ev, callback) {
 };
 
 /**
- * Generates HTML for a dynamic segment.
+ * Prepares a dynamic expression.
  * @param {ConverterContext} context The context to use.
  * @param {DynamicSegment} dynamic The segment to generate code for.
  * @private
@@ -259,7 +292,12 @@ var prepare_dynamic = function generate_dynamic(context, dynamic) {
 	func(randomId, parsedExpression);
 };
 
-// TODO: JSDoc
+/**
+ * Prepares a tree, looking for dynamic segments and callback installers.
+ * @param {Tag} tree The tree to handle.
+ * @param {ConverterContext} context The context to use.
+ * @private
+ */
 var prepare_tree = function prepare_tree(tree, context) {
 	if (typeof tree == "string") {
 		return;
@@ -268,24 +306,21 @@ var prepare_tree = function prepare_tree(tree, context) {
 		return prepare_dynamic(context, tree);
 	}
 
-	var tag = tree;
-
 	// Install callbacks
-	var attributes = tag.attributes;
+	var attributes = tree.attributes;
 	for (var name in attributes) {
 		if (attributes.hasOwnProperty(name)) {
 			if (name[0] == "@") {
 				var ev = name.substring(1, name.length);
 				var callback = attributes[name];
-				var js = generate_js_event(context, tag, ev, callback);
+				var js = generate_js_event(context, tree, ev, callback);
 				context.js.push(js);
 			}
 		}
 	}
 
-	// Loop over content
-	var content = tag.content;
-	content.forEach(function(subtree) {
+	// Loop over content of the tree.
+	tree.content.forEach(function(subtree) {
 		prepare_tree(subtree, context);
 	});
 };
