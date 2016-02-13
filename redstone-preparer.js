@@ -162,21 +162,25 @@ var parse_ast = function parse_ast(AST) {
 
 // TODO: JSDoc
 var install_crumbs_identifier = function install_crumbs_identifier(id, parsed) {
+	// abc
 	// TODO: Finish procedure
 };
 
 // TODO: JSDoc
 var install_crumbs_call = function install_crumbs_call(id, parsed) {
+	// abc(args)
 	// TODO: Finish procedure
 };
 
 // TODO: JSDoc
 var install_crumbs_membercall = function install_crumbs_membercall(id, parsed) {
+	// abc.def(args)
 	// TODO: Finish procedure
 };
 
 // TODO: JSDoc
 var install_crumbs_memberexpr = function install_crumbs_memberexpr(id, parsed) {
+	// abc.def
 	// TODO: Finish procedure
 };
 
