@@ -84,17 +84,34 @@ var parse_tagline = function parse_tagline(data) {
 	}
 };
 
-// TODO: JSDoc
+/**
+ * Returns whether the given string has length one (a character), and the
+ * character is a letter (both uppercase and lowercase)
+ * @param {String} str The string to check whether it is a letter.
+ * @returns {Boolean} Whether the given string is a letter.
+ */
 function isLetter(str) {
   return str.length === 1 && str.match(/[a-z]/i);
 }
 
-// TODO: JSDoc
+/**
+ * Returns whether the given string has length one (a character), and the
+ * character is a number.
+ * @param {String} str The string to check whether it is a number.
+ * @returns {Boolean} Whether the given string is a number.
+ */
 function isNumber(str) {
   return (str.length === 1) && str.match(/[0-9]/);
 }
 
-// TODO: JSDoc
+/**
+ * Reads a string, starting from a certain index, and finds the attribute
+ * name and the attribute value, until it finds a ].
+ * @param {String} data The string to use to find an attribute name/value.
+ * @param {Number} idx The index the opening character ('[') starts on.
+ * @returns {Object} Object with the resulting token (key: token) and the
+ * next index to continue parsing (key: next_idx).
+ */
 function parse_tagdata_attribute(data, idx) {
 	idx++;
 	var name = "";
@@ -142,7 +159,11 @@ function parse_tagdata_attribute(data, idx) {
 	throw "Did not find ] to end attribute definition";
 }
 
-// TODO: JSDoc
+/**
+ * Reads a tagdata string and makes a tokenized version.
+ * @param {String} data The string to tokenize.
+ * @returns {Array} List of all the tokens that were found in this string.
+ */
 var parse_tagdata_to_tokens = function parse_tagdata_to_tokens(data) {
 	var result = [];
 	var buffer = "";
@@ -257,47 +278,6 @@ var parse_tagdata = function parse_tagdata(data) {
 	}
 
 	return new Tag(tagname, id, classes, attributes);
-
-	/*
-	var a = parse_tagdata_tagname(data);
-	var tagname = a.tagname;
-	var soras = a.soras;
-
-	var rest = soras;
-	var id = null;
-	var classes = [];
-	var attributes = {};
-
-	while (rest !== false) {
-		var b = split_soras(rest);
-		var sora = b.first;
-		rest = b.rest;
-		
-		var parsed_sora = parse_sora(sora);
-
-		switch (parsed_sora.type) {
-			case "class":
-				classes.push(parsed_sora.value);
-				break;
-
-			case "id":
-				if (id !== null) {
-					throw "double id given";
-				}
-				id = parsed_sora.value;
-				break;
-
-			case "attribute":
-				if (attributes.hasOwnProperty(parsed_sora.name)) {
-					throw "attribute already used";
-				}
-				attributes[parsed_sora.name] = parsed_sora.value;
-				break;
-		}
-	}
-
-	return new Tag(tagname, id, classes, attributes);
-	*/
 };
 
 /**
