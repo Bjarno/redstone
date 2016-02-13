@@ -87,7 +87,107 @@ var parse_tagline = function parse_tagline(data) {
 	}
 };
 
+// TODO: JSDoc
+function isLetter(str) {
+  return str.length === 1 && str.match(/[a-z]/i);
+}
 
+// TODO: JSDoc
+function isNumber(str) {
+  return (str.length === 1) && str.match(/[0-9]/);
+}
+
+// TODO: JSDoc
+function parse_tagdata_attribute(data, idx) {
+	idx++;
+	var name = "";
+	var value = "";
+	var read_value = false;
+	var buffer = "";
+
+	while (idx < data.length) {
+		var c = data[idx];
+
+		if (c === "]") {
+			if (read_value) {
+				value = buffer;
+			} else {
+				name = buffer;
+			}
+
+			return {
+				token: {
+					type: "attributevalue",
+					name: name,
+					value: value
+				},
+				"next_idx": idx
+			};
+		} else if (c === "=") {
+			if (read_value) {
+				throw "Already reading value.";
+			}
+			name = buffer;
+			buffer = "";
+			read_value = true;
+		} else if ( (c === "@") || isLetter(c) ) {
+			buffer += c;
+		} else if (isNumber(c)) {
+			if ( (!(read_value)) && (buffer === "") ) {
+				throw "Attribute name can't start with a number.";
+			}
+			buffer += c;
+		}
+
+		idx++;
+	}
+
+	throw "Did not find ] to end attribute definition";
+}
+
+// TODO: JSDoc
+var parse_tagdata_to_tokens = function parse_tagdata_to_tokens(data) {
+	var result = [];
+	var buffer = "";
+
+	var idx = 0;
+
+	while (idx < data.length) {
+		var c = data[idx];
+		if ( (c === "#") || (c === ".") ) {
+			if (buffer !== "") {
+				result.push({type: "string", data: buffer});
+				buffer = "";
+			}
+			result.push({type: "terminator", "data": c});
+		} else if (c === "[") {
+			result.push({type: "string", data: buffer});
+			buffer = "";
+			var res = parse_tagdata_attribute(data, idx);
+			idx = res.next_idx;
+			result.push(res.token);
+		} else if (isLetter(c)) {
+			buffer += c;
+		} else if ( (isNumber(c)) || (c === "-") || (c === "_") ) {
+			if (buffer === "") {
+				throw "Tagname, or attribute, can't start with '" + c + "'";
+			}
+			buffer += "c";
+		} else {
+			throw "Unknown character '" + c + "'.";
+		}
+
+		idx++;
+	}
+
+	if (buffer !== "") {
+		result.push({type: "string", data: buffer});
+	}
+
+	return result;
+};
+
+require("./utils.js").dump(parse_tagdata_to_tokens("button[@click=sendmsg]#send"));
 
 /**
  * Returns the tagname, as well as the remaining soras (selectors or
@@ -217,6 +317,7 @@ var parse_sora = function parse_sora(sora) {
  * @returns {Tag} The tag with id, classes and attributes filled in.
  */
 var parse_tagdata = function parse_tagdata(data) {
+	// TODO: Use parse_tagdata_to_tokens instead of String.indexOf().
 	var a = parse_tagdata_tagname(data);
 	var tagname = a.tagname;
 	var soras = a.soras;
