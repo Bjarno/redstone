@@ -1,14 +1,11 @@
 var Tag            = require("./redstone-types.js").Tag;
 var DynamicSegment = require("./redstone-types.js").DynamicSegment;
-var Sora           = require("./redstone-types.js").Sora;
 
 var NextBlockType = {
 	"BLOCK": 1,
 	"TEXT": 2,
 	"EXTENDED_TEXT": 3
 };
-
-var array_indexOfSmallest = require("./utils.js").array_indexOfSmallest;
 
 /**
  * Splits a line in an identation level, and the content.
@@ -185,126 +182,6 @@ var parse_tagdata_to_tokens = function parse_tagdata_to_tokens(data) {
 	}
 
 	return result;
-};
-
-/**
- * Returns the tagname, as well as the remaining soras (selectors or
- * attributes).
- * @param data The full tag, including the tagname and soras, as one string.
- * @private
- * @returns {Object} Object containing the name of the tag (key: tagname),
- * and the remaining soras (key: soras). If no soras are given, it's value
- * is false.
- */
-var parse_tagdata_tagname = function parse_tagdata_tagname(data) {
-	var terminators = [".", "#", "["];
-	var dis_to_terms = terminators.map(function(terminator) {
-		return data.indexOf(terminator);
-	});
-	var shortest_term_idx = array_indexOfSmallest(dis_to_terms, -1);
-	var has_terminator = (shortest_term_idx !== -1);
-
-	if (has_terminator) {
-		var dis_shortest_terminator = dis_to_terms[shortest_term_idx];
-		var tagname = data.substring(0, dis_shortest_terminator);
-		var soras = data.substring(dis_shortest_terminator, data.length);
-
-		return {"tagname": tagname, "soras": soras};
-	} else {
-		return {"tagname": data, "soras": false};
-	}
-};
-
-/**
- * Splits a soras string, starting with an attribute definition, into
- * the attribute part, and the remaining contents.
- * @param {String} soras The soras string, starting with an attribute
- * definition.
- * @private
- * @returns {Object} Object with the attribute definition (key: first),
- * and the remaining soras definitions. If no soras definitions remain, it's
- * value is false.
- */
-var split_soras_attribute = function split_soras_attribute(soras) {
-	var n = soras.indexOf("]");
-	if (n == -1) {
-		throw "] not found";
-	}
-	var first = soras.substring(0, n + 1);
-	var rest = soras.substring(n + 1, soras.length);
-	if (rest.length === 0) {
-		rest = false;
-	}
-
-	return {"first": first, "rest": rest};
-};
-
-/**
- * Splits a soras string into the first sora, and the remaning soras.
- * @param {String} soras The soras to split into the first and rest.
- * @private
- * @returns {Object} Object with the first sora (key: first), and the
- * remaning soras definitions. If no soras definitions remain, it's
- * value is false.
- */
-var split_soras = function split_soras(soras) {
-	var terminators = [".", "#", "["];
-	var first_ch = soras[0];
-	if (first_ch == "[") {
-		return split_soras_attribute(soras);
-	}
-
-	var soras_excl1 = soras.substring(1, soras.length);
-	var dis_to_terms = terminators.map(function(terminator) {
-		return soras_excl1.indexOf(terminator);
-	});
-	var shortest_term_idx = array_indexOfSmallest(dis_to_terms, -1);
-	var has_terminator = (shortest_term_idx !== -1);
-
-	if (has_terminator) {
-		// +1 as first character was ommitted in search
-		var dis_shortest_terminator = dis_to_terms[shortest_term_idx] + 1;
-		var first = soras.substring(0, dis_shortest_terminator);
-		var rest = soras.substring(dis_shortest_terminator, soras.length);
-		return {"first": first, "rest": rest};
-	} else {
-		return {"first": soras, "rest": false};
-	}
-};
-
-/**
- * Parses a single Sora into type, name and value. Name is only being used
- * if type is 'attribute'.
- * @param {String} A single Sora definition.
- * @private
- * @returns {Sora} A parsed sora object.
- */
-var parse_sora = function parse_sora(sora) {
-	var first_ch = sora[0];
-	var type = null;
-	var name = "";
-	var value = "";
-
-	switch (first_ch) {
-		case ".": type = "class"; break;
-		case "#": type = "id"; break;
-		case "[": type = "attribute"; break;
-	}
-
-	if (type !== "attribute") {
-		value = sora.substring(1, sora.length);
-	} else {
-		var n = sora.indexOf("=");
-		if (n == -1) {
-			name = sora.substring(1, sora.length - 1);
-			value = true;
-		} else {
-			name = sora.substring(1, n);
-			value = sora.substring(n + 1, sora.length - 1);
-		}
-	}
-
-	return new Sora(type, name, value);
 };
 
 /**
@@ -616,7 +493,7 @@ var get_method_of_next_type = function get_method_of_next_type(type) {
 		default:
 			throw "Unsupported value.";
 	}
-}
+};
 
 /**
  * Parses a block by creating a new tag, and reading the next blocks with an
