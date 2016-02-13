@@ -154,18 +154,18 @@ var parse_tagdata_to_tokens = function parse_tagdata_to_tokens(data) {
 
 	while (idx < data.length) {
 		var c = data[idx];
-		if ( (c === "#") || (c === ".") ) {
+		if ( (c === "#") || (c === ".") || (c === "[") ) {
 			if (buffer !== "") {
 				result.push({type: "string", data: buffer});
 				buffer = "";
 			}
-			result.push({type: "terminator", "data": c});
-		} else if (c === "[") {
-			result.push({type: "string", data: buffer});
-			buffer = "";
-			var res = parse_tagdata_attribute(data, idx);
-			idx = res.next_idx;
-			result.push(res.token);
+			if (c === "[") {
+				var res = parse_tagdata_attribute(data, idx);
+				idx = res.next_idx;
+				result.push(res.token);
+			} else {
+				result.push({type: "seperator", "data": c});
+			}
 		} else if (isLetter(c)) {
 			buffer += c;
 		} else if ( (isNumber(c)) || (c === "-") || (c === "_") ) {
@@ -186,8 +186,6 @@ var parse_tagdata_to_tokens = function parse_tagdata_to_tokens(data) {
 
 	return result;
 };
-
-require("./utils.js").dump(parse_tagdata_to_tokens("button[@click=sendmsg]#send"));
 
 /**
  * Returns the tagname, as well as the remaining soras (selectors or
@@ -317,7 +315,73 @@ var parse_sora = function parse_sora(sora) {
  * @returns {Tag} The tag with id, classes and attributes filled in.
  */
 var parse_tagdata = function parse_tagdata(data) {
-	// TODO: Use parse_tagdata_to_tokens instead of String.indexOf().
+	var tokens = parse_tagdata_to_tokens(data);
+	
+	if (tokens[0].type !== "string") {
+		throw "Tagdata should start with type of tag.";
+	}
+
+	var tagname = tokens[0].data;
+	var id = null;
+	var classes = [];
+	var attributes = {};
+
+	var idx = 1;
+
+	while (idx < tokens.length) {
+		var token = tokens[idx];
+		var type = token.type;
+
+		switch (type) {
+			case "string":
+				throw "Unable to apply string on position '" + idx + "'.";
+
+			case "seperator":
+				if (idx + 1 >= tokens.length) {
+					throw "Token overflow.";
+				}
+
+				var sepchar = token.data;
+				var nexttoken = tokens[idx + 1];
+				
+				if (nexttoken.type !== "string") {
+					throw "Next token is not a string.";
+				}
+
+				switch (sepchar) {
+					case ".":
+						classes.push(nexttoken.data);
+						break;
+
+					case "#":
+						if (id !== null) {
+							throw "double id given";
+						}
+						id = nexttoken.data;
+						break;
+
+					default:
+						throw "Unknown seperator type.";
+				}
+
+				// Extra fast-forward, as we are parsing 2 tokens here
+				idx++;
+				break;
+
+			case "attributevalue":
+				if (attributes.hasOwnProperty(token.name)) {
+					throw "attribute already used";
+				}
+				attributes[token.name] = token.value;
+				break;
+		}
+
+		idx++;
+	}
+
+	return new Tag(tagname, id, classes, attributes);
+
+	/*
 	var a = parse_tagdata_tagname(data);
 	var tagname = a.tagname;
 	var soras = a.soras;
@@ -356,6 +420,7 @@ var parse_tagdata = function parse_tagdata(data) {
 	}
 
 	return new Tag(tagname, id, classes, attributes);
+	*/
 };
 
 /**
