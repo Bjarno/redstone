@@ -29,6 +29,8 @@ var generate = function generate(input, options) {
 
 	var result_parse = parser.parse(input);
 	preparer.prepare(result_parse, context);
+	
+	preparer.applyContext(result_parse, context);
 	var result_html = generator.generate(result_parse, context);
 
 	return {html: result_html, "context": context};

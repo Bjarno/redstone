@@ -1,3 +1,4 @@
+var Tag            = require("./redstone-types.js").Tag;
 var DynamicSegment = require("./redstone-types.js").DynamicSegment;
 
 var randomstring = require("randomstring");
@@ -104,7 +105,8 @@ var parse_ast = function parse_ast(AST) {
 
 	var statement = body[0];
 	if (statement.type !== esprima.Syntax.ExpressionStatement) {
-		throw "The inner contents of a literal expression should be, as the name applies, an expression.";
+		throw "The inner contents of a literal expression should be, as the name " +
+		      " applies, an expression.";
 	}
 
 	var expression = statement.expression;
@@ -328,6 +330,8 @@ var prepare_tree = function prepare_tree(tree, context) {
 /**
  * Generates crumbs for dynamic content, and generates
  * Javascript for installing callbacks.
+ * @param {Array} input Array of HTML trees.
+ * @param {ConverterContext} context The context to use.
  */
 var prepare = function prepare(input, context) {
 	input.forEach(function(tree) {
@@ -335,4 +339,39 @@ var prepare = function prepare(input, context) {
 	});
 };
 
+var generate_innerjs = function generate_innerjs(js) {
+	var result = "$(document).ready(function() {";
+
+	js.forEach(function(block) {
+		result += "\n" + block;
+	});
+
+	result += "\n});";
+
+	return result;
+}
+
+/**
+ * Includes Javascript rules and external libraries into the HTML trees.
+ * @param {Array} input Array of HTML trees.
+ * @param {ConverterContext} context The context to use.
+ */
+var applyContext = function applyContent(input, context) {
+	input.forEach(function(tree) {
+		if (tree.tagname === "head") {
+			// Add jQuery
+			var jquery = new Tag("script");
+			jquery.attributes.src = "https://code.jquery.com/jquery-2.2.0.min.js";
+			tree.content.push(jquery);
+
+			// Add generated Javascript
+			var scripttag = new Tag("script");
+			var innerJs = generate_innerjs(context.js);
+			scripttag.content.push(innerJs);
+			tree.content.push(scripttag);
+		}
+	});
+}
+
 exports.prepare = prepare;
+exports.applyContext = applyContext;
