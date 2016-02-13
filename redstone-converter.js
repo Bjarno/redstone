@@ -18,35 +18,6 @@ var create_indent = function create_indent(indent, str) {
 };
 
 /**
- * Generates a string for the doctype of the document.
- * @param {ConverterContext} context The context to use.
- * @param {Tag} tag The tag containing information about the doctype.
- * @param {Number} indent The indentation level to use, to generate the
- * doctype.
- * @private
- * @returns HTML for the doctype.
- */
-var generate_doctype = function generate_doctype(context, tag, indent) {
-	var content = tag.content;
-	if (content.length === 0) {
-		content[0] = "html5";
-	}
-	if (content.length === 1) {
-		var type = content[0];
-		switch (type) {
-			case "html5":
-				var html = create_indent(indent) + "<!DOCTYPE html>";
-				return html;
-
-			default:
-				throw "unknown doctype";
-		}
-	} else {
-		throw "doctype doesn't expect more then 1 content segment";
-	}
-};
-
-/**
  * Generates HTML for all elements inside another element.
  * @param {ConverterContext} context The context to use.
  * @param {Array} content The contents of a higher tag.
@@ -457,7 +428,7 @@ var generate_dynamic = function generate_dynamic(context, dynamic, indent) {
 
 	// Generate placeholder HTML code
 	var html = create_indent(indent) + "<span id=\"" + randomid + "\">";
-	html += "<!-- {{" + varname + "}} --></span>";
+	html += "<!-- {{" + expression + "}} --></span>";
 	return html;
 };
 
@@ -468,8 +439,6 @@ var generate_dynamic = function generate_dynamic(context, dynamic, indent) {
  */
 var find_generator = function find_generator(tagname) {
 	switch (tagname) {
-		case "doctype":
-			return generate_doctype;
 		case "img":
 		case "br":
 		case "hr":
@@ -525,27 +494,20 @@ var preprocess_options = function preprocess_options(options) {
 };
 
 /**
- * Generates for a given tree or list (array) of trees.
- * @param {Tag|Array} input The elements to generate HTML code for.
- * @returns HTML code for the given tree.
+ * Generates HTML for given list
+ * @param {Array} input The parsed document
+ * @returns HTML code for the given tree, and the meta information
  */
 var generate = function generate(input, options) {
 	options = preprocess_options(options);
-	var context = new ConverterContext([], {}, options);
+	var context = new ConverterContext([], [], options);
 
-	var html = "";
-
-	if (Array.isArray(input)) {
-		html = input.map(function (tree) {
-			return generate_tree(context, tree, 0);
-		}).join("\n");
-	} else {
-		// Assume it to be a tree of Tags...
-		html = generate_tree(context, input, 0);
-		return ;
-	}
+	var html = "<!DOCTYPE html>\n";
+	html += input.map(function (tree) {
+		return generate_tree(context, tree, 0);
+	}).join("\n");
 
 	return {"html": html, "meta": context};
-};
+}
 
 exports.generate = generate;
