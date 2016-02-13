@@ -1,5 +1,5 @@
 var parser = require("./redstone-parser.js");
-var converter = require("./redstone-converter.js");
+var generator = require("./redstone-generator.js");
 var preparer = require("./redstone-preparer.js");
 
 var ConverterContext = require("./redstone-types.js").ConverterContext;
@@ -29,7 +29,7 @@ var generate = function generate(input, options) {
 
 	var result_parse = parser.parse(input);
 	preparer.prepare(result_parse, context);
-	var result_html = converter.generate(result_parse, context);
+	var result_html = generator.generate(result_parse, context);
 
 	return {html: result_html, "context": context};
 };
