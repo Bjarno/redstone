@@ -1,4 +1,4 @@
-\/* @assumes [random():Num] */
+/* @assumes [random():Num] */
 
 /* @server */ 
 {
