@@ -43,7 +43,7 @@ var head = function head(title) {
 // TODO: JSDoc
 var subhead = function subhead(title) {
 	if (!(DEBUG)) { return; }
-	
+
 	var len = 64;
 	var line = "-".repeat(len);
 	console.log("");
@@ -78,4 +78,10 @@ var generate = function generate(input, options) {
 	return {html: result_html, "context": context};
 };
 
+// TODO: JSDoc
+var set_debug = function set_debug(flag) {
+	DEBUG = flag;
+}
+
 exports.generate = generate;
+exports.set_debug = set_debug;
