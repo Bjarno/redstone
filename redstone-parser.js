@@ -335,7 +335,7 @@ var parse_subblocks = function parse_subblocks(lines, tag, idx, identation) {
 
 	while (has_next) {
 		idx = next_idx;
-		var next = lines[idx];
+		var next = parse_line_identation(lines[idx]);
 		var next_identation = next.identation;
 
 		if (next_identation > identation) {
@@ -372,7 +372,7 @@ var parse_textblocks = function parse_textblocks(lines, tag, idx, identation) {
 	var cmp_identation = -1;
 	while (has_next) {
 		idx = next_idx;
-		var next = lines[idx];
+		var next = parse_line_identation(lines[idx]);
 		var next_identation = next.identation;
 
 		if (next_identation > identation) {
@@ -398,16 +398,13 @@ var parse_textblocks = function parse_textblocks(lines, tag, idx, identation) {
 };
 
 /**
- * Creates a string for identation.
+ * Removes identation from a string.
  * @param {Number} ident The indentation level.
- * @param {String} str The string to use for identation (default: "\t")
+ * @param {String} str The string to delete identation from.
  * @private
  */
-var create_indent = function create_indent(indent, str) {
-	if (str === undefined) {
-		str = "\t";
-	}
-	return str.repeat(indent);
+var remove_indent = function remove_indent(indent, str) {
+	return str.substring(indent, str.length);
 };
 
 /**
@@ -426,22 +423,15 @@ var parse_extended_textblocks =
 	function parse_extended_textblocks(lines, tag, idx, identation) {
 	var next_idx = idx;
 	var has_next = (next_idx < lines.length);
-	
-	// Identation of text blocks: if larger, parse as normal blocks again.
-	var cmp_identation = -1;
+
 	while (has_next) {
 		idx = next_idx;
-		var next = lines[idx];
+		var next_raw = lines[idx];
+		var next = parse_line_identation(next_raw);
 		var next_identation = next.identation;
 
 		if (next_identation > identation) {
-			if ( (cmp_identation === -1) ||
-				 (cmp_identation == next_identation) ) {
-				cmp_identation = next_identation;
-			}
-
-			var content = create_indent(next_identation - cmp_identation);
-			content += next.data;
+			var content = remove_indent(identation, next_raw);
 			add_text_content_to_tag(tag, content);
 			next_idx = idx + 1;
 		} else {
@@ -484,10 +474,11 @@ var get_method_of_next_type = function get_method_of_next_type(type) {
  * block (key: next_idx), and the final tag.
  */
 var parse_block = function parse_block(lines, idx) {
-	var current = lines[idx];
+	var current = parse_line_identation(lines[idx]);
 	var identation = current.identation;
+	var data = current.data;
 
-	var tagdata = parse_tagline(current.data);
+	var tagdata = parse_tagline(data);
 	var next_type = tagdata.next_type;
 	var data = tagdata.data;
 	var content = tagdata.content;
@@ -511,12 +502,6 @@ var parse_block = function parse_block(lines, idx) {
  */
 var parse = function parse(input) {
 	var lines = input.split("\n");
-	var count = lines.length;
-
-	for (var i = 0; i < count; i++) {
-		var res = parse_line_identation(lines[i]);
-		lines[i] = res;
-	}
 
 	var result = [];
 	var idx = 0;
