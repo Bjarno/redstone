@@ -1,5 +1,5 @@
 var Tag            = require("./redstone-types.js").Tag;
-var DynamicSegment = require("./redstone-types.js").DynamicSegment;
+var DynamicExpression = require("./redstone-types.js").DynamicExpression;
 
 var randomstring = require("randomstring");
 var esprima = require("esprima");
@@ -278,7 +278,7 @@ var generate_js_event = function generate_js_event(context, tag, ev, callback) {
 /**
  * Prepares a dynamic expression.
  * @param {ConverterContext} context The context to use.
- * @param {DynamicSegment} dynamic The segment to generate code for.
+ * @param {DynamicExpression} dynamic The segment to generate code for.
  * @private
  */
 var prepare_dynamic = function generate_dynamic(context, dynamic) {
@@ -304,7 +304,7 @@ var prepare_tree = function prepare_tree(tree, context) {
 	if (typeof tree == "string") {
 		return;
 	}
-	if (tree instanceof DynamicSegment) {
+	if (tree instanceof DynamicExpression) {
 		return prepare_dynamic(context, tree);
 	}
 

@@ -1,5 +1,5 @@
 var Tag            = require("./redstone-types.js").Tag;
-var DynamicSegment = require("./redstone-types.js").DynamicSegment;
+var DynamicExpression = require("./redstone-types.js").DynamicExpression;
 
 var NextBlockType = {
 	"BLOCK": 1,
@@ -281,7 +281,7 @@ var parse_tagdata = function parse_tagdata(data) {
 };
 
 /**
- * Transforms a text, replacing {{expression}} with DynamicSegments. The result
+ * Transforms a text, replacing {{expression}} with DynamicExpressions. The result
  * of this function is an array containing all segments.
  * @param {String} input The input string.
  * @private
@@ -300,7 +300,7 @@ var parse_text = function parse_text(input) {
 	var expression = input.substring(n_open + 2, n_close);
 	var rest = input.substring(n_close + 2, input.length);
 
-	var dsegment = new DynamicSegment(expression);
+	var dsegment = new DynamicExpression(expression);
 	return [first, dsegment].concat(parse_text(rest));
 };
 

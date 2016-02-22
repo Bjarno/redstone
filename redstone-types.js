@@ -24,7 +24,7 @@ var Tag = function Tag(tagname, id, classes, attributes, content) {
  * used to dynamically update this segment.
  * @public
  */
-var DynamicSegment = function DynamicSegment(expression, idName) {
+var DynamicExpression = function DynamicExpression(expression, idName) {
 	this.expression = expression;
 	this.idName = idName;
 };
@@ -44,6 +44,12 @@ var ConverterContext = function ConverterContext(js, crumbs, options) {
 	this.options = options;
 }
 
+// TODO: JSDoc
+var DynamicBlock = function DynamicBlock(type) {
+	this.type = type;
+}
+
 exports.Tag = Tag;
-exports.DynamicSegment = DynamicSegment;
+exports.DynamicExpression = DynamicExpression;
 exports.ConverterContext = ConverterContext;
+exports.DynamicBlock = DynamicBlock;

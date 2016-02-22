@@ -1,4 +1,4 @@
-var DynamicSegment = require("./redstone-types.js").DynamicSegment;
+var DynamicExpression = require("./redstone-types.js").DynamicExpression;
 
 var randomstring = require("randomstring");
 
@@ -172,7 +172,7 @@ var generate_selfclosing = function generate_selfclosing(context, tag, indent) {
 
 /**
  * Generates HTML for a dynamic segment.
- * @param {DynamicSegment} dynamic The segment to generate code for.
+ * @param {DynamicExpression} dynamic The segment to generate code for.
  * @param {Number} indent The indentation level to use.
  * @private
  * @returns HTML for the given tag.
@@ -220,7 +220,7 @@ var generate_tree = function generate_tree(context, tree, indent) {
 	if (typeof tree == "string") {
 		return create_indent(indent) + tree;
 	}
-	if (tree instanceof DynamicSegment) {
+	if (tree instanceof DynamicExpression) {
 		return generate_dynamic(context, tree, indent);
 	}
 	var tag = tree;
