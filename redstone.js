@@ -73,7 +73,7 @@ var generate = function generate(input, options) {
 	var result_html = generator.generate(result_parse, context);
 
 	head("Resulting HTML");
-	dump(result_html);
+	console.log(result_html);
 
 	return {html: result_html, "context": context};
 };

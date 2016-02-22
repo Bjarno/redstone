@@ -236,10 +236,12 @@ var generate_tree = function generate_tree(context, tree, indent) {
  */
 var generate = function generate(input, context) {
 	var html = "<!DOCTYPE html>\n";
+	html += "<html>\n";
 	html += input.map(function (tree) {
 		return generate_tree(context, tree, 0);
 	}).join("\n");
 
+	html += "\n</html>";
 	return html;
 };
 
