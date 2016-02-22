@@ -1,5 +1,6 @@
 var Tag            = require("./redstone-types.js").Tag;
 var DynamicExpression = require("./redstone-types.js").DynamicExpression;
+var DynamicBlock = require("./redstone-types.js").DynamicBlock;
 
 var NextBlockType = {
 	"BLOCK": 1,
@@ -214,7 +215,7 @@ var parse_tagdata_to_tokens = function parse_tagdata_to_tokens(data) {
  */
 var parse_tagdata = function parse_tagdata(data) {
 	var tokens = parse_tagdata_to_tokens(data);
-	
+
 	if (tokens[0].type !== "string") {
 		throw "Tagdata should start with type of tag.";
 	}
@@ -336,9 +337,8 @@ var parse_subblocks = function parse_subblocks(lines, tag, idx, identation) {
 	while (has_next) {
 		idx = next_idx;
 		var next = parse_line_identation(lines[idx]);
-		var next_identation = next.identation;
 
-		if (next_identation > identation) {
+		if (next.identation > identation) {
 			var a = parse_block(lines, idx);
 			next_idx = a.next_idx;
 			tag.content.push(a.result);
@@ -465,6 +465,79 @@ var get_method_of_next_type = function get_method_of_next_type(type) {
 	}
 };
 
+// TODO: JSDoc
+var is_dynamicblock = function is_dynamicblock(str) {
+	var checkstr = "{{#";
+	return (str.indexOf(checkstr) === 0);
+};
+
+// TODO: JSDoc
+var parse_dynamicblock_tag = function parse_dynamicblock_tag(data) {
+	var rest = data.substring(3, data.length);
+	var endStr = rest.substring(rest.length - 2, rest.length);
+
+	if (endStr !== "}}") {
+		throw "Dynamic Block should end with '}}'";
+	}
+
+	rest = rest.substring(0, rest.length - 2);
+	var rests = rest.split(" ", 2);
+
+	return {"keyword": rests[0], "rest": rests[1]};
+}
+
+// TODO: JSDoc
+var parse_dynamicblock = function parse_dynamicblock(lines, idx) {
+	var current = parse_line_identation(lines[idx]);
+	var identation = current.identation;
+	var data = current.data;
+	var parsed_tag = parse_dynamicblock_tag(data);
+	var keyword = parsed_tag.keyword;
+
+	var result = null;
+
+	switch (keyword) {
+		case "if":
+			var expression = parsed_tag.rests;
+			result = new DynamicBlock("if");
+			result.predicate = expression;
+			
+			var true_branch = parse_block(lines, idx + 1);
+			result.true_branch = true_branch.result;
+			var next_idx = true_branch.next_idx;
+
+			result.false_branch = null;
+
+			has_next = (next_idx < lines.length);
+			if (has_next) {
+				var next = parse_line_identation(lines[next_idx]);
+				if (is_dynamicblock(next.data)) {
+					var parsed_next_tag = parse_dynamicblock_tag(next.data);
+					if (parsed_next_tag.keyword === "else") {
+						if ( (parsed_next_tag.rest !== "") &&
+							 (parsed_next_tag.rest !== undefined) ) {
+							throw "else expects no arguments. Found '" + parsed_next_tag.rest + "'";
+						}
+
+						var false_branch = parse_block(lines, next_idx + 1);
+						result.false_branch = false_branch.result;
+						next_idx = false_branch.next_idx;
+					}
+				}
+			}
+			return {"next_idx": next_idx, "result": result};
+
+		case "else":
+			throw "Standalone else is not allowed.";
+
+		case "foreach":
+			throw "NYI";
+
+		default:
+			throw "Unknown type of Dynamic Block.";
+	}
+}
+
 /**
  * Parses a block by creating a new tag, and reading the next blocks with an
  * higher identation level, and adding it to the contents of this tag.
@@ -477,6 +550,10 @@ var parse_block = function parse_block(lines, idx) {
 	var current = parse_line_identation(lines[idx]);
 	var identation = current.identation;
 	var data = current.data;
+
+	if (is_dynamicblock(data)) {
+		return parse_dynamicblock(lines, idx);
+	}
 
 	var tagdata = parse_tagline(data);
 	var next_type = tagdata.next_type;
@@ -502,6 +579,12 @@ var parse_block = function parse_block(lines, idx) {
  */
 var parse = function parse(input) {
 	var lines = input.split("\n");
+
+	// Filter out blank lines
+	lines = lines.filter(function(line) {
+		var no_whitespace = line.replace(/\s/g, "");
+		return (no_whitespace !== "");
+	});
 
 	var result = [];
 	var idx = 0;
