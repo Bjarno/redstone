@@ -2,8 +2,10 @@ var escodegen = require("escodegen");
 var tiersplit = require("./jspdg/stip/tiersplit.js").tiersplit;
 var head = require("./utils.js").head;
 var subhead = require("./utils.js").subhead;
+var readFile = require("./utils.js").readFile;
 
-var result = tiersplit("/* @server */ {function foo() {/*@reply */ bar(3)}} /* @client */ {function bar(y) {return 42+y;} foo();}");
+var input = readFile("input2-jsonly");
+var result = tiersplit(input);
 
 var clientJS = escodegen.generate(result[0].program);
 var serverJS = escodegen.generate(result[1].program);

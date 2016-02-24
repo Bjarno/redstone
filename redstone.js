@@ -10,6 +10,7 @@ var ConverterContext = require("./redstone-types.js").ConverterContext;
 var dump = require("./utils.js").dump;
 var head = require("./utils.js").head;
 var subhead = require("./utils.js").subhead;
+var readFile = require("./utils.js").readFile;
 
 /**
  * Fills in the default values for an options object. It will create (and 
@@ -66,6 +67,7 @@ var generate = function generate(input, options) {
 	dump(context);
 
 	// Parse Javascript code using Stip.js
+	js = readFile("input2-jsonly");
 	var stip_result = tiersplit(js);
 	var clientJS = escodegen.generate(result[0].program);
 	var serverJS = escodegen.generate(result[1].program);
