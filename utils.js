@@ -48,6 +48,42 @@ var readFile = function readFile(path) {
 	return fs.readFileSync(path, "utf-8");
 }
 
+var DEBUG = true;
+
+// TODO: JSDoc
+var head = function head(title) {
+	if (!(DEBUG)) { return; }
+
+	var len = 64;
+	var line = "=".repeat(len);
+	console.log("");
+	console.log(line);
+	console.log(" ".repeat((len-title.length)/2) + title);
+	console.log(line);
+	console.log("");
+}
+
+// TODO: JSDoc
+var subhead = function subhead(title) {
+	if (!(DEBUG)) { return; }
+
+	var len = 64;
+	var line = "-".repeat(len);
+	console.log("");
+	console.log(line);
+	console.log(" ".repeat((len-title.length)/2) + title);
+	console.log(line);
+	console.log("");
+}
+
+// TODO: JSDoc
+var set_debug = function set_debug(flag) {
+	DEBUG = flag;
+}
+
 exports.array_indexOfSmallest = array_indexOfSmallest;
 exports.dump = dump;
 exports.readFile = readFile;
+exports.head = head;
+exports.subhead = subhead;
+exports.set_debug = set_debug;

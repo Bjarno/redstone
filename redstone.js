@@ -5,8 +5,8 @@ var preparer = require("./redstone-preparer.js");
 var ConverterContext = require("./redstone-types.js").ConverterContext;
 
 var dump = require("./utils.js").dump;
-
-var DEBUG = true;
+var head = require("./utils.js").head;
+var subhead = require("./utils.js").subhead;
 
 /**
  * Fills in the default values for an options object. It will create (and 
@@ -26,32 +26,6 @@ var preprocess_options = function preprocess_options(options) {
 	}
 	return options;
 };
-
-// TODO: JSDoc
-var head = function head(title) {
-	if (!(DEBUG)) { return; }
-
-	var len = 64;
-	var line = "=".repeat(len);
-	console.log("");
-	console.log(line);
-	console.log(" ".repeat((len-title.length)/2) + title);
-	console.log(line);
-	console.log("");
-}
-
-// TODO: JSDoc
-var subhead = function subhead(title) {
-	if (!(DEBUG)) { return; }
-
-	var len = 64;
-	var line = "-".repeat(len);
-	console.log("");
-	console.log(line);
-	console.log(" ".repeat((len-title.length)/2) + title);
-	console.log(line);
-	console.log("");
-}
 
 // TODO: JSDoc
 var generate = function generate(input, options) {
@@ -78,10 +52,4 @@ var generate = function generate(input, options) {
 	return {html: result_html, "context": context};
 };
 
-// TODO: JSDoc
-var set_debug = function set_debug(flag) {
-	DEBUG = flag;
-}
-
 exports.generate = generate;
-exports.set_debug = set_debug;
