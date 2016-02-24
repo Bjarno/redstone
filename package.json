@@ -10,6 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "compare-ast": "^0.2.0",
+    "es6-shim": "^0.34.4",
+    "escodegen": "^1.8.0",
     "esprima": "^2.7.2",
     "randomstring": "^1.1.4"
   }
