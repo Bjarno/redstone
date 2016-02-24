@@ -1,3 +1,4 @@
+var splitter = require("./redstone-splitter.js");
 var parser = require("./redstone-parser.js");
 var generator = require("./redstone-generator.js");
 var preparer = require("./redstone-preparer.js");
@@ -29,6 +30,22 @@ var preprocess_options = function preprocess_options(options) {
 
 // TODO: JSDoc
 var generate = function generate(input, options) {
+	var chunks = splitter.split(input);
+	var ui = chunks.ui;
+	var js = chunks.unknown + "\n" +
+	        "/* @client */" + chunks.client + "\n" +
+	        "/* @server */" + chunks.server;
+
+	head("Raw chunks");
+	dump(chunks);
+
+	head("Parsed input");
+	subhead("UI");
+	console.log(ui);
+	subhead("Javascript");
+	console.log(js);
+	return false;
+
 	options = preprocess_options(options);
 	var context = new ConverterContext([], [], options);
 
