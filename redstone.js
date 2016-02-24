@@ -31,10 +31,10 @@ var preprocess_options = function preprocess_options(options) {
 // TODO: JSDoc
 var generate = function generate(input, options) {
 	var chunks = splitter.split(input);
-	var ui = chunks.ui;
+	var ui = chunks.ui.join("\n");
 	var js = chunks.unknown + "\n" +
-	        "/* @client */" + chunks.client + "\n" +
-	        "/* @server */" + chunks.server;
+	        "/* @client */" + chunks.client.join("\n") + "\n" +
+	        "/* @server */" + chunks.server.join("\n");
 
 	head("Raw chunks");
 	dump(chunks);
@@ -44,12 +44,11 @@ var generate = function generate(input, options) {
 	console.log(ui);
 	subhead("Javascript");
 	console.log(js);
-	return false;
 
 	options = preprocess_options(options);
 	var context = new ConverterContext([], [], options);
 
-	var result_parse = parser.parse(input);
+	var result_parse = parser.parse(ui);
 	head("Parse result");
 	dump(result_parse);
 
