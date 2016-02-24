@@ -2,6 +2,8 @@ var splitter = require("./redstone-splitter.js");
 var parser = require("./redstone-parser.js");
 var generator = require("./redstone-generator.js");
 var preparer = require("./redstone-preparer.js");
+var escodegen = require("escodegen");
+var tiersplit = require("./jspdg/stip/tiersplit.js").tiersplit;
 
 var ConverterContext = require("./redstone-types.js").ConverterContext;
 
@@ -30,6 +32,7 @@ var preprocess_options = function preprocess_options(options) {
 
 // TODO: JSDoc
 var generate = function generate(input, options) {
+	// Split input into Redstone, and Javascript
 	var chunks = splitter.split(input);
 	var ui = chunks.ui.join("\n");
 	var js = chunks.unknown + "\n" +
@@ -45,13 +48,16 @@ var generate = function generate(input, options) {
 	subhead("Javascript");
 	console.log(js);
 
+	// Preprocess the options, by supplying the default values
 	options = preprocess_options(options);
 	var context = new ConverterContext([], [], options);
 
+	// Parse the tree
 	var result_parse = parser.parse(ui);
 	head("Parse result");
 	dump(result_parse);
 
+	// Install callbacks and crumbs for dynamic content
 	preparer.prepare(result_parse, context);
 	head("Pre-process result");
 	subhead("Trees");
@@ -59,11 +65,23 @@ var generate = function generate(input, options) {
 	subhead("Context");
 	dump(context);
 
+	// Parse Javascript code using Stip.js
+	var stip_result = tiersplit(js);
+	var clientJS = escodegen.generate(result[0].program);
+	var serverJS = escodegen.generate(result[1].program);
+
+	// TODO: Add client code to <head> in result tree
+
+	// Generate the resulting HTML
 	preparer.applyContext(result_parse, context);
 	var result_html = generator.generate(result_parse, context);
 
-	head("Resulting HTML");
+	// Output result
+	head("Result");
+	subhead("Resulting HTML");
 	console.log(result_html);
+	subhead("Resulting Server code (Node)");
+	console.log(serverJS);
 
 	return {html: result_html, "context": context};
 };
