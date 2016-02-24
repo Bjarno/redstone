@@ -1,5 +1,5 @@
 var escodegen = require("escodegen");
-var tiersplit = require("./../jspdg/stip/tiersplit.js").tiersplit;
+var tiersplit = require("./jspdg/stip/tiersplit.js").tiersplit;
 var head = require("./utils.js").head;
 var subhead = require("./utils.js").subhead;
 
