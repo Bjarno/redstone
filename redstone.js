@@ -69,8 +69,8 @@ var generate = function generate(input, options) {
 	// Parse Javascript code using Stip.js
 	js = readFile("input2-jsonly");
 	var stip_result = tiersplit(js);
-	var clientJS = escodegen.generate(result[0].program);
-	var serverJS = escodegen.generate(result[1].program);
+	var clientJS = escodegen.generate(stip_result[0].program);
+	var serverJS = escodegen.generate(stip_result[1].program);
 
 	// TODO: Add client code to <head> in result tree
 
