@@ -1,3 +1,4 @@
 [submodule "jspdg"]
 	path = jspdg
 	url = git@github.com:Bjarno/jspdg.git
+	branch = master
