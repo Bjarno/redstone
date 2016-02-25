@@ -1,26 +1,24 @@
-/* @assumes [random():Num] */
-
 /* @server */ 
 {
-	function broadcast(name, message) {
-			displayMessage(name, message);
-	}
+  function broadcast(name, message) {
+      displayMessage(name, message);
+  }
 }
-		
+    
 /* @client */
-	{
-		var name = "user"  + random(),
-				btn  = $("#btn"),
-				text = $("#text");
+  {
+    var name = "user"  + Math.random(),
+        btn  = $("#btn"),
+        text = $("#text");
 
-		function chatHandler () {
-			 var msg = text.value();
-			 broadcast(name, msg);
-		}
-		btn.onClick(chatHandler);
-		function displayMessage(name, message) {
-				text.value(name + ":said " + message)
-		}
+    function chatHandler () {
+       var msg = text.val();
+       broadcast(name, msg);
+    }
+    btn.click(chatHandler);
+    function displayMessage(name, message) {
+        text.val(name + ":said " + message)
+    }
 }
 
 /* @ui */
