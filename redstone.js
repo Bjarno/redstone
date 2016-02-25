@@ -67,14 +67,18 @@ var generate = function generate(input, options) {
 	dump(context);
 
 	// Parse Javascript code using Stip.js
+	head("Running Stip");
 	var stip_result = tiersplit(js);
 	var clientJS = escodegen.generate(stip_result[0].program);
 	var serverJS = escodegen.generate(stip_result[1].program);
 
-	// TODO: Add client code to <head> in result tree
+	// Add client code to <head> in result tree
+	context.js.push(clientJS);
 
-	// Generate the resulting HTML
+	// Apply changes, "cached" in context
 	preparer.applyContext(result_parse, context);
+	
+	// Generate the resulting HTML
 	var result_html = generator.generate(result_parse, context);
 
 	// Output result
