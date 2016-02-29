@@ -78,6 +78,9 @@ var generate = function generate(input, options) {
 	var clientJS = escodegen.generate(stip_result[0].program);
 	var serverJS = escodegen.generate(stip_result[1].program);
 
+	// Prefix ServerRpc node module
+	serverJS = "var ServerRpc = require(\"rpc\");\n" + serverJS;
+
 	// Add client code to <head> in result tree
 	context.js.push(safescope(clientJS));
 

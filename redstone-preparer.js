@@ -364,6 +364,11 @@ var applyContext = function applyContent(input, context) {
 			jquery.attributes.src = "https://code.jquery.com/jquery-2.2.0.min.js";
 			tree.content.push(jquery);
 
+			// Add Client RPC library
+			var clientrpc = new Tag("script");
+			clientrpc.attributes.src = "js/rpc.js";
+			tree.content.push(clientrpc);
+
 			// Add generated Javascript
 			var scripttag = new Tag("script");
 			var innerJs = generate_innerjs(context.js);
