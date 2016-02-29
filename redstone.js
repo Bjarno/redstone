@@ -67,6 +67,12 @@ var generate = function generate(input, options) {
 	subhead("Context");
 	dump(context);
 
+	// Add newly generated javascript to js block
+	js += "\n/* @client */\n{\n" + preparer.generate_innerjs(context.js) + "\n}\n";
+
+	head("New Javascript after Pre-process");
+	debugEcho(js);
+
 	// Parse Javascript code using Stip.js
 	head("Running Stip");
 	var stip_result = tiersplit(js);

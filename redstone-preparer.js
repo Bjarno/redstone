@@ -339,15 +339,14 @@ var prepare = function prepare(input, context) {
 	});
 };
 
+// TODO: JSDoc
 var generate_innerjs = function generate_innerjs(js) {
 	js = js.reverse();
-	var result = "$(document).ready(function() {";
+	var result = "";
 
 	js.forEach(function(block) {
 		result += "\n" + block;
 	});
-
-	result += "\n});";
 
 	return result;
 }
@@ -373,7 +372,7 @@ var applyContext = function applyContent(input, context) {
 			// Add generated Javascript
 			var scripttag = new Tag("script");
 			var innerJs = generate_innerjs(context.js);
-			scripttag.content.push("\n" + innerJs + "\n");
+			scripttag.content.push(innerJs + "\n");
 			tree.content.push(scripttag);
 		}
 	});
@@ -381,3 +380,4 @@ var applyContext = function applyContent(input, context) {
 
 exports.prepare = prepare;
 exports.applyContext = applyContext;
+exports.generate_innerjs = generate_innerjs
