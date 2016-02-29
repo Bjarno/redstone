@@ -4,9 +4,9 @@
       displayMessage(name, message);
   }
 }
-    
+
 /* @client */
-  {
+{
     var name = "user"  + Math.random(),
         btn  = $("#btn"),
         text = $("#text");
