@@ -2,3 +2,6 @@
 	path = jspdg
 	url = git@github.com:Bjarno/jspdg.git
 	branch = master
+[submodule "server_env/asyncCall.js"]
+	path = server_env/node_modules/asynccalljs
+	url = git@github.com:dielc/asyncCall.js.git
