@@ -7,15 +7,13 @@
 
 /* @client */
 {
-    var name = "user"  + Math.random(),
-        btn  = $("#btn"),
-        text = $("#text");
+    var name = "user" + Math.random(),
+        text = $("#msg");
 
-    function chatHandler () {
+    function sendmsg() {
        var msg = text.val();
        broadcast(name, msg);
     }
-    btn.click(chatHandler);
     function displayMessage(name, message) {
         text.val(name + ":said " + message)
     }

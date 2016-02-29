@@ -33,11 +33,6 @@ var preprocess_options = function preprocess_options(options) {
 };
 
 // TODO: JSDoc
-var safescope = function safescope(js) {
-	return "(function() {" + js + "})();"
-}
-
-// TODO: JSDoc
 var generate = function generate(input, options) {
 	// Split input into Redstone, and Javascript
 	var chunks = splitter.split(input);
@@ -78,11 +73,14 @@ var generate = function generate(input, options) {
 	var clientJS = escodegen.generate(stip_result[0].program);
 	var serverJS = escodegen.generate(stip_result[1].program);
 
+	// Dumb replace server creation
+	serverJS = serverJS.replace("var server = new ServerRpc(serverHttp, {});", "var server = new ServerRpc();")
+
 	// Prefix ServerRpc node module
 	serverJS = "var ServerRpc = require(\"rpc\");\n" + serverJS;
 
 	// Add client code to <head> in result tree
-	context.js.push(safescope(clientJS));
+	context.js.push(clientJS);
 
 	// Apply changes, "cached" in context
 	preparer.applyContext(result_parse, context);
@@ -97,7 +95,7 @@ var generate = function generate(input, options) {
 	subhead("Resulting Server code (Node)");
 	debugEcho(serverJS);
 
-	return {html: result_html, "context": context};
+	return {client: result_html, server: serverJS, "context": context};
 };
 
 exports.generate = generate;

@@ -340,6 +340,7 @@ var prepare = function prepare(input, context) {
 };
 
 var generate_innerjs = function generate_innerjs(js) {
+	js = js.reverse();
 	var result = "$(document).ready(function() {";
 
 	js.forEach(function(block) {

@@ -88,6 +88,12 @@ var set_debug = function set_debug(flag) {
 	DEBUG = flag;
 }
 
+// TODO: JSDoc
+var writeFile = function writeFile(path, content) {
+	var callback = function() {};
+	fs.writeFileSync(path, content, 'utf8', callback);
+} 
+
 exports.array_indexOfSmallest = array_indexOfSmallest;
 exports.dump = dump;
 exports.readFile = readFile;
@@ -95,3 +101,4 @@ exports.head = head;
 exports.subhead = subhead;
 exports.debugEcho = debugEcho;
 exports.set_debug = set_debug;
+exports.writeFile = writeFile;
