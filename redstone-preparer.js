@@ -367,7 +367,7 @@ var applyContext = function applyContent(input, context) {
 			// Add generated Javascript
 			var scripttag = new Tag("script");
 			var innerJs = generate_innerjs(context.js);
-			scripttag.content.push(innerJs);
+			scripttag.content.push("\n" + innerJs + "\n");
 			tree.content.push(scripttag);
 		}
 	});

@@ -10,6 +10,7 @@ var ConverterContext = require("./redstone-types.js").ConverterContext;
 var dump = require("./utils.js").dump;
 var head = require("./utils.js").head;
 var subhead = require("./utils.js").subhead;
+var debugEcho = require("./utils.js").debugEcho;
 var readFile = require("./utils.js").readFile;
 
 /**
@@ -32,6 +33,11 @@ var preprocess_options = function preprocess_options(options) {
 };
 
 // TODO: JSDoc
+var safescope = function safescope(js) {
+	return "(function() {" + js + "})();"
+}
+
+// TODO: JSDoc
 var generate = function generate(input, options) {
 	// Split input into Redstone, and Javascript
 	var chunks = splitter.split(input);
@@ -45,9 +51,9 @@ var generate = function generate(input, options) {
 
 	head("Parsed input");
 	subhead("UI");
-	console.log(ui);
+	debugEcho(ui);
 	subhead("Javascript");
-	console.log(js);
+	debugEcho(js);
 
 	// Preprocess the options, by supplying the default values
 	options = preprocess_options(options);
@@ -73,7 +79,7 @@ var generate = function generate(input, options) {
 	var serverJS = escodegen.generate(stip_result[1].program);
 
 	// Add client code to <head> in result tree
-	context.js.push(clientJS);
+	context.js.push(safescope(clientJS));
 
 	// Apply changes, "cached" in context
 	preparer.applyContext(result_parse, context);
@@ -84,9 +90,9 @@ var generate = function generate(input, options) {
 	// Output result
 	head("Result");
 	subhead("Resulting HTML");
-	console.log(result_html);
+	debugEcho(result_html);
 	subhead("Resulting Server code (Node)");
-	console.log(serverJS);
+	debugEcho(serverJS);
 
 	return {html: result_html, "context": context};
 };

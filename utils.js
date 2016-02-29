@@ -77,6 +77,13 @@ var subhead = function subhead(title) {
 }
 
 // TODO: JSDoc
+var debugEcho = function debugEcho(a) {
+	if (!(DEBUG)) { return; }
+
+	console.log(a);
+}
+
+// TODO: JSDoc
 var set_debug = function set_debug(flag) {
 	DEBUG = flag;
 }
@@ -86,4 +93,5 @@ exports.dump = dump;
 exports.readFile = readFile;
 exports.head = head;
 exports.subhead = subhead;
+exports.debugEcho = debugEcho;
 exports.set_debug = set_debug;
