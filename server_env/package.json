@@ -1,0 +1,15 @@
+{
+  "name": "redstone-server-environment",
+  "version": "1.0.0",
+  "description": "Server environment for apps exported using Redstone",
+  "main": "server.js",
+  "dependencies": {
+    "rpc": "git+https://github.com/dielc/asyncCall.js.git"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
