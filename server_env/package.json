@@ -4,6 +4,8 @@
   "description": "Server environment for apps exported using Redstone",
   "main": "server.js",
   "dependencies": {
+    "debug": "^2.2.0",
+    "errio": "^1.2.1",
     "rpc": "git+https://github.com/dielc/asyncCall.js.git"
   },
   "devDependencies": {},
