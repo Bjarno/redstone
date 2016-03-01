@@ -145,12 +145,12 @@ function parse_tagdata_attribute(data, idx) {
 			name = buffer;
 			buffer = "";
 			read_value = true;
-		} else if ( (c === "@") || isLetter(c) ) {
-			buffer += c;
 		} else if (isNumber(c)) {
 			if ( (!(read_value)) && (buffer === "") ) {
 				throw "Attribute name can't start with a number.";
 			}
+			buffer += c;
+		} else {
 			buffer += c;
 		}
 
