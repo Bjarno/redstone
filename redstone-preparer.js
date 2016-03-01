@@ -361,7 +361,7 @@ var applyContext = function applyContent(input, context) {
 		if (tree.tagname === "head") {
 			// Add jQuery
 			var jquery = new Tag("script");
-			jquery.attributes.src = "https://code.jquery.com/jquery-2.2.0.min.js";
+			jquery.attributes.src = "js/jquery-2.2.1.min.js";
 			tree.content.push(jquery);
 
 			// Add Client RPC library
