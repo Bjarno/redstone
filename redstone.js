@@ -67,9 +67,6 @@ var generate = function generate(input, options) {
 	subhead("Context");
 	dump(context);
 
-	// Add newly generated javascript to js block
-	js += "\n/* @client */\n{\n" + preparer.generate_innerjs(context.js) + "\n}\n";
-
 	head("New Javascript after Pre-process");
 	debugEcho(js);
 
@@ -83,7 +80,13 @@ var generate = function generate(input, options) {
 	var clientJS = escodegen.generate(stip_result[0].program);
 	var serverJS = escodegen.generate(stip_result[1].program);
 
-	// Dumb replace server creation
+	head("Stip result");
+	subhead("Client");
+	debugEcho(clientJS);
+	subhead("Server");
+	debugEcho(serverJS);
+
+	// Dumb replace server creation (TODO: Change this in Stip)
 	serverJS = serverJS.replace("var server = new ServerRpc(serverHttp, {});", "var server = new ServerRpc();")
 
 	// Prefix ServerRpc node module

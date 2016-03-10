@@ -270,11 +270,11 @@ var generate_js_callback = function generate_js_callback(context, tag, ev, callb
 		throw "NYI";
 	}
 
-	context.callbacks.push(callback);
+	context.callbacks.push(callback); // Makes sure that Stip knows it is called on client-side
 
 	var id = get_id(context, tag);
 	var js = "$(\"#" + id + "\")." + ev + "(" + callback + ");";
-	return js;
+	context.js.push(js);
 };
 
 /**
@@ -317,8 +317,7 @@ var prepare_tree = function prepare_tree(tree, context) {
 			if (name[0] == "@") {
 				var ev = name.substring(1, name.length);
 				var callback = attributes[name];
-				var js = generate_js_callback(context, tree, ev, callback);
-				context.js.push(js);
+				generate_js_callback(context, tree, ev, callback);
 			}
 		}
 	}
