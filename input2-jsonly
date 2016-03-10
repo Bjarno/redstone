@@ -11,9 +11,9 @@
         btn  = $("#btn"),
         text = $("#text");
 
-    // function chatHandler() { // -> Crasht niet, verdwijnt
+    function chatHandler() { // -> Crasht niet, verdwijnt
     // var chatHandler = function() { // Crasht
-    var chatHandler = function chatHandler() { // Crasht
+    // var chatHandler = function chatHandler() { // Crasht
        var msg = text.val();
        broadcast(name, msg);
     }
