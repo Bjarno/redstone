@@ -9,7 +9,11 @@
 
 /* @client */
 {
-    var name = "user" + Math.random(),
+    function getRandomInt(min, max) {
+    	return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
+	
+	var name = "user" + getRandomInt(100, 10000),
         text = $("#msg"),
         log = $("#log");
 
