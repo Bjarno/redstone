@@ -343,11 +343,13 @@ var prepare = function prepare(input, context) {
 // TODO: JSDoc
 var generate_innerjs = function generate_innerjs(js) {
 	js = js.reverse();
-	var result = "";
+	var result = "$(document).ready(function() {\n// --> Begin generated";
 
 	js.forEach(function(block) {
 		result += "\n" + block;
 	});
+
+	result += "\n// <-- End generated\n});"
 
 	return result;
 }
