@@ -20,7 +20,7 @@
        text.val("");
     }
     function displayMessage(name, message) {
-        log.val(log.val() + "\n" + name + ":said " + message);
+        log.html(log.html() + "\n" + name + ":said " + message);
     }
 }
 
