@@ -86,12 +86,6 @@ var generate = function generate(input, options) {
 	subhead("Server");
 	debugEcho(serverJS);
 
-	// Dumb replace server creation (TODO: Change this in Stip)
-	serverJS = serverJS.replace("var server = new ServerRpc(serverHttp, {});", "var server = new ServerRpc();")
-
-	// Prefix ServerRpc node module
-	serverJS = "var ServerRpc = require(\"rpc\");\n" + serverJS;
-
 	// Add client code to <head> in result tree
 	context.js.push(clientJS);
 
