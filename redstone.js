@@ -73,9 +73,13 @@ var generate = function generate(input, options) {
 	head("New Javascript after Pre-process");
 	debugEcho(js);
 
+	head("Callbacks");
+	dump(context.callbacks);
+
 	// Parse Javascript code using Stip.js
 	head("Running Stip");
-	var stip_result = tiersplit(js);
+	var callbackNames = context.callbacks;
+	var stip_result = tiersplit(js, callbackNames);
 	var clientJS = escodegen.generate(stip_result[0].program);
 	var serverJS = escodegen.generate(stip_result[1].program);
 

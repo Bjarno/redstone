@@ -265,10 +265,12 @@ var get_id = function get_id(context, tag) {
  * @param {String} callback Name of the global callback function.
  * @private
  */
-var generate_js_event = function generate_js_event(context, tag, ev, callback) {
+var generate_js_callback = function generate_js_callback(context, tag, ev, callback) {
 	if (tag.tagname === "html") {
 		throw "NYI";
 	}
+
+	context.callbacks.push(callback);
 
 	var id = get_id(context, tag);
 	var js = "$(\"#" + id + "\")." + ev + "(" + callback + ");";
@@ -315,7 +317,7 @@ var prepare_tree = function prepare_tree(tree, context) {
 			if (name[0] == "@") {
 				var ev = name.substring(1, name.length);
 				var callback = attributes[name];
-				var js = generate_js_event(context, tree, ev, callback);
+				var js = generate_js_callback(context, tree, ev, callback);
 				context.js.push(js);
 			}
 		}

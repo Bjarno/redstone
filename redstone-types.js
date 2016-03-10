@@ -40,7 +40,7 @@ var DynamicExpression = function DynamicExpression(expression, idName) {
  */
 var ConverterContext = function ConverterContext(js, crumbs, options) {
 	this.js = js;
-	this.js_post = [];
+	this.callbacks = [];
 	this.crumbs = crumbs;
 	this.options = options;
 }
