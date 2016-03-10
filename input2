@@ -1,6 +1,8 @@
 /* @server */ 
 {
   function broadcast(name, message) {
+      console.log("Name: " + name);
+      console.log("Message: " + message);
       displayMessage(name, message);
   }
 }
@@ -13,11 +15,12 @@
 
     function sendmsg() {
        var msg = text.val();
-       console.log("Seen message:" + msg);
+       console.log("Sent message:" + msg);
        broadcast(name, msg);
+       text.val("");
     }
     function displayMessage(name, message) {
-        log.val(log.val() + "<br>" + name + ":said " + message)
+        log.val(log.val() + "\n" + name + ":said " + message);
     }
 }
 
@@ -30,7 +33,7 @@ head
 		}
 	link[rel=stylesheet][type=text/css][href=style.css]
 body
-	div#log
+	textarea#log
 	textarea#msg
 	button[@click=sendmsg]#send Send
 	p.
