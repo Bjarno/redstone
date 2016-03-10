@@ -8,14 +8,16 @@
 /* @client */
 {
     var name = "user" + Math.random(),
-        text = $("#msg");
+        text = $("#msg"),
+        log = $("#log");
 
     function sendmsg() {
        var msg = text.val();
+       console.log("Seen message:" + msg);
        broadcast(name, msg);
     }
     function displayMessage(name, message) {
-        text.val(name + ":said " + message)
+        log.val(log.val() + "<br>" + name + ":said " + message)
     }
 }
 
