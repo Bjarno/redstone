@@ -10,8 +10,10 @@ if (inputFile === undefined) {
 	process.exit(1);
 }
 
-if (!(fs.existsSync(path.join("./", inputFile)))) {
-	console.log("Input file doesn't exist.");
+try {
+	var stats = fs.statSync(inputFile);
+} catch (e) {
+	console.log("Could not read file!");
 	process.exit(1);
 }
 
