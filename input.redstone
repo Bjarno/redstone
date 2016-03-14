@@ -8,6 +8,9 @@
 
 /* @client */
 {
+    var lastmessage = "no-message";
+    var lastauthor  = "no-author";
+
     function randomInt(min, max) {
     	return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
@@ -27,9 +30,6 @@
         lastmessage = message; // Must be on client (?)
         lastauthor  = name;
     }
-
-    var lastmessage = "no-message";
-    var lastauthor  = "no-author";
 }
 
 /* @ui */
