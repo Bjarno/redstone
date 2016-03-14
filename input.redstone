@@ -1,9 +1,52 @@
+/* @server */ 
+{
+  function broadcast(name, message) {
+      console.log("Name: " + name);
+      console.log("Message: " + message);
+      displayMessage(name, message);
+  }
+}
+
+/* @client */
+{
+    function randomInt(min, max) {
+    	return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
+	
+	var name = "user" + randomInt(100, 10000),
+        text = $("#msg"),
+        log = $("#log");
+
+    function sendmsg() {
+       var msg = text.val();
+       console.log("Sent message:" + msg);
+       broadcast(name, msg);
+       text.val("");
+    }
+    function displayMessage(name, message) {
+        log.append(name + " said: " + message + "<br>");
+    }
+}
+
+/* @ui */
 head
 	title Chatting, made simple.
 	style..
 		body {
-			background-color:green;
+			background-color: #ccc;
+			font-family: sans-serif;
 		}
+		textarea, #log {
+			display: block;
+			font-family: monospace;
+			width: 85%;
+		}
+		#log {
+			height: 100px;
+			overflow: auto;
+			background-color: white;
+		}
+
 	link[rel=stylesheet][type=text/css][href=style.css]
 body
 	div#log
@@ -22,6 +65,8 @@ body
 		.
 		A . at the start of text is also allowed, and has no special
 		meaning.
-	img funny.gif
+
+	p It's like magic!
+	img http://i.giphy.com/ujUdrdpX7Ok5W.gif
 	p.
-		Last message: {{lastmessage}}
+		Last message: {{lastmessage}} by {{lastauthor}}.

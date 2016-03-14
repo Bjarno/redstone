@@ -67,9 +67,6 @@ var generate = function generate(input, options) {
 	subhead("Context");
 	dump(context);
 
-	head("New Javascript after Pre-process");
-	debugEcho(js);
-
 	head("Callbacks");
 	dump(context.callbacks);
 
