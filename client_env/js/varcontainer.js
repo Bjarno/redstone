@@ -45,13 +45,18 @@ var addParent = function addParent(arr, x) {
 }
 
 // TODO: JSDoc
-var make_varcontainer = function make_varcontainer(t, i) {
+var make_varcontainer = function make_varcontainer(t, x) {
 	var varc = {
 		target: t,
 		proxy: undefined,
-		idName: i,
+		idName: (typeof x === "string") ? x : undefined,
 		parents: [] // Parent proxies
 	};
+
+	// If not a string, we expect it to be the parent varcontainer
+	if (typeof x === "object") {
+		varc.parents.push(x);
+	}
 
 	var handler = {
 		get: function(target, property, receiver) {
@@ -63,9 +68,18 @@ var make_varcontainer = function make_varcontainer(t, i) {
 		},
 		set: function(target, property, value, receiver) {
 			var oldValue = target[property];
+			
+			// Do nothing if same value
+			if (value === oldValue) {
+				return value;
+			}
+
+			// TODO: Check if new value is already VarContainered, if not: make it a varcontainer.
+
 			target[property] = value;
 			removeParent(oldValue.__varc__.parents, varc.proxy);
 			addParent(value.__varc__.parents, varc.proxy);
+			// TODO: Update GUI on new value...
 		}
 	};
 
@@ -84,7 +98,7 @@ VARC.make = make_varcontainer;
 VARC.undo = undo_varcontainer;
 
 /*
-Limitation: fails on...
+Limitation: fails on... (not a big deal?)
 
 var a = {foo: 123};
 var b = VARC.make({bar: a}); // <-- Call of VARC.make() happens in Redstone tool
