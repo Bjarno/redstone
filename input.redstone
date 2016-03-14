@@ -18,7 +18,6 @@
 
     function sendmsg() {
        var msg = text.val();
-       console.log("Sent message:" + msg);
        broadcast(name, msg);
        text.val("");
     }
@@ -26,11 +25,11 @@
     function displayMessage(name, message) {
         log.append(name + " said: " + message + "<br>");
         lastmessage = message; // Must be on client (?)
-        lastauthor = name;
+        lastauthor  = name;
     }
 
-    lastmessage = "no-message";
-    lastauthor = "no-author";
+    var lastmessage = "no-message";
+    var lastauthor  = "no-author";
 }
 
 /* @ui */
@@ -51,7 +50,6 @@ head
 			overflow: auto;
 			background-color: white;
 		}
-
 	link[rel=stylesheet][type=text/css][href=style.css]
 body
 	div#log

@@ -417,10 +417,7 @@ var generate_reacivity = function generate_reacivity(context) {
 				"name": key
 			},
 			"computed": false,
-			"value": {
-				"type": "Literal",
-				"value": value,
-			},
+			"value": value,
 			"kind": "init",
 			"method": false,
 			"shorthand": false
@@ -429,7 +426,10 @@ var generate_reacivity = function generate_reacivity(context) {
 
 
 	context.crumbs.forEach(function (crumb) {
-		push_kv(crumb.id, "undefined");
+		push_kv(crumb.id, {
+			"type": "Identifier",
+			"value": "undefined",
+		});
 	});
 
 	return result;
