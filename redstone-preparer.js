@@ -309,7 +309,7 @@ var generate_innerjs = function generate_innerjs(js) {
 
 // TODO: JSDoc
 var generate_reacivity = function generate_reacivity(context) {
-	return {
+	var result = {
 		"type": "Program",
 		"body": [
 		{
@@ -373,7 +373,7 @@ var generate_reacivity = function generate_reacivity(context) {
 							"value": {
 								"type": "ObjectExpression",
 								"properties": [
-								{
+								/*{
 									"type": "Property",
 									"key": {
 										"type": "Identifier",
@@ -388,7 +388,7 @@ var generate_reacivity = function generate_reacivity(context) {
 									"kind": "init",
 									"method": false,
 									"shorthand": false
-								}
+								}*/
 								]
 							},
 							"kind": "init",
@@ -406,6 +406,33 @@ var generate_reacivity = function generate_reacivity(context) {
 		],
 		"sourceType": "script"
 	};
+
+	var properties = result.body[0].declarations[0].init.arguments[0].properties[2].value.properties;
+
+	var push_kv = function push_kv(key, value) {
+		properties.push({
+			"type": "Property",
+			"key": {
+				"type": "Identifier",
+				"name": key
+			},
+			"computed": false,
+			"value": {
+				"type": "Literal",
+				"value": value,
+			},
+			"kind": "init",
+			"method": false,
+			"shorthand": false
+		});
+	};
+
+
+	context.crumbs.forEach(function (crumb) {
+		push_kv(crumb.id, "undefined");
+	});
+
+	return result;
 };
 
 /**
