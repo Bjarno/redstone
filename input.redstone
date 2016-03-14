@@ -25,7 +25,7 @@
 
     function displayMessage(name, message) {
         log.append(name + " said: " + message + "<br>");
-        lastmessage = name;
+        lastmessage = message; // Must be on client (?)
         lastauthor = name;
     }
 
