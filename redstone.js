@@ -67,9 +67,6 @@ var generate = function generate(input, options) {
 	subhead("Context");
 	dump(context);
 
-	head("Callbacks");
-	dump(context.callbacks);
-
 	// Parse Javascript code using Stip.js
 	head("Running Stip");
 	var callbackNames = context.callbacks;

@@ -3,6 +3,7 @@ var DynamicExpression = require("./redstone-types.js").DynamicExpression;
 
 var randomstring = require("randomstring");
 var esprima = require("esprima");
+var escodegen = require("escodegen");
 
 /**
  * Recursively finds all the variable names in the given expression for 
@@ -11,23 +12,23 @@ var esprima = require("esprima");
  * @private
  * @returns {Array} List of variable names in this expression.
  */
-var find_varnames_expression = function find_varnames_expression(expression) {
-	switch (expression.type) {
-		case esprima.Syntax.Literal:
-			return [];
+ var find_varnames_expression = function find_varnames_expression(expression) {
+ 	switch (expression.type) {
+ 		case esprima.Syntax.Literal:
+ 		return [];
 
-		case esprima.Syntax.BinaryExpression:
-			var result = find_varnames_expression(expression.left);
-			result = result.concat(find_varnames_expression(expression.right));
-			return result;
+ 		case esprima.Syntax.BinaryExpression:
+ 		var result = find_varnames_expression(expression.left);
+ 		result = result.concat(find_varnames_expression(expression.right));
+ 		return result;
 
-		case esprima.Syntax.Identifier:
-			return [expression.name];
+ 		case esprima.Syntax.Identifier:
+ 		return [expression.name];
 
-		default:
-			throw "Unknown ExpressionStatement type '" + expression.type + "'.";
-	}
-};
+ 		default:
+ 		throw "Unknown ExpressionStatement type '" + expression.type + "'.";
+ 	}
+ };
 
 /**
  * Finds all the variable names in the argument.
@@ -36,7 +37,7 @@ var find_varnames_expression = function find_varnames_expression(expression) {
  * @private
  * @returns {Array} List of variable names in the argument.
  */
-var find_varnames_argument = function find_varnames_argument(argument) {
+ var find_varnames_argument = function find_varnames_argument(argument) {
 	// Note about arguments:
 	// Args can only be identifiers, literals or combination using
 	// BinaryExpressions.
@@ -45,17 +46,17 @@ var find_varnames_argument = function find_varnames_argument(argument) {
 
 	switch (type) {
 		case esprima.Syntax.Literal:
-			return [];
+		return [];
 
 		case esprima.Syntax.Identifier:
-			return [argument.name];
+		return [argument.name];
 
 		case esprima.Syntax.ExpressionStatement:
-			var expression = argument.expression;
-			return find_varnames_expression(expression);
+		var expression = argument.expression;
+		return find_varnames_expression(expression);
 
 		default:
-			throw "Unknown type " + type + " of statement as argument.";
+		throw "Unknown type " + type + " of statement as argument.";
 	}
 };
 
@@ -66,22 +67,22 @@ var find_varnames_argument = function find_varnames_argument(argument) {
  * @private
  * @returns {Array} List of variable names as Strings.
  */
-var find_varnames_arguments = function find_varnames_arguments(args) {
-	var result = [];
+ var find_varnames_arguments = function find_varnames_arguments(args) {
+ 	var result = [];
 
-	var subresult;
-	for (var i = 0; i < args.length; i++) {
-		var argument = args[i];
-		subresult = find_varnames_argument(argument);
-		result.concat(subresult);
-	}
+ 	var subresult;
+ 	for (var i = 0; i < args.length; i++) {
+ 		var argument = args[i];
+ 		subresult = find_varnames_argument(argument);
+ 		result.concat(subresult);
+ 	}
 
-	var filteredResult = result.filter(function(item, pos, self) {
-		return self.indexOf(item) == pos;
-	});
+ 	var filteredResult = result.filter(function(item, pos, self) {
+ 		return self.indexOf(item) == pos;
+ 	});
 
-	return filteredResult;
-};
+ 	return filteredResult;
+ };
 
 /**
  * Parses an AST tree of a dynamic expression, and outputs the type, and 
@@ -93,35 +94,35 @@ var find_varnames_arguments = function find_varnames_arguments(args) {
  * depending on the type, more information about the variable names of the
  * arguments if it is a method call.
  */
-var parse_ast = function parse_ast(AST) {
-	if (AST.type !== esprima.Syntax.Program) {
-		throw "AST should start with Program";
-	}
+ var parse_ast = function parse_ast(AST) {
+ 	if (AST.type !== esprima.Syntax.Program) {
+ 		throw "AST should start with Program";
+ 	}
 
-	var body = AST.body;
-	if (body.length != 1) {
-		throw "Literal expression should only have one expression.";
-	}
+ 	var body = AST.body;
+ 	if (body.length != 1) {
+ 		throw "Literal expression should only have one expression.";
+ 	}
 
-	var statement = body[0];
-	if (statement.type !== esprima.Syntax.ExpressionStatement) {
-		throw "The inner contents of a literal expression should be, as the name " +
-		      " applies, an expression.";
-	}
+ 	var statement = body[0];
+ 	if (statement.type !== esprima.Syntax.ExpressionStatement) {
+ 		throw "The inner contents of a literal expression should be, as the name " +
+ 		" applies, an expression.";
+ 	}
 
-	var expression = statement.expression;
+ 	var expression = statement.expression;
 
-	switch (expression.type) {
-		 case esprima.Syntax.Identifier:
-			var varname = expression.name;
-			return {
-				"type": "Identifier",
-				"variable": varname
-			};
+ 	switch (expression.type) {
+ 		case esprima.Syntax.Identifier:
+ 		var varname = expression.name;
+ 		return {
+ 			"type": "Identifier",
+ 			"varname": varname
+ 		};
 
-		 case esprima.Syntax.CallExpression:
-			var callee = expression.callee;
-			var args = expression.arguments;
+ 		case esprima.Syntax.CallExpression:
+ 		var callee = expression.callee;
+ 		var args = expression.arguments;
 
 			// Get variablenames in arguments
 			var varnames = find_varnames_arguments(args);
@@ -130,38 +131,38 @@ var parse_ast = function parse_ast(AST) {
 			
 			switch (callee.type) {
 				case esprima.Syntax.Identifier:
-					return {
-						"type": "SimpleCallExpression",
-						"variables": varnames,
-						"function": callee.name
-					};
+				return {
+					"type": "SimpleCallExpression",
+					"variables": varnames,
+					"function": callee.name
+				};
 
 				case esprima.Syntax.MemberExpression:
-					if (callee.computed) {
-						throw "Unknown what to do when value is computed.";
-					}
+				if (callee.computed) {
+					throw "Unknown what to do when value is computed.";
+				}
 
-					if (callee.object.type !== esprima.Syntax.Identifier) {
-						throw "Only supports identifiers for MemberExpressions's object.";
-					}
+				if (callee.object.type !== esprima.Syntax.Identifier) {
+					throw "Only supports identifiers for MemberExpressions's object.";
+				}
 
-					if (callee.property.type !== esprima.Syntax.Identifier) {
-						throw "Only supports identifiers for MemberExpressions's property.";
-					}
-					
-					return {
-						"type": "MemberCallExpression",
-						"variables": varnames,
-						"property": callee.property.name,
-						"object": callee.object.name
-					};
+				if (callee.property.type !== esprima.Syntax.Identifier) {
+					throw "Only supports identifiers for MemberExpressions's property.";
+				}
+
+				return {
+					"type": "MemberCallExpression",
+					"variables": varnames,
+					"property": callee.property.name,
+					"object": callee.object.name
+				};
 
 				default:
-					throw "Unsupported type of CallExpression.";
+				throw "Unsupported type of CallExpression.";
 			}
 			break;
 
-		 case esprima.Syntax.MemberExpressions:
+			case esprima.Syntax.MemberExpressions:
 			if (expression.computed) {
 				throw "Unknown what to do when value is computed.";
 			}
@@ -184,77 +185,27 @@ var parse_ast = function parse_ast(AST) {
 				"object": object.name
 			};
 
-		 default:
+			default:
 			throw "Unsupported type of Expression.";
-	}
-};
-
-// TODO: JSDoc
-var install_crumbs_identifier = function install_crumbs_identifier(id, parsed) {
-	// abc
-	// TODO: Finish procedure
-};
-
-// TODO: JSDoc
-var install_crumbs_call = function install_crumbs_call(id, parsed) {
-	// abc(args)
-	// TODO: Finish procedure
-};
-
-// TODO: JSDoc
-var install_crumbs_membercall = function install_crumbs_membercall(id, parsed) {
-	// abc.def(args)
-	// TODO: Finish procedure
-};
-
-// TODO: JSDoc
-var install_crumbs_memberexpr = function install_crumbs_memberexpr(id, parsed) {
-	// abc.def
-	// TODO: Finish procedure
-};
-
-/**
- * Returns the correct crumbs installer, depending on the type of a dynamic
- * expression.
- * @param {String} type The type of the dynamic expression.
- * @private
- * @returns {Callback} Function to install the correct crumbs.
- */
-var dispatch_install_crumbs = function dispatch_install_crumbs(type) {
-	switch (type) {
-		case "Identifier": // abc
-			return install_crumbs_identifier;
-
-		case "CallExpression": // abc(args)
-			return install_crumbs_call;
-
-		case "MemberCallExpression": // abc.def(args)
-			return install_crumbs_membercall;
-
-		case "MemberExpression": // abc.def
-			return install_crumbs_memberexpr;
-
-		default:
-			throw "Unknown type";
-	}
-};
+		}
+	};
 
 /**
  * Returns the id of a tag, generates a random one if none is given.
  * @param {Tag} tag The tag to find (or generate) an id for.
  * @returns {String} The id of the tag
  */
-var get_id = function get_id(context, tag) {
-	var id = tag.id;
-	if (typeof id === "string") {
-		return id;
-	}
+ var get_id = function get_id(context, tag) {
+ 	var id = tag.id;
+ 	if (typeof id === "string") {
+ 		return id;
+ 	}
 
-	var len = context.random_length;
-	id = randomstring.generate(len);
-	tag.id = id;
-	return id;
-};
+ 	var len = context.random_length;
+ 	id = randomstring.generate(len);
+ 	tag.id = id;
+ 	return id;
+ };
 
 /**
  * Generates Javascript code to install an event listener.
@@ -265,10 +216,10 @@ var get_id = function get_id(context, tag) {
  * @param {String} callback Name of the global callback function.
  * @private
  */
-var generate_js_callback = function generate_js_callback(context, tag, ev, callback) {
-	if (tag.tagname === "html") {
-		throw "NYI";
-	}
+ var generate_js_callback = function generate_js_callback(context, tag, ev, callback) {
+ 	if (tag.tagname === "html") {
+ 		throw "NYI";
+ 	}
 
 	context.callbacks.push(callback); // Makes sure that Stip knows it is called on client-side
 
@@ -283,18 +234,20 @@ var generate_js_callback = function generate_js_callback(context, tag, ev, callb
  * @param {DynamicExpression} dynamic The segment to generate code for.
  * @private
  */
-var prepare_dynamic = function generate_dynamic(context, dynamic) {
-	var randomId = randomstring.generate(context.random_length);
-	var expression = dynamic.expression;
-	var AST = esprima.parse(expression);
-	var parsedExpression = parse_ast(AST);
+ var prepare_dynamic = function generate_dynamic(context, dynamic) {
+ 	// Prefix with r, as first character can be a number, and r = reactivity.
+ 	var randomId = "r" + randomstring.generate(context.random_length);
+ 	var expression = dynamic.expression;
+ 	var AST = esprima.parse(expression);
+ 	var parsedExpression = parse_ast(AST);
 
-	dynamic.idName = randomId;
+ 	dynamic.idName = randomId;
 
-	// Install breadcrumbs in context, depending on type
-	var func = dispatch_install_crumbs(parsedExpression.type);
-	func(randomId, parsedExpression);
-};
+ 	context.crumbs.push({
+ 		id: randomId,
+ 		on_update: parsedExpression
+ 	});
+ };
 
 /**
  * Prepares a tree, looking for dynamic segments and callback installers.
@@ -302,13 +255,13 @@ var prepare_dynamic = function generate_dynamic(context, dynamic) {
  * @param {ConverterContext} context The context to use.
  * @private
  */
-var prepare_tree = function prepare_tree(tree, context) {
-	if (typeof tree == "string") {
-		return;
-	}
-	if (tree instanceof DynamicExpression) {
-		return prepare_dynamic(context, tree);
-	}
+ var prepare_tree = function prepare_tree(tree, context) {
+ 	if (typeof tree == "string") {
+ 		return;
+ 	}
+ 	if (tree instanceof DynamicExpression) {
+ 		return prepare_dynamic(context, tree);
+ 	}
 
 	// Install callbacks
 	var attributes = tree.attributes;
@@ -334,11 +287,11 @@ var prepare_tree = function prepare_tree(tree, context) {
  * @param {Array} input Array of HTML trees.
  * @param {ConverterContext} context The context to use.
  */
-var prepare = function prepare(input, context) {
-	input.forEach(function(tree) {
-		prepare_tree(tree, context);
-	});
-};
+ var prepare = function prepare(input, context) {
+ 	input.forEach(function(tree) {
+ 		prepare_tree(tree, context);
+ 	});
+ };
 
 // TODO: JSDoc
 var generate_innerjs = function generate_innerjs(js) {
@@ -354,14 +307,115 @@ var generate_innerjs = function generate_innerjs(js) {
 	return result;
 }
 
+// TODO: JSDoc
+var generate_reacivity = function generate_reacivity(context) {
+	return {
+		"type": "Program",
+		"body": [
+		{
+			"type": "VariableDeclaration",
+			"declarations": [
+			{
+				"type": "VariableDeclarator",
+				"id": {
+					"type": "Identifier",
+					"name": "ractive"
+				},
+				"init": {
+					"type": "NewExpression",
+					"callee": {
+						"type": "Identifier",
+						"name": "Ractive"
+					},
+					"arguments": [
+					{
+						"type": "ObjectExpression",
+						"properties": [
+						{
+							"type": "Property",
+							"key": {
+								"type": "Identifier",
+								"name": "el"
+							},
+							"computed": false,
+							"value": {
+								"type": "Literal",
+								"value": "#render-target",
+								"raw": "'#render-target'"
+							},
+							"kind": "init",
+							"method": false,
+							"shorthand": false
+						},
+						{
+							"type": "Property",
+							"key": {
+								"type": "Identifier",
+								"name": "template"
+							},
+							"computed": false,
+							"value": {
+								"type": "Literal",
+								"value": "#main-template",
+								"raw": "'#main-template'"
+							},
+							"kind": "init",
+							"method": false,
+							"shorthand": false
+						},
+						{
+							"type": "Property",
+							"key": {
+								"type": "Identifier",
+								"name": "data"
+							},
+							"computed": false,
+							"value": {
+								"type": "ObjectExpression",
+								"properties": [
+								{
+									"type": "Property",
+									"key": {
+										"type": "Identifier",
+										"name": "name"
+									},
+									"computed": false,
+									"value": {
+										"type": "Literal",
+										"value": "world",
+										"raw": "'world'"
+									},
+									"kind": "init",
+									"method": false,
+									"shorthand": false
+								}
+								]
+							},
+							"kind": "init",
+							"method": false,
+							"shorthand": false
+						}
+						]
+					}
+					]
+				}
+			}
+			],
+			"kind": "var"
+		}
+		],
+		"sourceType": "script"
+	};
+};
+
 /**
  * Includes Javascript rules and external libraries into the HTML trees.
  * @param {Array} input Array of HTML trees.
  * @param {ConverterContext} context The context to use.
  */
-var applyContext = function applyContent(input, context) {
-	input.forEach(function(tree) {
-		if (tree.tagname === "head") {
+ var applyContext = function applyContent(input, context) {
+ 	input.forEach(function(tree) {
+ 		if (tree.tagname === "head") {
 			// Add jQuery
 			var jquery = new Tag("script");
 			jquery.attributes.src = "js/jquery-2.2.1.min.js";
@@ -372,15 +426,39 @@ var applyContext = function applyContent(input, context) {
 			clientrpc.attributes.src = "js/rpc.js";
 			tree.content.push(clientrpc);
 
+			// Add Ractive (Reactive library)
+			var ractive = new Tag("script");
+			ractive.attributes.src = "http://cdn.ractivejs.org/latest/ractive.min.js";
+			tree.content.push(ractive);
+
 			// Add generated Javascript
 			var scripttag = new Tag("script");
 			var innerJs = generate_innerjs(context.js);
 			scripttag.content.push(innerJs + "\n");
 			tree.content.push(scripttag);
 		}
-	});
-}
 
-exports.prepare = prepare;
-exports.applyContext = applyContext;
-exports.generate_innerjs = generate_innerjs
+		if (tree.tagname === "body") {
+			var temp = tree.content;
+			tree.content = [];
+			
+			var render_target = new Tag("div");
+			render_target.id = "render-target";
+			tree.content.push(render_target);
+
+			var main_template = new Tag("script");
+			main_template.id = "main-template";
+			main_template.attributes.type = "text/ractive";
+			main_template.content = temp;
+			tree.content.push(main_template);
+
+			var reactivity = new Tag("script");
+			reactivity.content.push("\n" + escodegen.generate(generate_reacivity(context)) + "\n");
+			tree.content.push(reactivity);
+		}
+	});
+ }
+
+ exports.prepare = prepare;
+ exports.applyContext = applyContext;
+ exports.generate_innerjs = generate_innerjs

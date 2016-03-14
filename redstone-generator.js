@@ -178,12 +178,16 @@ var generate_selfclosing = function generate_selfclosing(context, tag, indent) {
  * @returns HTML for the given tag.
  */
 var generate_dynamic = function generate_dynamic(context, dynamic, indent) {
-	var randomid = randomstring.generate(context.random_length);
+	var randomid = dynamic.idName;
 	var expression = dynamic.expression;
 
 	// Generate placeholder HTML code
-	var html = create_indent(indent) + "<span id=\"" + randomid + "\">";
-	html += "<!-- {{" + expression + "}} --></span>";
+	// var html = create_indent(indent) + "<span id=\"" + randomid + "\">";
+	// html += "<!-- {{" + expression + "}} --></span>";
+	// return html;
+
+	var html = "{{" + randomid + "}}";
+
 	return html;
 };
 
