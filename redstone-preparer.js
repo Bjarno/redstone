@@ -428,7 +428,7 @@ var generate_reacivity = function generate_reacivity(context) {
 
 			// Add Ractive (Reactive library)
 			var ractive = new Tag("script");
-			ractive.attributes.src = "http://cdn.ractivejs.org/latest/ractive.min.js";
+			ractive.attributes.src = "js/ractive-0.7.3.js";
 			tree.content.push(ractive);
 
 			// Add generated Javascript
