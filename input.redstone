@@ -71,7 +71,7 @@ body
 		A . at the start of text is also allowed, and has no special
 		meaning.
 
-	p It's like magic!
-	img http://i.giphy.com/ujUdrdpX7Ok5W.gif
+	p Mind blow!
+	img http://i.giphy.com/V0IdVIIW1y5d6.gif
 	p.
 		Last message: {{lastmessage}} by {{lastauthor}}.
