@@ -1,8 +1,7 @@
 /* @server */ 
 {
   function broadcast(name, message) {
-      console.log("Name: " + name);
-      console.log("Message: " + message);
+      console.log(name + " said: " + message);
       displayMessage(name, message);
   }
 }
@@ -15,7 +14,7 @@
 	
 	var name = "user" + randomInt(100, 10000),
         text = $("#msg"),
-        log = $("#log");
+        log  = $("#log");
 
     function sendmsg() {
        var msg = text.val();
@@ -23,9 +22,15 @@
        broadcast(name, msg);
        text.val("");
     }
+
     function displayMessage(name, message) {
         log.append(name + " said: " + message + "<br>");
+        lastmessage = name;
+        lastauthor = name;
     }
+
+    lastmessage = "no-message";
+    lastauthor = "no-author";
 }
 
 /* @ui */
