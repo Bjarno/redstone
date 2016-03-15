@@ -458,6 +458,16 @@ var generate_reacivity = function generate_reacivity(context) {
 			ractive.attributes.src = "js/ractive-0.7.3.js";
 			tree.content.push(ractive);
 
+			// Add Watch.js
+			var watchjs = new Tag("script");
+			watchjs.attributes.src = "js/watch.js";
+			tree.content.push(watchjs);
+
+			// Add Varspy
+			var varspy = new Tag("script");
+			varspy.attributes.src = "js/varspy.js";
+			tree.content.push(varspy);
+
 			// Add generated Javascript
 			var scripttag = new Tag("script");
 			var innerJs = generate_innerjs(context.js);
