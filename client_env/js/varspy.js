@@ -75,7 +75,7 @@ VARSPY.track = function(obj, func, givenKey) {
 	}
 
 	if (startWatch) {
-		watch(obj, watcher, undefined, true);	
+		watch(obj, watcher, Infinity, true);	
 	}
 
 	return key;
