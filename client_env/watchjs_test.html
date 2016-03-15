@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Watch.js Test</title>
+	<meta charset="utf-8">
+	<script type="text/javascript" src="js/watch.js"></script>
+	<script type="text/javascript">
+var obj = {
+	l1a: "bla bla",
+	l1b: {
+		l2a: "lo lo",
+		l2b: "hey hey"
+	}
+};
+
+// TODO: In Redstone tool/Tiersplit: on assignment
+// Before assignment: unwatch the old value
+// After assignment: watch the new value
+// watcher function should have knowledge about the element in Ractive that should be updated.
+
+watch(obj, function (prop, action, difference, oldvalue) {
+	// Action can be:
+	// 	- For arrays: pop, shift, push, unshift, splice
+	// 	- For objects: set, differentattr (new/removed attributes)
+	// this : new value (after setting)
+	console.log("prop: "+prop+"\n action: "+action+"\n difference: "+JSON.stringify(difference)+"\n old: "+JSON.stringify(oldvalue));
+	console.log(this);
+}, undefined, true);
+// watch(object, watcher, depth, check4new)
+
+setTimeout(function() {
+	console.log("Running...");
+	obj.l1b.l2c = "new attr"; //it is not instantaneous, you may wait 50 miliseconds (1)
+	obj.l1a = "aaaa"; // (2)
+	obj.l22 = "2222"; // (3)
+
+	setTimeout(function(){
+		obj.l1b.l2c = "other value"; // (4)
+	}, 1000);
+}, 1000);
+
+
+</script>
+</head>
+<body>
+
+</body>
+</html>
