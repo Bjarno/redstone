@@ -4,6 +4,8 @@
 
 var debug = true;
 
+var VARSPY = {};
+
 var watcher = function(prop, action, difference, oldvalue) {
 	// Call listeners
 	var fullnewvalue = this;
@@ -32,7 +34,6 @@ var watcher = function(prop, action, difference, oldvalue) {
 	}
 }
 
-var VARSPY = {};
 VARSPY.track = function(obj, func, givenKey) {
 	var startWatch = false;
 	var key, idx;
