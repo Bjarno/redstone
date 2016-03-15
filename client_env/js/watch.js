@@ -645,6 +645,15 @@
         }        
     }
 
+    var levelMinMin = function(a) {
+        // undefined - 1 === NaN, which gives trouble
+        if (a === undefined) {
+            return a;
+        }
+
+        return a - 1;
+    }
+
     var loop = function(){
 
         // check for new or deleted props
@@ -658,7 +667,7 @@
 
                 if(difference.added.length || difference.removed.length){
                     if(difference.added.length){
-                        watchMany(subj.obj, difference.added, subj.watcher, subj.level - 1, true);
+                        watchMany(subj.obj, difference.added, subj.watcher, levelMinMin(subj.level), true);
                     }
 
                     subj.watcher.call(subj.obj, "root", "differentattr", difference, subj.actual);
@@ -673,7 +682,7 @@
                 if(difference.added.length || difference.removed.length){
                     if(difference.added.length){
                         for (var j=0; j<subj.obj.watchers[subj.prop].length; j++) {
-                            watchMany(subj.obj[subj.prop], difference.added, subj.obj.watchers[subj.prop][j], subj.level - 1, true);
+                            watchMany(subj.obj[subj.prop], difference.added, subj.obj.watchers[subj.prop][j], levelMinMin(subj.level), true);
                         }
                     }
 

@@ -4,42 +4,43 @@
 	<title>Watch.js Test</title>
 	<meta charset="utf-8">
 	<script type="text/javascript" src="js/watch.js"></script>
+	<script type="text/javascript" src="js/varspy.js"></script>
 	<script type="text/javascript">
-var obj = {
-	l1a: "bla bla",
-	l1b: {
-		l2a: "lo lo",
-		l2b: "hey hey"
-	}
+
+var obj1 = {
+	foo: 123
 };
 
-// TODO: In Redstone tool/Tiersplit: on assignment
-// Before assignment: unwatch the old value
-// After assignment: watch the new value
-// watcher function should have knowledge about the element in Ractive that should be updated.
+var obj2 = {
+	bar: 987
+};
 
-watch(obj, function (prop, action, difference, oldvalue) {
-	// Action can be:
-	// 	- For arrays: pop, shift, push, unshift, splice
-	// 	- For objects: set, differentattr (new/removed attributes)
-	// this : new value (after setting)
-	console.log("prop: "+prop+"\n action: "+action+"\n difference: "+JSON.stringify(difference)+"\n old: "+JSON.stringify(oldvalue));
-	console.log(this);
-}, undefined, true);
-// watch(object, watcher, depth, check4new)
+function makeId(length) {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    if (length === undefined) {
+    	length = 32;
+    }
 
-setTimeout(function() {
-	console.log("Running...");
-	obj.l1b.l2c = "new attr"; //it is not instantaneous, you may wait 50 miliseconds (1)
-	obj.l1a = "aaaa"; // (2)
-	obj.l22 = "2222"; // (3)
+    for(var i=0; i < length; i++) {
+    	text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
 
-	setTimeout(function(){
-		obj.l1b.l2c = "other value"; // (4)
-	}, 1000);
-}, 1000);
+    return text;
+}
 
+var listener1 = function(prop, action, difference, oldvalue, fullnewvalue) {
+	console.log("1:");
+	console.log(fullnewvalue);
+};
 
+var listener2 = function(prop, action, difference, oldvalue, fullnewvalue) {
+	console.log("2:");
+	console.log(fullnewvalue);
+}
+
+// watch(obj1, watcher, undefined, true);
+// watch(obj2, watcher, undefined, true);
 </script>
 </head>
 <body>
