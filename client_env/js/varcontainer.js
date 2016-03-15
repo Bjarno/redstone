@@ -101,9 +101,27 @@ VARC.undo = undo_varcontainer;
 Limitation: fails on... (not a big deal?)
 
 var a = {foo: 123};
-var b = VARC.make({bar: a}); // <-- Call of VARC.make() happens in Redstone tool
+var b = VARC.make({bar: a}); // <-- Call of VARC.make() happens in Redstone tool. In Client code, this is written: var b = {bar: a};
 a.foo = 999;
 
 Works fine if last line is...
 b.bar.foo = 999;
+
+// Alternative (however, only supported in Firefox): Object.watch (but requires knowing which properties are changed, what with arrays?)
+// Other alternative: https://github.com/melanke/Watch.JS
+
+//defining our object no matter which way we want
+var ex = {
+    l1a: "bla bla",
+    l1b: {
+        l2a: "lo lo",
+        l2b: "hey hey"        
+    }
+};
+
+watch(ex, function (prop, action, difference, oldvalue){
+
+    alert("prop: "+prop+"\n action: "+action+"\n difference: "+JSON.stringify(difference)+"\n old: "+JSON.stringify(oldvalue)+"\n ... and the context: "+JSON.stringify(this));    
+
+}, 0, true);
 */
