@@ -463,10 +463,10 @@ var generate_reacivity = function generate_reacivity(context) {
 			watchjs.attributes.src = "js/watch.js";
 			tree.content.push(watchjs);
 
-			// Add Varspy
-			var varspy = new Tag("script");
-			varspy.attributes.src = "js/varspy.js";
-			tree.content.push(varspy);
+			// Add Objspy
+			var objspy = new Tag("script");
+			objspy.attributes.src = "js/objspy.js";
+			tree.content.push(objspy);
 
 			// Add generated Javascript
 			var scripttag = new Tag("script");

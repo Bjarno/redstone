@@ -4,7 +4,7 @@
 
 var debug = true;
 
-var VARSPY = {};
+var OBJSPY = {};
 
 var watcher = function(prop, action, difference, oldvalue) {
 	// Call listeners
@@ -34,7 +34,7 @@ var watcher = function(prop, action, difference, oldvalue) {
 	}
 }
 
-VARSPY.track = function(obj, func, givenKey) {
+OBJSPY.track = function(obj, func, givenKey) {
 	var startWatch = false;
 	var key, idx;
 
@@ -82,7 +82,7 @@ VARSPY.track = function(obj, func, givenKey) {
 	return key;
 };
 
-VARSPY.untrack = function(obj, key) {
+OBJSPY.untrack = function(obj, key) {
 	var idx = -1;
 	obj.__varspy__.listeners.forEach(function (keyandlistener, i) {
 		if (keyandlistener.key === key) {
