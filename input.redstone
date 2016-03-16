@@ -56,20 +56,4 @@ body
 	textarea#msg
 	button[@click=sendmsg]#send Send
 	p.
-		This is a text, if an element ends with a . followed by
-		a newline. Everything below is parsed as text in this tag.
-		It is possible to escape from this by identing another level.
-			span Like this.
-		When the original indent is being used, the prior behaviour
-		is restored. This makes it possible to make some tags
-			b bold
-		or
-			i italic
-		.
-		A . at the start of text is also allowed, and has no special
-		meaning.
-
-	p Mind blow!
-	img http://i.giphy.com/V0IdVIIW1y5d6.gif
-	p.
 		Last message: {{lastmessage}} by {{lastauthor}}.
