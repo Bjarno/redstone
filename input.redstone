@@ -69,4 +69,4 @@ body
 	{{#else}}
 		p Last message doesn't have a smiley face! :(
 	p.
-		Last message: {{last.message}} by {{last.author}}.	}
+		Last message: {{last.message}} by {{last.author}}.
