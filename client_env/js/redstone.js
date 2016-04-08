@@ -1,6 +1,8 @@
 function RUpdateGUI(idname, newvalue) {
 	// TODO: Look up type and update accordingly
-	
+
+	var crumb = CRUMBS[idname];
+
 	var cleanupOldValue = function (oldvalue) {
 		if (typeof oldvalue == 'object') {
 			OBJSPY.untrack(oldvalue, idname);
@@ -9,7 +11,24 @@ function RUpdateGUI(idname, newvalue) {
 
 	var update = function (newvalue) {
 		cleanupOldValue(ractive.get(idname));
-		ractive.set(idname, newvalue);
+
+		var subvalue = undefined;
+
+		switch (crumb.type) {
+			case "Identifier":
+				subvalue = newvalue;
+				break;
+
+			case "MemberExpression":
+				subvalue = newvalue;
+				for (var i = 0; i < crumb.properties.length; i++) {
+					var propname = crumb.properties[i];
+					subvalue = subvalue[propname];
+				}
+				break;
+		}
+
+		ractive.set(idname, subvalue);
 	};
 
 	update(newvalue);
