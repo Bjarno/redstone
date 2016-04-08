@@ -298,13 +298,15 @@ var prepare_dynamic_block = function prepare_dynamic_block(context, dynamic) {
                 prepare_tree(expression, context);
             });
 
-            // TODO: Store crumb for predicate
             var parsedExpression = parse_ast(predicate);
-
-            context.crumbs.push({
+            var crumb = {
                 id: randomId,
                 on_update: parsedExpression
-            });
+            };
+
+            context.crumbs.push(crumb);
+
+            dynamic.crumb = crumb;
             break;
 
         case "foreach":

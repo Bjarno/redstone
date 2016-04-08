@@ -17,6 +17,8 @@
     last.message = "no-message";
     last.author = "no-author";
 
+    var hassmiley = false;
+
     function randomInt(min, max) {
     	return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
@@ -33,8 +35,9 @@
 
     function displayMessage(name, message) {
         log.append(name + " said: " + message + "<br>");
-        last.message = message; // Must be on client (?)
+        last.message = message; // Must be on client (!)
         last.author  = name;
+        hassmiley = (message.indexOf(":)") != -1);
     }
 }
 
@@ -62,7 +65,8 @@ body
 	textarea#msg
 	button[@click=sendmsg]#send Send
 	{{#if hassmiley}}
-		p I have a smiley face!
-		p Second
+		p Last message has a smiley face!
+	{{#else}}
+		p Last message doesn't have a smiley face! :(
 	p.
 		Last message: {{last.message}} by {{last.author}}.	}

@@ -178,7 +178,7 @@ var generate_selfclosing = function generate_selfclosing(context, tag, indent) {
  * @private
  * @returns HTML for the given tag.
  */
-var generate_dynamic = function generate_dynamic(context, dynamic, indent) {
+var generate_dynamic_expression = function generate_dynamic_expression(context, dynamic, indent) {
 	var randomid = dynamic.idName;
 	var expression = dynamic.expression;
 
@@ -191,6 +191,38 @@ var generate_dynamic = function generate_dynamic(context, dynamic, indent) {
 
 	return html;
 };
+
+// TODO: JSDoc
+var generate_dynamic_block = function generate_dynamic_block(context, dynamic, indent) {
+	var randomid = dynamic.idName;
+	var type = dynamic.type;
+	var html = "";
+
+	switch (type) {
+		case "if":
+			html += create_indent(indent) + "{{#if " + randomid + "}}\n";
+			html += generate_list(dynamic.true_branch, context, indent + 1);
+			html += "\n";
+
+			if (dynamic.false_branch.length > 0) {
+				html += create_indent(indent) + "{{else}}\n";
+				html += generate_list(dynamic.false_branch, indent + 1);
+				html += "\n";
+			}
+
+			html += create_indent(indent) + "{{/if}}\n"
+			break;
+
+		case "foreach":
+			throw "NYI";
+			break;
+	}
+
+	console.log("html: ");
+	console.log(html);
+
+	return html;
+}
 
 /**
  * Returns the correct generator, given a tagname.
@@ -227,12 +259,11 @@ var generate_tree = function generate_tree(context, tree, indent) {
 	}
 	
 	if (tree instanceof DynamicExpression) {
-		return generate_dynamic(context, tree, indent);
+		return generate_dynamic_expression(context, tree, indent);
 	}
 	
 	if (tree instanceof DynamicBlock) {
-		// TODO: Generete code
-		return "";
+		return generate_dynamic_block(context, tree, indent);
 	}
 
 	var tag = tree;
@@ -240,6 +271,18 @@ var generate_tree = function generate_tree(context, tree, indent) {
 	var generator = find_generator(tagname);
 	return generator(context, tag, indent);
 };
+
+// TODO: JSDoc
+var generate_list = function generate_list(input, context, indentation) {
+	// Set default value
+	if (indentation === undefined) {
+		indentation = 0;
+	}
+
+	return input.map(function (tree) {
+		return generate_tree(context, tree, indentation);
+	}).join("\n");
+}
 
 /**
  * Generates HTML for given list
@@ -249,9 +292,7 @@ var generate_tree = function generate_tree(context, tree, indent) {
 var generate = function generate(input, context) {
 	var html = "<!DOCTYPE html>\n";
 	html += "<html>\n";
-	html += input.map(function (tree) {
-		return generate_tree(context, tree, 0);
-	}).join("\n");
+	html += generate_list(input, context);
 
 	html += "\n</html>";
 	return html;
