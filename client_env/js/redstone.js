@@ -1,5 +1,4 @@
 function RUpdateGUI(idname, newvalue) {
-
 	var cleanupOldValue = function (oldvalue) {
 		if (typeof oldvalue == 'object') {
 			OBJSPY.untrack(oldvalue, idname);
