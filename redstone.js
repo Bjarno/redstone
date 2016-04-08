@@ -2,6 +2,8 @@ var splitter = require("./redstone-splitter.js");
 var parser = require("./redstone-parser.js");
 var generator = require("./redstone-generator.js");
 var preparer = require("./redstone-preparer.js");
+var applier = require("./redstone-applier.js");
+
 var escodegen = require("escodegen");
 var tiersplit = require("./jspdg/stip/tiersplit.js").tiersplit;
 
@@ -83,7 +85,7 @@ var generate = function generate(input, options) {
 	context.js.push(clientJS);
 
 	// Apply changes, "cached" in context
-	preparer.applyContext(result_parse, context);
+	applier.applyContext(result_parse, context);
 	
 	// Generate the resulting HTML
 	var result_html = generator.generate(result_parse, context);
