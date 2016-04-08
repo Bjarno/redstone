@@ -1,4 +1,5 @@
 var DynamicExpression = require("./redstone-types.js").DynamicExpression;
+var DynamicBlock      = require("./redstone-types.js").DynamicBlock;
 
 var randomstring = require("randomstring");
 
@@ -224,9 +225,16 @@ var generate_tree = function generate_tree(context, tree, indent) {
 	if (typeof tree == "string") {
 		return create_indent(indent) + tree;
 	}
+	
 	if (tree instanceof DynamicExpression) {
 		return generate_dynamic(context, tree, indent);
 	}
+	
+	if (tree instanceof DynamicBlock) {
+		// TODO: Generete code
+		return "";
+	}
+
 	var tag = tree;
 	var tagname = tag.tagname;
 	var generator = find_generator(tagname);

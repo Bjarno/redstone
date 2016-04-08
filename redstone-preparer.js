@@ -1,5 +1,6 @@
-var Tag            = require("./redstone-types.js").Tag;
+var Tag               = require("./redstone-types.js").Tag;
 var DynamicExpression = require("./redstone-types.js").DynamicExpression;
+var DynamicBlock      = require("./redstone-types.js").DynamicBlock;
 
 var randomstring = require("randomstring");
 var esprima = require("esprima");
@@ -282,8 +283,14 @@ var escodegen = require("escodegen");
     if (typeof tree == "string") {
         return;
     }
+    
     if (tree instanceof DynamicExpression) {
         return prepare_dynamic(context, tree);
+    }
+
+    if (tree instanceof DynamicBlock) {
+        // TODO: Parse contents, depending of DynamicBlock contents
+        return;
     }
 
     // Install callbacks
