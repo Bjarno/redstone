@@ -2,7 +2,7 @@
 // Will keep track of a list of watchers (listeners/observers), and cleans up watching
 // when there are no observers left.
 
-var debug = true;
+var debug = false;
 
 var OBJSPY = {};
 
