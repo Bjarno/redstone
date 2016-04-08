@@ -309,7 +309,7 @@ var prepare_dynamic_block = function prepare_dynamic_block(context, dynamic) {
             dynamic.crumb = crumb;
             break;
 
-        case "foreach":
+        case "each":
             throw "NYI";
 
     }

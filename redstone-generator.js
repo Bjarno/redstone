@@ -213,7 +213,7 @@ var generate_dynamic_block = function generate_dynamic_block(context, dynamic, i
 			html += create_indent(indent) + "{{/if}}\n"
 			break;
 
-		case "foreach":
+		case "each":
 			throw "NYI";
 			break;
 	}
