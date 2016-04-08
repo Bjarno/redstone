@@ -252,6 +252,11 @@ var escodegen = require("escodegen");
     context.js.push(js);
 };
 
+// TODO: JSDoc
+var generate_randomrid = function generate_randomrid(context) {
+    return "r" + randomstring.generate(context.random_length);
+}
+
 /**
  * Prepares a dynamic expression.
  * @param {ConverterContext} context The context to use.
@@ -260,7 +265,7 @@ var escodegen = require("escodegen");
  */
  var prepare_dynamic_expression = function prepare_dynamic_expression(context, dynamic) {
     // Prefix with r, as first character can be a number, and r = reactivity.
-    var randomId = "r" + randomstring.generate(context.random_length);
+    var randomId = generate_randomrid(context);
     var expression = dynamic.expression;
     var AST = esprima.parse(expression);
     var parsedExpression = parse_ast(AST);
@@ -276,7 +281,7 @@ var escodegen = require("escodegen");
 // TODO: JSDoc
 var prepare_dynamic_block = function prepare_dynamic_block(context, dynamic) {
     var type = dynamic.type;
-    var randomId = "r" + randomstring.generate(context.random_length);
+    var randomId = generate_randomrid(context);
     dynamic.idName = randomId;
 
     switch (type) {
@@ -294,6 +299,12 @@ var prepare_dynamic_block = function prepare_dynamic_block(context, dynamic) {
             });
 
             // TODO: Store crumb for predicate
+            var parsedExpression = parse_ast(predicate);
+
+            context.crumbs.push({
+                id: randomId,
+                on_update: parsedExpression
+            });
             break;
 
         case "foreach":
