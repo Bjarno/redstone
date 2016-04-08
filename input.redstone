@@ -62,6 +62,6 @@ body
 	textarea#msg
 	button[@click=sendmsg]#send Send
 	{{#if hassmiley}}
-		I have a smiley face!
+		p I have a smiley face!
 	p.
 		Last message: {{last.message}} by {{last.author}}.	}
