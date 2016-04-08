@@ -8,7 +8,14 @@
 
 /* @client */
 {
-    var last = {message: "no-message", author: "no-author"};
+    // Doesn't work:
+    // var last = {message: "no-message", author: "no-author"};
+
+    // Does work
+    var last;
+    last = {};
+    last.message = "no-message";
+    last.author = "no-author";
 
     function randomInt(min, max) {
     	return Math.floor(Math.random() * (max - min + 1)) + min;
