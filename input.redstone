@@ -63,5 +63,6 @@ body
 	button[@click=sendmsg]#send Send
 	{{#if hassmiley}}
 		p I have a smiley face!
+		p Second
 	p.
 		Last message: {{last.message}} by {{last.author}}.	}

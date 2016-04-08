@@ -29,7 +29,7 @@ var escodegen = require("escodegen");
         default:
         throw "Unknown ExpressionStatement type '" + expression.type + "'.";
     }
- };
+};
 
 /**
  * Finds all the variable names in the argument.
@@ -83,22 +83,22 @@ var escodegen = require("escodegen");
     });
 
     return filteredResult;
- };
+};
 
  // TODO: JSDoc
  var parse_memberexpression = function parse_memberexpression(expression) {
     switch (expression.type) {
         case esprima.Syntax.Identifier:
-            var varname = expression.name;
-            return {
-                varname: varname,
-                properties: []
-            }
-            break;
+        var varname = expression.name;
+        return {
+            varname: varname,
+            properties: []
+        }
+        break;
 
         case esprima.Syntax.MemberExpression:
-            var property = expression.property;
-            var object = expression.object;
+        var property = expression.property;
+        var object = expression.object;
 
             // Check type of property (only allow identifiers)
             if (property.type !== esprima.Syntax.Identifier) {
@@ -111,10 +111,10 @@ var escodegen = require("escodegen");
 
             break;
 
-        default:
+            default:
             throw "Only supports identifiers (or nested MemberExpressions) for MemberExpression's object.";
+        }
     }
- }
 
 /**
  * Parses an AST tree of a dynamic expression, and outputs the type, and 
@@ -146,15 +146,15 @@ var escodegen = require("escodegen");
 
     switch (expression.type) {
         case esprima.Syntax.Identifier:
-            var varname = expression.name;
-            return {
-                "type": "Identifier",
-                "varname": varname
-            };
+        var varname = expression.name;
+        return {
+            "type": "Identifier",
+            "varname": varname
+        };
 
         case esprima.Syntax.CallExpression:
-            var callee = expression.callee;
-            var args = expression.arguments;
+        var callee = expression.callee;
+        var args = expression.arguments;
 
             // Get variablenames in arguments
             var varnames = find_varnames_arguments(args);
@@ -163,54 +163,54 @@ var escodegen = require("escodegen");
             
             switch (callee.type) {
                 case esprima.Syntax.Identifier:
-                    return {
-                        "type": "SimpleCallExpression",
-                        "variables": varnames,
-                        "function": callee.name
-                    };
+                return {
+                    "type": "SimpleCallExpression",
+                    "variables": varnames,
+                    "function": callee.name
+                };
 
                 case esprima.Syntax.MemberExpression:
-                    if (callee.computed) {
-                        throw "Unknown what to do when value is computed.";
-                    }
+                if (callee.computed) {
+                    throw "Unknown what to do when value is computed.";
+                }
 
-                    if (callee.object.type !== esprima.Syntax.Identifier) {
-                        throw "Only supports identifiers for MemberExpressions's object.";
-                    }
+                if (callee.object.type !== esprima.Syntax.Identifier) {
+                    throw "Only supports identifiers for MemberExpressions's object.";
+                }
 
-                    if (callee.property.type !== esprima.Syntax.Identifier) {
-                        throw "Only supports identifiers for MemberExpressions's property.";
-                    }
+                if (callee.property.type !== esprima.Syntax.Identifier) {
+                    throw "Only supports identifiers for MemberExpressions's property.";
+                }
 
-                    return {
-                        "type": "MemberCallExpression",
-                        "variables": varnames,
-                        "property": callee.property.name,
-                        "object": callee.object.name
-                    };
+                return {
+                    "type": "MemberCallExpression",
+                    "variables": varnames,
+                    "property": callee.property.name,
+                    "object": callee.object.name
+                };
 
                 default:
-                    throw "Unsupported type of CallExpression.";
+                throw "Unsupported type of CallExpression.";
             }
             break;
 
             case esprima.Syntax.MemberExpression:
-                if (expression.computed) {
-                    throw "Unknown what to do when value is computed.";
-                }
+            if (expression.computed) {
+                throw "Unknown what to do when value is computed.";
+            }
 
-                var a          = parse_memberexpression(expression),
-                    varname    = a.varname,
-                    properties = a.properties;
+            var a          = parse_memberexpression(expression),
+            varname    = a.varname,
+            properties = a.properties;
 
-                return {
-                    "type": "MemberExpression",
-                    "properties": properties,
-                    "varname": varname
-                };
+            return {
+                "type": "MemberExpression",
+                "properties": properties,
+                "varname": varname
+            };
 
             default:
-                throw "Unsupported type of Expression '" + expression.type + "'.";
+            throw "Unsupported type of Expression '" + expression.type + "'.";
         }
     };
 
@@ -229,7 +229,7 @@ var escodegen = require("escodegen");
     id = randomstring.generate(len);
     tag.id = id;
     return id;
- };
+};
 
 /**
  * Generates Javascript code to install an event listener.
@@ -258,7 +258,7 @@ var escodegen = require("escodegen");
  * @param {DynamicExpression} dynamic The segment to generate code for.
  * @private
  */
- var prepare_dynamic = function generate_dynamic(context, dynamic) {
+ var prepare_dynamic_expression = function prepare_dynamic_expression(context, dynamic) {
     // Prefix with r, as first character can be a number, and r = reactivity.
     var randomId = "r" + randomstring.generate(context.random_length);
     var expression = dynamic.expression;
@@ -271,7 +271,36 @@ var escodegen = require("escodegen");
         id: randomId,
         on_update: parsedExpression
     });
- };
+};
+
+// TODO: JSDoc
+var prepare_dynamic_block = function prepare_dynamic_block(context, dynamic) {
+    var type = dynamic.type;
+    var randomId = "r" + randomstring.generate(context.random_length);
+    dynamic.idName = randomId;
+
+    switch (type) {
+        case "if":
+            var predicate = esprima.parse(dynamic.predicate);
+            var true_branch = dynamic.true_branch;
+            var false_branch = dynamic.false_branch;
+
+            true_branch.forEach(function (expression) {
+                prepare_tree(expression, context);
+            });
+
+            false_branch.forEach(function (expression) {
+                prepare_tree(expression, context);
+            });
+
+            // TODO: Store crumb for predicate
+            break;
+
+        case "foreach":
+            throw "NYI";
+
+    }
+}
 
 /**
  * Prepares a tree, looking for dynamic segments and callback installers.
@@ -280,17 +309,18 @@ var escodegen = require("escodegen");
  * @private
  */
  var prepare_tree = function prepare_tree(tree, context) {
-    if (typeof tree == "string") {
+    var jstype = typeof tree;
+
+    if ( (jstype == "string") || (jstype == "boolean") || (jstype == "undefined") ) {
         return;
     }
     
     if (tree instanceof DynamicExpression) {
-        return prepare_dynamic(context, tree);
+        return prepare_dynamic_expression(context, tree);
     }
 
     if (tree instanceof DynamicBlock) {
-        // TODO: Parse contents, depending of DynamicBlock contents
-        return;
+        return prepare_dynamic_block(context, tree);
     }
 
     // Install callbacks
@@ -321,6 +351,6 @@ var escodegen = require("escodegen");
     input.forEach(function(tree) {
         prepare_tree(tree, context);
     });
- };
+};
 
 exports.prepare = prepare;
