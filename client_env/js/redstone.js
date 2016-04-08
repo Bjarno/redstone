@@ -22,6 +22,9 @@ function RUpdateGUI(idname, newvalue) {
 			case "MemberExpression":
 				subvalue = newvalue;
 				for (var i = 0; i < crumb.properties.length; i++) {
+					if (subvalue === undefined) {
+						break; // Stop looking
+					}
 					var propname = crumb.properties[i];
 					subvalue = subvalue[propname];
 				}
