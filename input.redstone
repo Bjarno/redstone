@@ -8,8 +8,7 @@
 
 /* @client */
 {
-    var lastmessage = "no-message";
-    var lastauthor  = "no-author";
+    var last = {message: "no-message", author: "no-author"};
 
     function randomInt(min, max) {
     	return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -27,8 +26,8 @@
 
     function displayMessage(name, message) {
         log.append(name + " said: " + message + "<br>");
-        lastmessage = message; // Must be on client (?)
-        lastauthor  = name;
+        last.message = message; // Must be on client (?)
+        last.author  = name;
     }
 }
 
@@ -56,4 +55,4 @@ body
 	textarea#msg
 	button[@click=sendmsg]#send Send
 	p.
-		Last message: {{lastmessage}} by {{lastauthor}}.
+		Last message: {{last.message}} by {{last.author}}.
