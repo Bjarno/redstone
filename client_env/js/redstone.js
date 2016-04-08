@@ -1,6 +1,4 @@
 function RUpdateGUI(idname, newvalue) {
-	// TODO: Look up type and update accordingly
-
 	var crumb = CRUMBS[idname];
 
 	var cleanupOldValue = function (oldvalue) {
