@@ -84,6 +84,37 @@ var escodegen = require("escodegen");
     return filteredResult;
  };
 
+ // TODO: JSDoc
+ var parse_memberexpression = function parse_memberexpression(expression) {
+    switch (expression.type) {
+        case esprima.Syntax.Identifier:
+            var varname = expression.name;
+            return {
+                varname: varname,
+                properties: []
+            }
+            break;
+
+        case esprima.Syntax.MemberExpression:
+            var property = expression.property;
+            var object = expression.object;
+
+            // Check type of property (only allow identifiers)
+            if (property.type !== esprima.Syntax.Identifier) {
+                throw "Only supports identifiers for MemberExpression's property.";
+            }
+
+            var a = parse_memberexpression(object);
+            a.properties.push(property.name);
+            return a;
+
+            break;
+
+        default:
+            throw "Only supports identifiers (or nested MemberExpressions) for MemberExpression's object.";
+    }
+ }
+
 /**
  * Parses an AST tree of a dynamic expression, and outputs the type, and 
  * information about the arguments (variable names) if it is a method call,
@@ -167,21 +198,14 @@ var escodegen = require("escodegen");
                     throw "Unknown what to do when value is computed.";
                 }
 
-                var object = expression.object;
-                var property = expression.property;
-
-                if (object.type !== esprima.Syntax.Identifier) {
-                    throw "Only supports identifiers for MemberExpression's object.";
-                }
-
-                if (property.type !== esprima.Syntax.Identifier) {
-                    throw "Only supports identifiers for MemberExpression's property.";
-                }
+                var a          = parse_memberexpression(expression),
+                    varname    = a.varname,
+                    properties = a.properties;
 
                 return {
                     "type": "MemberExpression",
-                    "property": property.name,
-                    "varname": object.name
+                    "properties": properties,
+                    "varname": varname
                 };
 
             default:
