@@ -15,7 +15,7 @@ var generate_innerjs = function generate_innerjs(js) {
 }
 
 // TODO: JSDoc
-var generate_reacivity = function generate_reacivity(context) {
+var generate_reactivity = function generate_reactivity(context) {
     var result = {
         "type": "Program",
         "body": [
@@ -211,7 +211,7 @@ var generate_crumbsjs = function generate_crumbsjs(crumbs) {
             tree.content.push(main_template);
 
             var reactivity = new Tag("script");
-            reactivity.content.push("\n" + escodegen.generate(generate_reacivity(context)) + "\n");
+            reactivity.content.push("\n" + escodegen.generate(generate_reactivity(context)) + "\n");
             tree.content.push(reactivity);
         }
     });
