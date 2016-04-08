@@ -79,9 +79,6 @@ var generate = function generate(input, options) {
 	subhead("Server");
 	debugEcho(serverJS);
 
-	// Stop execution here temporary
-	process.exit();
-
 	// Add client code to <head> in result tree
 	context.js.push(clientJS);
 

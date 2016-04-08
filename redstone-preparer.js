@@ -468,6 +468,11 @@ var generate_reacivity = function generate_reacivity(context) {
 			objspy.attributes.src = "js/objspy.js";
 			tree.content.push(objspy);
 
+			// Add own function definitions (redstone.js);
+			var redstoneJS = new Tag("script");
+			redstoneJS.attributes.src = "js/redstone.js";
+			tree.content.push(redstoneJS);
+
 			// Add generated Javascript
 			var scripttag = new Tag("script");
 			var innerJs = generate_innerjs(context.js);
