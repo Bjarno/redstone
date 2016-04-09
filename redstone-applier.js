@@ -22,7 +22,7 @@ var context = {};
  * @param {ConverterContext} newContext The context to use
  * @private
  */
- var set_context = function set_context(newContext) {
+var set_context = function set_context(newContext) {
     context = newContext;
 };
 
@@ -31,7 +31,7 @@ var context = {};
  * @private
  * @returns {String} The final client js code
  */
- var generate_innerjs = function generate_innerjs() {
+var generate_innerjs = function generate_innerjs() {
     var js = context.js.reverse();
     var result = "$(document).ready(function() {\n// --> Begin generated";
 
@@ -49,84 +49,84 @@ var context = {};
  * @private
  * @returns {Object} AST program containing the boot code for the Ractivity container.
  */
- var generate_reactivity = function generate_reactivity() {
+var generate_reactivity = function generate_reactivity() {
     var result = {
         "type": "Program",
         "body": [
-        {
-            "type": "VariableDeclaration",
-            "declarations": [
             {
-                "type": "VariableDeclarator",
-                "id": {
-                    "type": "Identifier",
-                    "name": "ractive"
-                },
-                "init": {
-                    "type": "NewExpression",
-                    "callee": {
-                        "type": "Identifier",
-                        "name": "Ractive"
-                    },
-                    "arguments": [
+                "type": "VariableDeclaration",
+                "declarations": [
                     {
-                        "type": "ObjectExpression",
-                        "properties": [
-                        {
-                            "type": "Property",
-                            "key": {
-                                "type": "Identifier",
-                                "name": "el"
-                            },
-                            "computed": false,
-                            "value": {
-                                "type": "Literal",
-                                "value": "#render-target",
-                                "raw": "'#render-target'"
-                            },
-                            "kind": "init",
-                            "method": false,
-                            "shorthand": false
+                        "type": "VariableDeclarator",
+                        "id": {
+                            "type": "Identifier",
+                            "name": "ractive"
                         },
-                        {
-                            "type": "Property",
-                            "key": {
+                        "init": {
+                            "type": "NewExpression",
+                            "callee": {
                                 "type": "Identifier",
-                                "name": "template"
+                                "name": "Ractive"
                             },
-                            "computed": false,
-                            "value": {
-                                "type": "Literal",
-                                "value": "#main-template",
-                                "raw": "'#main-template'"
-                            },
-                            "kind": "init",
-                            "method": false,
-                            "shorthand": false
-                        },
-                        {
-                            "type": "Property",
-                            "key": {
-                                "type": "Identifier",
-                                "name": "data"
-                            },
-                            "computed": false,
-                            "value": {
-                                "type": "ObjectExpression",
-                                "properties": []
-                            },
-                            "kind": "init",
-                            "method": false,
-                            "shorthand": false
+                            "arguments": [
+                                {
+                                    "type": "ObjectExpression",
+                                    "properties": [
+                                        {
+                                            "type": "Property",
+                                            "key": {
+                                                "type": "Identifier",
+                                                "name": "el"
+                                            },
+                                            "computed": false,
+                                            "value": {
+                                                "type": "Literal",
+                                                "value": "#render-target",
+                                                "raw": "'#render-target'"
+                                            },
+                                            "kind": "init",
+                                            "method": false,
+                                            "shorthand": false
+                                        },
+                                        {
+                                            "type": "Property",
+                                            "key": {
+                                                "type": "Identifier",
+                                                "name": "template"
+                                            },
+                                            "computed": false,
+                                            "value": {
+                                                "type": "Literal",
+                                                "value": "#main-template",
+                                                "raw": "'#main-template'"
+                                            },
+                                            "kind": "init",
+                                            "method": false,
+                                            "shorthand": false
+                                        },
+                                        {
+                                            "type": "Property",
+                                            "key": {
+                                                "type": "Identifier",
+                                                "name": "data"
+                                            },
+                                            "computed": false,
+                                            "value": {
+                                                "type": "ObjectExpression",
+                                                "properties": []
+                                            },
+                                            "kind": "init",
+                                            "method": false,
+                                            "shorthand": false
+                                        }
+                                    ]
+                                }
+                            ]
                         }
-                        ]
                     }
-                    ]
-                }
+                ],
+                "kind": "var"
             }
-            ],
-            "kind": "var"
-        }
         ],
         "sourceType": "script"
     };
@@ -166,7 +166,7 @@ var context = {};
  * @private
  * @returns {Object} Object containing mapping from idNames of crumbs to their on_update information
  */
- var optimize_crumbs = function optimize_crumbs(crumbs) {
+var optimize_crumbs = function optimize_crumbs(crumbs) {
     var newobj = {};
 
     crumbs.forEach(function (crumb) {
@@ -182,7 +182,7 @@ var context = {};
  * @private
  * @returns {String} Javascript code so the client can read information about crumbs.
  */
- var generate_crumbsjs = function generate_crumbsjs() {
+var generate_crumbsjs = function generate_crumbsjs() {
     var crumbs = optimize_crumbs(context.crumbs);
     var result = "";
     var json = JSON.stringify(crumbs);
@@ -195,7 +195,7 @@ var context = {};
  * @param {Array} input Array of HTML trees.
  * @param {ConverterContext} newContext The context to use.
  */
- var applyContext = function applyContext(input, newContext) {
+var applyContext = function applyContext(input, newContext) {
     set_context(newContext);
 
     // Find specific elements in the tree
@@ -256,7 +256,7 @@ var context = {};
         if (tree.tagname === "body") {
             var temp = tree.content;
             tree.content = [];
-            
+
             var render_target = new Tag("div");
             render_target.id = "render-target";
             tree.content.push(render_target);

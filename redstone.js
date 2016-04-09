@@ -44,10 +44,10 @@ var generate = function generate(input) {
 	var chunks = splitter.split(input);
 	var ui       = chunks.ui.join("\n");
 	var js       = chunks.unknown + "\n" +
-	               "/* @client */" + chunks.client.join("\n") + "\n" +
-	               "/* @server */" + chunks.server.join("\n"),
-	    css      = (chunks.hasOwnProperty("css") ? chunks.css.join("\n") : false),
-	    settings = (chunks.hasOwnProperty("settings") ? chunks.settings : {});
+			"/* @client */" + chunks.client.join("\n") + "\n" +
+			"/* @server */" + chunks.server.join("\n"),
+		css      = (chunks.hasOwnProperty("css") ? chunks.css.join("\n") : false),
+		settings = (chunks.hasOwnProperty("settings") ? chunks.settings : {});
 
 	head("Raw chunks");
 	dump(chunks);
@@ -97,7 +97,7 @@ var generate = function generate(input) {
 
 	// Apply changes, "cached" in context
 	applier.applyContext(result_parse, context);
-	
+
 	// Generate the resulting HTML
 	var result_html = generator.generate(result_parse, context);
 

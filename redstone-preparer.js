@@ -50,27 +50,27 @@ var is_in_each = function is_in_each() {
 };
 
 /**
- * Recursively finds all the variable names in the given expression for 
+ * Recursively finds all the variable names in the given expression for
  * a function's arguments.
  * @param {Expression} expression The expression to look for variable names for.
  * @private
  * @returns {Array} List of variable names in this expression.
  */
- var find_varnames_expression = function find_varnames_expression(expression) {
+var find_varnames_expression = function find_varnames_expression(expression) {
     switch (expression.type) {
         case esprima.Syntax.Literal:
-        return [];
+            return [];
 
         case esprima.Syntax.BinaryExpression:
-        var result = find_varnames_expression(expression.left);
-        result = result.concat(find_varnames_expression(expression.right));
-        return result;
+            var result = find_varnames_expression(expression.left);
+            result = result.concat(find_varnames_expression(expression.right));
+            return result;
 
         case esprima.Syntax.Identifier:
-        return [expression.name];
+            return [expression.name];
 
         default:
-        throw "Unknown ExpressionStatement type '" + expression.type + "'.";
+            throw "Unknown ExpressionStatement type '" + expression.type + "'.";
     }
 };
 
@@ -80,7 +80,7 @@ var is_in_each = function is_in_each() {
  * @private
  * @returns {Array} List of variable names in the argument.
  */
- var find_varnames_argument = function find_varnames_argument(argument) {
+var find_varnames_argument = function find_varnames_argument(argument) {
     // Note about arguments:
     // Args can only be identifiers, literals or combination using
     // BinaryExpressions.
@@ -89,17 +89,17 @@ var is_in_each = function is_in_each() {
 
     switch (type) {
         case esprima.Syntax.Literal:
-        return [];
+            return [];
 
         case esprima.Syntax.Identifier:
-        return [argument.name];
+            return [argument.name];
 
         case esprima.Syntax.ExpressionStatement:
-        var expression = argument.expression;
-        return find_varnames_expression(expression);
+            var expression = argument.expression;
+            return find_varnames_expression(expression);
 
         default:
-        throw "Unknown type " + type + " of statement as argument.";
+            throw "Unknown type " + type + " of statement as argument.";
     }
 };
 
@@ -110,7 +110,7 @@ var is_in_each = function is_in_each() {
  * @private
  * @returns {Array} List of variable names as Strings.
  */
- var find_varnames_arguments = function find_varnames_arguments(args) {
+var find_varnames_arguments = function find_varnames_arguments(args) {
     var result = [];
 
     var subresult;
@@ -127,12 +127,12 @@ var is_in_each = function is_in_each() {
 
 /**
  * Parses a MemberExpression to find the hierarchy of properties.
- * @param {MemberExpression} expression The expression to find the combination of the variable name (most-left) and the property hierarchy that is 
+ * @param {MemberExpression} expression The expression to find the combination of the variable name (most-left) and the property hierarchy that is
  * requested from the MemberExpression.
  * @private
  * @returns {Object} containing the variable name (key: varname) and the ordered hierarchy of accessed properties (key: properties)
  */
- var parse_memberexpression = function parse_memberexpression(expression) {
+var parse_memberexpression = function parse_memberexpression(expression) {
     switch (expression.type) {
         case esprima.Syntax.Identifier:
             var varname = expression.name;
@@ -155,13 +155,13 @@ var is_in_each = function is_in_each() {
             a.properties.push(property.name);
             return a;
 
-            default:
-                throw "Only supports identifiers (or nested MemberExpressions) for MemberExpression's object.";
+        default:
+            throw "Only supports identifiers (or nested MemberExpressions) for MemberExpression's object.";
     }
 };
 
 /**
- * Parses an AST tree of a dynamic expression, and outputs the type, and 
+ * Parses an AST tree of a dynamic expression, and outputs the type, and
  * information about the arguments (variable names) if it is a method call,
  * or how to treat the object (simple identifier, or a member expression).
  * @param {AST} AST The AST tree of a dynamic expression.
@@ -170,7 +170,7 @@ var is_in_each = function is_in_each() {
  * depending on the type, more information about the variable names of the
  * arguments if it is a method call.
  */
- var parse_ast = function parse_ast(AST) {
+var parse_ast = function parse_ast(AST) {
     if (AST.type !== esprima.Syntax.Program) {
         throw "AST should start with Program";
     }
@@ -203,7 +203,7 @@ var is_in_each = function is_in_each() {
             var varnames = find_varnames_arguments(args);
 
             // Check if format is obj.func(args) or func(args)
-            
+
             switch (callee.type) {
                 case esprima.Syntax.Identifier:
                     return {
@@ -243,8 +243,8 @@ var is_in_each = function is_in_each() {
             }
 
             var a          = parse_memberexpression(expression),
-            varname    = a.varname,
-            properties = a.properties;
+                varname    = a.varname,
+                properties = a.properties;
 
             return {
                 "type": "MemberExpression",
@@ -262,7 +262,7 @@ var is_in_each = function is_in_each() {
  * @param {Tag} tag The tag to find (or generate) an id for.
  * @returns {String} The id of the tag
  */
- var get_id = function get_id(tag) {
+var get_id = function get_id(tag) {
     var id = tag.id;
     if (typeof id === "string") {
         return id;
@@ -282,7 +282,7 @@ var is_in_each = function is_in_each() {
  * @param {String} callback Name of the global callback function.
  * @private
  */
- var generate_js_callback = function generate_js_callback(tag, ev, callback) {
+var generate_js_callback = function generate_js_callback(tag, ev, callback) {
     if (tag.tagname === "html") {
         throw "NYI";
     }
@@ -308,7 +308,7 @@ var generate_randomRId = function generate_randomRId() {
  * @param {DynamicExpression} dynamic The segment to prepare code for.
  * @private
  */
- var prepare_dynamic_expression = function prepare_dynamic_expression(dynamic) {
+var prepare_dynamic_expression = function prepare_dynamic_expression(dynamic) {
     // Only do something when not in {{#each}}
 
     if (!is_in_each()) {
@@ -392,13 +392,13 @@ var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
  * @param {Tag} tree The tree to handle.
  * @private
  */
- var prepare_tree = function prepare_tree(tree) {
+var prepare_tree = function prepare_tree(tree) {
     var jstype = typeof tree;
 
     if ( (jstype == "string") || (jstype == "boolean") || (jstype == "undefined") ) {
         return;
     }
-    
+
     if (tree instanceof DynamicExpression) {
         return prepare_dynamic_expression(tree);
     }
@@ -431,9 +431,9 @@ var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
  * @param {Array} input Array of HTML trees.
  * @param {ConverterContext} newcontext The context to use.
  */
- var prepare = function prepare(input, newcontext) {
+var prepare = function prepare(input, newcontext) {
     set_context(newcontext);
-    
+
     input.forEach(function(tree) {
         prepare_tree(tree);
     });

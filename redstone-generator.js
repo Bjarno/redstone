@@ -24,7 +24,7 @@ var context = {};
  * @param {ConverterContext} newContext The context to use
  * @private
  */
- var set_context = function set_context(newContext) {
+var set_context = function set_context(newContext) {
     context = newContext;
 };
 
@@ -34,7 +34,7 @@ var context = {};
  * @param {String} [str] The string to use for indentation (default: "\t")
  * @private
  */
- var create_indent = function create_indent(indentation, str) {
+var create_indent = function create_indent(indentation, str) {
     if (str === undefined) {
         str = "\t";
     }
@@ -46,7 +46,7 @@ var context = {};
  * @param {Array} content The contents of a higher tag.
  * @param {Number} indent The indentation level to use.
  */
- var generate_innerHTML = function generate_innerHTML(content, indent) {
+var generate_innerHTML = function generate_innerHTML(content, indent) {
     if (content.length > 0) {
         var first = content[0];
         // If onlye size 1, and type is text: do not use newlines.
@@ -68,7 +68,7 @@ var context = {};
  * @param {Tag} tag The tag to get id, classes and attributes for.
  * @returns {String} String containing the soras definitions in HTML.
  */
- var generate_soras = function generate_soras(tag) {
+var generate_soras = function generate_soras(tag) {
     var resultHTML = "";
 
     // Add attributes
@@ -103,7 +103,7 @@ var context = {};
  * @param {Boolean} [selfclosing] Whether this tag is a self-closing tag.
  * @returns {String} String containing the opening tag for the given tag.
  */
- var generate_opentag = function generate_opentag(tag, selfclosing) {
+var generate_opentag = function generate_opentag(tag, selfclosing) {
     var tagname = tag.tagname;
 
     var resultHTML = "<" + tagname + generate_soras(tag);
@@ -120,7 +120,7 @@ var context = {};
  * @param {Tag} tag The tag to get id, classes and attributes for.
  * @returns {String} String containing the closing tag for the given tag.
  */
- var generate_closetag = function generate_closetag(tag) {
+var generate_closetag = function generate_closetag(tag) {
     var tagname = tag.tagname;
 
     return "</" + tagname + ">";
@@ -132,19 +132,19 @@ var context = {};
  * @param {Tag} tag The tag to preprocess.
  * @private
  */
- var preprocess_tag = function preprocess_tag(tag) {
+var preprocess_tag = function preprocess_tag(tag) {
     var tagname = tag.tagname;
 
     switch (tagname) {
         case "img":
         case "iframe":
-        if (tag.content.length == 1) {
-            if (tag.attributes.hasOwnProperty("src")) {
-                throw "src attribute already given";
+            if (tag.content.length == 1) {
+                if (tag.attributes.hasOwnProperty("src")) {
+                    throw "src attribute already given";
+                }
+                tag.attributes.src = tag.content[0];
             }
-            tag.attributes.src = tag.content[0];
-        }
-        break;
+            break;
     }
 };
 
@@ -156,7 +156,7 @@ var context = {};
  * @private
  * @returns HTML for the given tag.
  */
- var generate_generic = function generate_generic(tag, indent) {
+var generate_generic = function generate_generic(tag, indent) {
     preprocess_tag(tag);
 
     var content = tag.content;
@@ -182,7 +182,7 @@ var context = {};
  * @private
  * @returns HTML for the given tag.
  */
- var generate_selfclosing = function generate_selfclosing(tag, indentation) {
+var generate_selfclosing = function generate_selfclosing(tag, indentation) {
     preprocess_tag(tag);
 
     var resultHTML = create_indent(indentation);
@@ -197,7 +197,7 @@ var context = {};
  * @private
  * @returns HTML for the given tag.
  */
- var generate_dynamic_expression = function generate_dynamic_expression(dynamic, indentation) {
+var generate_dynamic_expression = function generate_dynamic_expression(dynamic, indentation) {
     var randomid = dynamic.idName;
     var expression = dynamic.expression;
     var html = create_indent(indentation);
@@ -218,7 +218,7 @@ var context = {};
  * @private
  * @returns HTML for the given tag.
  */
- var generate_dynamic_block_if = function generate_dynamic_block_if(dynamic, indent) {
+var generate_dynamic_block_if = function generate_dynamic_block_if(dynamic, indent) {
     var randomid = dynamic.idName;
     var html = "";
 
@@ -244,7 +244,7 @@ var context = {};
  * @private
  * @returns HTML for the given tag.
  */
- var generate_dynamic_block_each = function generate_dynamic_block_each(dynamic, indent) {
+var generate_dynamic_block_each = function generate_dynamic_block_each(dynamic, indent) {
     var randomid = dynamic.idName;
     var html = "";
 
@@ -262,17 +262,17 @@ var context = {};
  * @private
  * @returns HTML for the given tag.
  */
- var generate_dynamic_block = function generate_dynamic_block(dynamic, indent) {
+var generate_dynamic_block = function generate_dynamic_block(dynamic, indent) {
     var type = dynamic.type;
     switch (type) {
         case "if":
-        return generate_dynamic_block_if(dynamic, indent);
+            return generate_dynamic_block_if(dynamic, indent);
 
         case "each":
-        return generate_dynamic_block_each(dynamic, indent);
+            return generate_dynamic_block_each(dynamic, indent);
 
         default:
-        throw "Unknown type of dynamic block: '" + type + "'."
+            throw "Unknown type of dynamic block: '" + type + "'."
     }
 };
 
@@ -281,7 +281,7 @@ var context = {};
  * @param {String} tagname The tagname to find a generator for.
  * @private
  */
- var find_generator = function find_generator(tagname) {
+var find_generator = function find_generator(tagname) {
     switch (tagname) {
         case "img":
         case "br":
@@ -290,10 +290,10 @@ var context = {};
         case "link":
         case "embed":
         case "meta":
-        return generate_selfclosing
-        ;
+            return generate_selfclosing
+                ;
         default:
-        return generate_generic;
+            return generate_generic;
     }
 };
 
@@ -305,7 +305,7 @@ var context = {};
  * @private
  * @returns HTML for the entire tree.
  */
- var generate_tree = function generate_tree(tree, indent) {
+var generate_tree = function generate_tree(tree, indent) {
     if (typeof tree == "string") {
         return create_indent(indent) + tree;
     }
@@ -331,7 +331,7 @@ var context = {};
  * @private
  * @returns HTML for the given array.
  */
- var generate_list = function generate_list(input, indentation) {
+var generate_list = function generate_list(input, indentation) {
     // Set default value
     if (indentation === undefined) {
         indentation = 0;
@@ -348,7 +348,7 @@ var context = {};
  * @param {ConverterContext} newContext The context to use
  * @returns HTML code for the given tree.
  */
- var generate = function generate(input, newContext) {
+var generate = function generate(input, newContext) {
     set_context(newContext);
 
     var html = "<!DOCTYPE html>\n";

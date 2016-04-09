@@ -28,7 +28,7 @@ var lines = [];
  * @param {Array} newlines Array containing the lines to parse
  * @private
  */
- var set_lines = function set_lines(newlines) {
+var set_lines = function set_lines(newlines) {
     lines = newlines;
 };
 
@@ -39,7 +39,7 @@ var lines = [];
  * @returns {Object} The indentation level (key: indentation) and the remaning
  * contents (key: data).
  */
- var parse_line_indentation = function parse_line_indentation(line) {
+var parse_line_indentation = function parse_line_indentation(line) {
     var level = 0;
     var length = line.length;
     var data = "";
@@ -66,7 +66,7 @@ var lines = [];
  * content (key: content), and whether the next blocks are text or not
  * (key: next_type).
  */
- var parse_tagline = function parse_tagline(data) {
+var parse_tagline = function parse_tagline(data) {
     var n = data.indexOf(" ");
     var newdata = "";
 
@@ -115,8 +115,8 @@ var lines = [];
  * @param {String} str The string to check whether it is a letter.
  * @returns {Boolean} Whether the given string is a letter.
  */
- var isLetter = function isLetter(str) {
-  return str.length === 1 && str.match(/[a-z]/i);
+var isLetter = function isLetter(str) {
+    return str.length === 1 && str.match(/[a-z]/i);
 };
 
 /**
@@ -125,8 +125,8 @@ var lines = [];
  * @param {String} str The string to check whether it is a number.
  * @returns {Boolean} Whether the given string is a number.
  */
- var isNumber = function isNumber(str) {
-  return (str.length === 1) && str.match(/[0-9]/);
+var isNumber = function isNumber(str) {
+    return (str.length === 1) && str.match(/[0-9]/);
 };
 
 /**
@@ -189,7 +189,7 @@ var parse_tagdata_attribute = function parse_tagdata_attribute(data, idx) {
  * @param {String} data The string to tokenize.
  * @returns {Array} List of all the tokens that were found in this string.
  */
- var parse_tagdata_to_tokens = function parse_tagdata_to_tokens(data) {
+var parse_tagdata_to_tokens = function parse_tagdata_to_tokens(data) {
     var result = [];
     var buffer = "";
 
@@ -231,13 +231,13 @@ var parse_tagdata_attribute = function parse_tagdata_attribute(data, idx) {
 };
 
 /**
- * Parses a tag definition (both the sora definitions, and the tagname), 
+ * Parses a tag definition (both the sora definitions, and the tagname),
  * and creates a new Tag (with empty contents).
  * @param {String} data The tag definition.
  * @private
  * @returns {Tag} The tag with id, classes and attributes filled in.
  */
- var parse_tagdata = function parse_tagdata(data) {
+var parse_tagdata = function parse_tagdata(data) {
     var tokens = parse_tagdata_to_tokens(data);
 
     if (tokens[0].type !== "string") {
@@ -273,23 +273,23 @@ var parse_tagdata_attribute = function parse_tagdata_attribute(data, idx) {
 
                 switch (sepchar) {
                     case ".":
-                    classes.push(nexttoken.data);
-                    break;
+                        classes.push(nexttoken.data);
+                        break;
 
                     case "#":
-                    if (id !== null) {
-                        throw "double id given";
-                    }
-                    id = nexttoken.data;
-                    break;
+                        if (id !== null) {
+                            throw "double id given";
+                        }
+                        id = nexttoken.data;
+                        break;
 
                     default:
-                    throw "Unknown seperator type.";
+                        throw "Unknown seperator type.";
                 }
 
                 // Extra fast-forward, as we are parsing 2 tokens here
                 idx++;
-            break;
+                break;
 
             case "attributevalue":
                 if (attributes.hasOwnProperty(token.name)) {
@@ -313,7 +313,7 @@ var parse_tagdata_attribute = function parse_tagdata_attribute(data, idx) {
  * @private
  * @return {Array} Array, alternating between text and DynamidSegments.
  */
- var parse_text = function parse_text(input) {
+var parse_text = function parse_text(input) {
     var n_open = input.indexOf("{{");
     if (n_open == -1) {
         return [input];
@@ -336,7 +336,7 @@ var parse_tagdata_attribute = function parse_tagdata_attribute(data, idx) {
  * @param {String} content The raw contents.
  * @private
  */
- var add_text_content_to_tag = function add_text_content_to_tag(tag, content) {
+var add_text_content_to_tag = function add_text_content_to_tag(tag, content) {
     var parsed_text = parse_text(content);
     // Do not use concat, as it creates a new array.
     parsed_text.forEach(function (segment) {
@@ -354,7 +354,7 @@ var parse_tagdata_attribute = function parse_tagdata_attribute(data, idx) {
  * @returns {Object} Object with the next index to use for parsing the next
  * block (key: next_idx), and the final tag.
  */
- var parse_subblocks = function parse_subblocks(tag, idx, indentation) {
+var parse_subblocks = function parse_subblocks(tag, idx, indentation) {
     var next_idx = idx;
     var has_next = (next_idx < lines.length);
 
@@ -387,10 +387,10 @@ var parse_tagdata_attribute = function parse_tagdata_attribute(data, idx) {
  * @returns {Object} Object with the next index to use for parsing the next
  * block (key: next_idx), and the final tag.
  */
- var parse_textblocks = function parse_textblocks(tag, idx, indentation) {
+var parse_textblocks = function parse_textblocks(tag, idx, indentation) {
     var next_idx = idx;
     var has_next = (next_idx < lines.length);
-    
+
     // Identation of text blocks: if larger, parse as normal blocks again.
     var cmp_indentation = -1;
     while (has_next) {
@@ -400,24 +400,24 @@ var parse_tagdata_attribute = function parse_tagdata_attribute(data, idx) {
 
         if (next_indentation > indentation) {
             if ( (cmp_indentation === -1) ||
-             (cmp_indentation == next_indentation) ) {
+                (cmp_indentation == next_indentation) ) {
                 add_text_content_to_tag(tag, next.data);
 
-            cmp_indentation = next_indentation;
-            next_idx = idx + 1;
+                cmp_indentation = next_indentation;
+                next_idx = idx + 1;
+            } else {
+                var a = parse_block(idx);
+                next_idx = a.next_idx;
+                tag.content.push(a.result);
+            }
         } else {
-            var a = parse_block(idx);
-            next_idx = a.next_idx;
-            tag.content.push(a.result);
+            break;
         }
-    } else {
-        break;
+
+        has_next = (next_idx < lines.length);
     }
 
-    has_next = (next_idx < lines.length);
-}
-
-return {"next_idx": next_idx, "result": tag};
+    return {"next_idx": next_idx, "result": tag};
 };
 
 /**
@@ -426,7 +426,7 @@ return {"next_idx": next_idx, "result": tag};
  * @param {String} str The string to delete indentation from.
  * @private
  */
- var remove_indent = function remove_indent(indentation, str) {
+var remove_indent = function remove_indent(indentation, str) {
     return str.substring(indentation, str.length);
 };
 
@@ -441,7 +441,7 @@ return {"next_idx": next_idx, "result": tag};
  * @returns {Object} Object with the next index to use for parsing the next
  * block (key: next_idx), and the final tag.
  */
- var parse_extended_textblocks = function parse_extended_textblocks(tag, idx, indentation) {
+var parse_extended_textblocks = function parse_extended_textblocks(tag, idx, indentation) {
     var next_idx = idx;
     var has_next = (next_idx < lines.length);
 
@@ -470,19 +470,19 @@ return {"next_idx": next_idx, "result": tag};
  * @private
  * @param {NextBlockType} type The type.
  */
- var get_method_of_next_type = function get_method_of_next_type(type) {
+var get_method_of_next_type = function get_method_of_next_type(type) {
     switch (type) {
         case NextBlockType.BLOCK:
-        return parse_subblocks;
+            return parse_subblocks;
 
         case NextBlockType.TEXT:
-        return parse_textblocks;
+            return parse_textblocks;
 
         case NextBlockType.EXTENDED_TEXT:
-        return parse_extended_textblocks;
+            return parse_extended_textblocks;
 
         default:
-        throw "Unsupported value.";
+            throw "Unsupported value.";
     }
 };
 
@@ -492,7 +492,7 @@ return {"next_idx": next_idx, "result": tag};
  * @private
  * @returns {Boolean} true if the given string contains a dynamic block definition, false otherwise.
  */
- var is_dynamicblock = function is_dynamicblock(str) {
+var is_dynamicblock = function is_dynamicblock(str) {
     var checkstr = "{{#";
     return (str.indexOf(checkstr) === 0);
 };
@@ -503,7 +503,7 @@ return {"next_idx": next_idx, "result": tag};
  * @private
  * @returns Object containing the keyword (key: keyword) and the arguments (key: rest).
  */
- var parse_dynamicblock_tag = function parse_dynamicblock_tag(data) {
+var parse_dynamicblock_tag = function parse_dynamicblock_tag(data) {
     var rest = data.substring(3, data.length);
     var endStr = rest.substring(rest.length - 2, rest.length);
 
@@ -525,11 +525,11 @@ return {"next_idx": next_idx, "result": tag};
  * @private
  * @returns Object containing the dynamic if block (key: result) and the next index to read (key: next_idx)
  */
- var parse_dynamicblock_if = function parse_dynamicblock_if(indentation, parsed_tag, idx) {
+var parse_dynamicblock_if = function parse_dynamicblock_if(indentation, parsed_tag, idx) {
     var expression = parsed_tag.rest;
     result = new DynamicBlock("if");
     result.predicate = expression;
-    
+
     result.true_branch  = [];
     result.false_branch = [];
 
@@ -547,7 +547,7 @@ return {"next_idx": next_idx, "result": tag};
         // More in current branch
         if (next.indentation > indentation) {
             parsedblock = parse_block(next_idx);
-            
+
             if (at_true_branch) {
                 result.true_branch.push(parsedblock.result)
             } else {
@@ -566,22 +566,22 @@ return {"next_idx": next_idx, "result": tag};
 
 
                     if ( (parsed_next_tag.rest !== "") &&
-                     (parsed_next_tag.rest !== undefined) ) {
+                        (parsed_next_tag.rest !== undefined) ) {
                         throw "else expects no arguments. Found '" + parsed_next_tag.rest + "'";
+                    }
+
+                    var false_branch = parse_block(next_idx + 1);
+                    result.false_branch.push(false_branch.result);
+                    next_idx = false_branch.next_idx;
+
+                    at_true_branch = false;
                 }
-
-                var false_branch = parse_block(next_idx + 1);
-                result.false_branch.push(false_branch.result);
-                next_idx = false_branch.next_idx;
-
-                at_true_branch = false;
+            } else {
+                break;
             }
-        } else {
-            break;
         }
     }
-}
-return {"next_idx": next_idx, "result": result};
+    return {"next_idx": next_idx, "result": result};
 };
 
 /**
@@ -592,7 +592,7 @@ return {"next_idx": next_idx, "result": result};
  * @private
  * @returns Object containing the dynamic each block (key: result) and the next index to read (key: next_idx)
  */
- var parse_dynamicblock_each = function parse_dynamicblock_each(indentation, parsed_tag, idx) {
+var parse_dynamicblock_each = function parse_dynamicblock_each(indentation, parsed_tag, idx) {
     var result = new DynamicBlock("each");
     var expression = parsed_tag.rest;
 
@@ -626,7 +626,7 @@ return {"next_idx": next_idx, "result": result};
  * @private
  * @returns Object containing the dynamic each block (key: result) and the next index to read (key: next_idx)
  */
- var parse_dynamicblock = function parse_dynamicblock(idx) {
+var parse_dynamicblock = function parse_dynamicblock(idx) {
     var current = parse_line_indentation(lines[idx]);
     var indentation = current.indentation;
     var data = current.data;
@@ -635,16 +635,16 @@ return {"next_idx": next_idx, "result": result};
 
     switch (keyword) {
         case "if":
-        return parse_dynamicblock_if(indentation, parsed_tag, idx);
+            return parse_dynamicblock_if(indentation, parsed_tag, idx);
 
         case "else":
-        throw "Standalone else is not allowed.";
+            throw "Standalone else is not allowed.";
 
         case "each":
-        return parse_dynamicblock_each(indentation, parsed_tag, idx);
+            return parse_dynamicblock_each(indentation, parsed_tag, idx);
 
         default:
-        throw "Unknown type of Dynamic Block '" + keyword + "'.";
+            throw "Unknown type of Dynamic Block '" + keyword + "'.";
     }
 };
 
@@ -655,7 +655,7 @@ return {"next_idx": next_idx, "result": result};
  * @returns {Object} Object with the next index to use for parsing the next
  * block (key: next_idx), and the final tag.
  */
- var parse_block = function parse_block(idx) {
+var parse_block = function parse_block(idx) {
     var current = parse_line_indentation(lines[idx]);
     var indentation = current.indentation;
     var lineData = current.data;
@@ -668,7 +668,7 @@ return {"next_idx": next_idx, "result": result};
     var next_type = tagdata.next_type;
     data = tagdata.data;
     var content = tagdata.content;
-    
+
     var tag = parse_tagdata(data);
     var next_idx = idx + 1;
 
@@ -686,7 +686,7 @@ return {"next_idx": next_idx, "result": result};
  * @public
  * @returns {Array} Array containing trees starting at the top level.
  */
- var parse = function parse(input) {
+var parse = function parse(input) {
     var read_lines = input.split("\n");
     set_lines(read_lines);
 
@@ -699,7 +699,7 @@ return {"next_idx": next_idx, "result": result};
     var result = [];
     var idx = 0;
     var has_next = (idx < lines.length);
-    
+
     while (has_next) {
         var blockresult = parse_block(idx);
         result.push(blockresult.result);
