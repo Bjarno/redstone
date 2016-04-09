@@ -61,6 +61,7 @@ var generate = function generate(input) {
 	// Preprocess the settings, by supplying the default values
 	settings = preprocess_settings(settings);
 	var context = new ConverterContext(settings);
+	context.css = css;
 
 	// Parse the tree
 	var result_parse = parser.parse(ui);

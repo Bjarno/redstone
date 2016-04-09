@@ -194,6 +194,13 @@ var generate_crumbsjs = function generate_crumbsjs(crumbs) {
             var innerJs = generate_innerjs(context.js);
             scripttag.content.push(innerJs + "\n");
             tree.content.push(scripttag);
+
+            // Add CSS style (if supplied)
+            if (context.css) {
+                var css = new Tag("style");
+                css.content.push(context.css);
+                tree.content.push(css);
+            }
         }
 
         if (tree.tagname === "body") {
