@@ -551,10 +551,10 @@ var parse_dynamicblock_each = function parse_dynamicblock_each(indentation, pars
     var result = new DynamicBlock("each");
     var expression = parsed_tag.rest;
 
-    var contents = parse_block(lines, idx + 1);
-    var next_idx = contents.next_idx;
+    var body = parse_block(lines, idx + 1);
+    var next_idx = body.next_idx;
 
-    result.contents = contents.result;
+    result.body = body.result;
     result.object = expression;
 
     return {"next_idx": next_idx, "result": result};
