@@ -34,7 +34,12 @@ var preprocess_settings = function preprocess_settings(settings) {
 	return settings;
 };
 
-// TODO: JSDoc
+/**
+ * Runs the redstone tool on the given input
+ * @param {String} input The text input file
+ * @returns {Object} Object containing the client HTML code, server Javascript code and the final context with extra
+ * information.
+ */
 var generate = function generate(input) {
 	// Split input into Redstone, and Javascript
 	var chunks = splitter.split(input);
