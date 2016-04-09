@@ -1,0 +1,53 @@
+/* @server */ 
+{
+	function broadcast(name, message) {
+		console.log(name + " said: " + message);
+		displayMessage(name, message);
+	}
+}
+
+/* @client */
+{
+	function randomInt(min, max) {
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
+	
+	var name = "user" + randomInt(100, 10000),
+		text = $("#msg"),
+		log  = $("#log");
+
+	var messages = [];
+
+	function sendmsg() {
+		var msg = text.val();
+		broadcast(name, msg);
+		text.val("");
+	}
+
+	function displayMessage(name, message) {
+		var m = {}; m.name = name; m.message = message; messages.push(m);
+	}
+}
+
+/* @ui */
+head
+	title Chatting, made simple.
+body
+	div#log
+		{{#each messages}}
+			p {{name}} says: {{message}}
+	textarea#msg
+	button[@click=sendmsg]#send Send
+
+/* @css */
+textarea, #log {
+	display: block;
+	font-family: monospace;
+	width: 85%;
+}
+
+#log {
+	height: 100px;
+	overflow: auto;
+	background-color: white;
+}
