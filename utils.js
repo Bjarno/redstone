@@ -1,5 +1,14 @@
+/***********/
+/* Imports */
+/***********/
+
 var util = require('util');
 var fs = require("fs");
+
+
+/***************/
+/* Definitions */
+/***************/
 
 /**
  * Aid function to return the index of the smallest element of an array,
@@ -7,7 +16,7 @@ var fs = require("fs");
  * @param {array} arr The array to search for the smallest value.
  * @param {any} ignores The value that should be ignored.
  * @private
- * @returns The index of the smallest element in the given array, ignoring
+ * @returns {Number} The index of the smallest element in the given array, ignoring
  * certain values. If the array only contains ignored value, or is empty,
  * it will return -1, as it is an invalid index.
  */
@@ -36,7 +45,7 @@ var array_indexOfSmallest = function array_indexOfSmallest(arr, ignores) {
  */
 var dump = function dump(obj) {
 	console.log(util.inspect(obj, {showHidden: false, depth: null}));
-}
+};
 
 /**
  * Reads a file into a string.
@@ -46,11 +55,14 @@ var dump = function dump(obj) {
  */
 var readFile = function readFile(path) {
 	return fs.readFileSync(path, "utf-8");
-}
+};
 
 var DEBUG = true;
 
-// TODO: JSDoc
+/**
+ * If DEBUG is equals to true, output a title.
+ * @param {String} title The title to display
+ */
 var head = function head(title) {
 	if (!(DEBUG)) { return; }
 
@@ -61,9 +73,12 @@ var head = function head(title) {
 	console.log(" ".repeat((len-title.length)/2) + title);
 	console.log(line);
 	console.log("");
-}
+};
 
-// TODO: JSDoc
+/**
+ * If DEBUG is equals to true, output a subtitle.
+ * @param {String} title The title to display
+ */
 var subhead = function subhead(title) {
 	if (!(DEBUG)) { return; }
 
@@ -74,25 +89,40 @@ var subhead = function subhead(title) {
 	console.log(" ".repeat((len-title.length)/2) + title);
 	console.log(line);
 	console.log("");
-}
+};
 
-// TODO: JSDoc
+/**
+ * If DEBUG is equals to true, output a title.
+ * @param {String} a The text to display
+ */
 var debugEcho = function debugEcho(a) {
 	if (!(DEBUG)) { return; }
 
 	console.log(a);
-}
+};
 
-// TODO: JSDoc
+/**
+ * Sets the debug flag
+ * @param {Boolean} flag The 
+ */
 var set_debug = function set_debug(flag) {
 	DEBUG = flag;
-}
+};
 
-// TODO: JSDoc
+/**
+ * Writes a file with the given string as contents
+ * @param {String} path The location to write
+ * @param {String} content The contents to write in the file
+ */
 var writeFile = function writeFile(path, content) {
 	var callback = function() {};
 	fs.writeFileSync(path, content, 'utf8', callback);
-} 
+};
+
+
+/***********/
+/* Exports */
+/***********/
 
 exports.array_indexOfSmallest = array_indexOfSmallest;
 exports.dump = dump;

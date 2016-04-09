@@ -37,8 +37,8 @@ var preprocess_settings = function preprocess_settings(settings) {
 /**
  * Runs the redstone tool on the given input
  * @param {String} input The text input file
- * @returns {Object} Object containing the client HTML code, server Javascript code and the final context with extra
- * information.
+ * @returns {Object} Object containing the client HTML code (key: client), server Javascript code (key: server) and the
+ * final context with extra information (key: context).
  */
 var generate = function generate(input) {
 	// Split input into Redstone, and Javascript
@@ -109,6 +109,7 @@ var generate = function generate(input) {
 	subhead("Resulting Server code (Node)");
 	debugEcho(serverJS);
 
+	// Return result
 	return {client: result_html, server: serverJS, "context": context};
 };
 
