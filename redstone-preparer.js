@@ -394,7 +394,7 @@ var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
  * Generates crumbs for dynamic content, and generates
  * Javascript for installing callbacks.
  * @param {Array} input Array of HTML trees.
- * @param {ConverterContext} context The context to use.
+ * @param {ConverterContext} newcontext The context to use.
  */
  var prepare = function prepare(input, newcontext) {
     set_context(newcontext);

@@ -1,8 +1,15 @@
 var Tag = require("./redstone-types.js").Tag;
 
+var context = {};
+
 // TODO: JSDoc
-var generate_innerjs = function generate_innerjs(js) {
-    js = js.reverse();
+var set_context = function set_context(newcontext) {
+    context = newcontext;
+}
+
+// TODO: JSDoc
+var generate_innerjs = function generate_innerjs() {
+    var js = context.js.reverse();
     var result = "$(document).ready(function() {\n// --> Begin generated";
 
     js.forEach(function(block) {
@@ -15,7 +22,7 @@ var generate_innerjs = function generate_innerjs(js) {
 }
 
 // TODO: JSDoc
-var generate_reactivity = function generate_reactivity(context) {
+var generate_reactivity = function generate_reactivity() {
     var result = {
         "type": "Program",
         "body": [
@@ -138,8 +145,8 @@ var optimize_crumbs = function optimize_crumbs(crumbs) {
 }
 
 // TODO: JSDoc
-var generate_crumbsjs = function generate_crumbsjs(crumbs) {
-    crumbs = optimize_crumbs(crumbs);
+var generate_crumbsjs = function generate_crumbsjs() {
+    var crumbs = optimize_crumbs(context.crumbs);
     var result = "";
     result += "CRUMBS = " + JSON.stringify(crumbs) + ";";
     return result;
@@ -148,9 +155,11 @@ var generate_crumbsjs = function generate_crumbsjs(crumbs) {
 /**
  * Includes Javascript rules and external libraries into the HTML trees.
  * @param {Array} input Array of HTML trees.
- * @param {ConverterContext} context The context to use.
+ * @param {ConverterContext} newcontext The context to use.
  */
- var applyContext = function applyContext(input, context) {
+ var applyContext = function applyContext(input, newcontext) {
+    set_context(newcontext);
+
     input.forEach(function(tree) {
         if (tree.tagname === "head") {
             // Add jQuery
@@ -185,13 +194,13 @@ var generate_crumbsjs = function generate_crumbsjs(crumbs) {
 
             // Add crumb information
             var crumbs = new Tag("script");
-            var crumbsJs = generate_crumbsjs(context.crumbs);
+            var crumbsJs = generate_crumbsjs();
             crumbs.content.push(crumbsJs + "\n");
             tree.content.push(crumbs);
 
             // Add generated Javascript
             var scripttag = new Tag("script");
-            var innerJs = generate_innerjs(context.js);
+            var innerJs = generate_innerjs();
             scripttag.content.push(innerJs + "\n");
             tree.content.push(scripttag);
 
