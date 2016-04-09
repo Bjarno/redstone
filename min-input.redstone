@@ -47,7 +47,10 @@ textarea, #log {
 }
 
 #log {
-	height: 100px;
+	height: 250px;
 	overflow: auto;
-	background-color: white;
+}
+
+#log p {
+	margin: 2px;
 }
