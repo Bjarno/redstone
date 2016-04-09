@@ -24,8 +24,7 @@
 	}
 	
 	var name = "user" + randomInt(100, 10000),
-		text = $("#msg"),
-		log  = $("#log");
+		text = $("#msg");
 
 	var messages = [];
 
