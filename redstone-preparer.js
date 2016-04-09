@@ -1,3 +1,7 @@
+/***********/
+/* Imports */
+/***********/
+
 var Tag               = require("./redstone-types.js").Tag;
 var DynamicExpression = require("./redstone-types.js").DynamicExpression;
 var DynamicBlock      = require("./redstone-types.js").DynamicBlock;
@@ -6,20 +10,42 @@ var randomstring = require("randomstring");
 var esprima = require("esprima");
 var escodegen = require("escodegen");
 
+
+/**********/
+/* Fields */
+/**********/
+
 var context = {};
 var flag_in_each = false;
 
-// TODO: JSDoc
+
+/***************/
+/* Definitions */
+/***************/
+
+/**
+ * Sets the context to use to get information from.
+ * @param {ConvertorContext} newcontext The context to use
+ * @private
+ */
 var set_context = function set_context(newcontext) {
     context = newcontext;
 }
 
-// TODO: JSDoc
+/**
+ * Sets the flag the preparer is currently descending or not in an {{#each}} block.
+ * @param {Boolean} flag The value of the flag.
+ * @private
+ */
 var set_in_each_flag = function set_in_each_flag(flag) {
     flag_in_each = flag;
 }
 
-// TODO: JSDoc
+/**
+ * Returns the value of the flag that keeps track whether or not we are descending in an {{#each}} block.
+ * @private
+ * @returns {Boolean} Whether or not we are inside an {{#each block}}
+ */
 var is_in_each = function is_in_each() {
     return flag_in_each;
 }
@@ -103,36 +129,40 @@ var is_in_each = function is_in_each() {
     return filteredResult;
 };
 
- // TODO: JSDoc
+/**
+ * Parses a MemberExpression to find the hierarchy of properties.
+ * @param {MemberExpression} expression The expression to find the combination of the variable name (most-left) and the property hierarchy that is 
+ * requested from the MemberExpression.
+ * @private
+ * @returns {Object} containing the variable name (key: varname) and the ordered hierarchy of accessed properties (key: properties)
+ */
  var parse_memberexpression = function parse_memberexpression(expression) {
     switch (expression.type) {
         case esprima.Syntax.Identifier:
-        var varname = expression.name;
-        return {
-            varname: varname,
-            properties: []
-        }
-        break;
+            var varname = expression.name;
+            return {
+                varname: varname,
+                properties: []
+            };
 
         case esprima.Syntax.MemberExpression:
-        var property = expression.property;
-        var object = expression.object;
+            var property = expression.property;
+            var object = expression.object;
 
             // Check type of property (only allow identifiers)
             if (property.type !== esprima.Syntax.Identifier) {
                 throw "Only supports identifiers for MemberExpression's property.";
             }
 
+            // Get the next level, and append/push this property at the end
             var a = parse_memberexpression(object);
             a.properties.push(property.name);
             return a;
 
-            break;
-
             default:
-            throw "Only supports identifiers (or nested MemberExpressions) for MemberExpression's object.";
-        }
+                throw "Only supports identifiers (or nested MemberExpressions) for MemberExpression's object.";
     }
+};
 
 /**
  * Parses an AST tree of a dynamic expression, and outputs the type, and 
@@ -164,15 +194,15 @@ var is_in_each = function is_in_each() {
 
     switch (expression.type) {
         case esprima.Syntax.Identifier:
-        var varname = expression.name;
-        return {
-            "type": "Identifier",
-            "varname": varname
-        };
+            var varname = expression.name;
+            return {
+                "type": "Identifier",
+                "varname": varname
+            };
 
         case esprima.Syntax.CallExpression:
-        var callee = expression.callee;
-        var args = expression.arguments;
+            var callee = expression.callee;
+            var args = expression.arguments;
 
             // Get variablenames in arguments
             var varnames = find_varnames_arguments(args);
@@ -181,38 +211,38 @@ var is_in_each = function is_in_each() {
             
             switch (callee.type) {
                 case esprima.Syntax.Identifier:
-                return {
-                    "type": "SimpleCallExpression",
-                    "variables": varnames,
-                    "function": callee.name
-                };
+                    return {
+                        "type": "SimpleCallExpression",
+                        "variables": varnames,
+                        "function": callee.name
+                    };
 
                 case esprima.Syntax.MemberExpression:
-                if (callee.computed) {
-                    throw "Unknown what to do when value is computed.";
-                }
+                    if (callee.computed) {
+                        throw "Unknown what to do when value is computed.";
+                    }
 
-                if (callee.object.type !== esprima.Syntax.Identifier) {
-                    throw "Only supports identifiers for MemberExpressions's object.";
-                }
+                    if (callee.object.type !== esprima.Syntax.Identifier) {
+                        throw "Only supports identifiers for MemberExpressions's object.";
+                    }
 
-                if (callee.property.type !== esprima.Syntax.Identifier) {
-                    throw "Only supports identifiers for MemberExpressions's property.";
-                }
+                    if (callee.property.type !== esprima.Syntax.Identifier) {
+                        throw "Only supports identifiers for MemberExpressions's property.";
+                    }
 
-                return {
-                    "type": "MemberCallExpression",
-                    "variables": varnames,
-                    "property": callee.property.name,
-                    "object": callee.object.name
-                };
+                    return {
+                        "type": "MemberCallExpression",
+                        "variables": varnames,
+                        "property": callee.property.name,
+                        "object": callee.object.name
+                    };
 
                 default:
-                throw "Unsupported type of CallExpression.";
+                    throw "Unsupported type of CallExpression.";
             }
             break;
 
-            case esprima.Syntax.MemberExpression:
+        case esprima.Syntax.MemberExpression:
             if (expression.computed) {
                 throw "Unknown what to do when value is computed.";
             }
@@ -227,10 +257,10 @@ var is_in_each = function is_in_each() {
                 "varname": varname
             };
 
-            default:
+        default:
             throw "Unsupported type of Expression '" + expression.type + "'.";
-        }
-    };
+    }
+};
 
 /**
  * Returns the id of a tag, generates a random one if none is given.
@@ -269,14 +299,18 @@ var is_in_each = function is_in_each() {
     context.js.push(js);
 };
 
-// TODO: JSDoc
+/**
+ * Generates a random identifier for a dynamic block/segment.
+ * @private
+ * @returns A random string
+ */
 var generate_randomrid = function generate_randomrid() {
     return "r" + randomstring.generate(context.random_length);
 }
 
 /**
  * Prepares a dynamic expression.
- * @param {DynamicExpression} dynamic The segment to generate code for.
+ * @param {DynamicExpression} dynamic The segment to prepare code for.
  * @private
  */
  var prepare_dynamic_expression = function prepare_dynamic_expression(dynamic) {
@@ -298,7 +332,11 @@ var generate_randomrid = function generate_randomrid() {
     }
 };
 
-// TODO: JSDoc
+/**
+ * Prepares a dynamic block.
+ * @param {DynamicBlock} dynamic The block to prepare
+ * @private
+ */
 var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
     var type = dynamic.type;
     var randomId = generate_randomrid();
@@ -403,5 +441,10 @@ var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
         prepare_tree(tree, context);
     });
 };
+
+
+/***********/
+/* Exports */
+/***********/
 
 exports.prepare = prepare;
