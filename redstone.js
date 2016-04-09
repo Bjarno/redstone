@@ -16,32 +16,34 @@ var debugEcho = require("./utils.js").debugEcho;
 var readFile = require("./utils.js").readFile;
 
 /**
- * Fills in the default values for an options object. It will create (and 
- * return) an empty options object with all default options, if an invalid
+ * Fills in the default values for an settings object. It will create (and 
+ * return) an empty settings object with all default settings, if an invalid
  * one is given.
- * @param {Object} Object containing options.
+ * @param {Object} Object containing settings.
  */
-var preprocess_options = function preprocess_options(options) {
-	if (typeof options !== "object") {
-		options = {};
+var preprocess_settings = function preprocess_settings(settings) {
+	if (typeof settings !== "object") {
+		settings = {};
 	}
-	if (!(options.hasOwnProperty("random_length"))) {
-		options.random_length = 32;
+	if (!(settings.hasOwnProperty("random_length"))) {
+		settings.random_length = 32;
 	}
-	if (!(options.hasOwnProperty("selfclosing_backslash"))) {
-		options.selfclosing_backslash = false;
+	if (!(settings.hasOwnProperty("selfclosing_backslash"))) {
+		settings.selfclosing_backslash = false;
 	}
-	return options;
+	return settings;
 };
 
 // TODO: JSDoc
-var generate = function generate(input, options) {
+var generate = function generate(input) {
 	// Split input into Redstone, and Javascript
 	var chunks = splitter.split(input);
-	var ui = chunks.ui.join("\n");
-	var js = chunks.unknown + "\n" +
-	        "/* @client */" + chunks.client.join("\n") + "\n" +
-	        "/* @server */" + chunks.server.join("\n");
+	var ui       = chunks.ui.join("\n");
+	var js       = chunks.unknown + "\n" +
+	               "/* @client */" + chunks.client.join("\n") + "\n" +
+	               "/* @server */" + chunks.server.join("\n"),
+	    css      = (chunks.hasOwnProperty("css") ? chunks.css.join("\n") : false),
+	    settings = (chunks.hasOwnProperty("settings") ? chunks.settings : {});
 
 	head("Raw chunks");
 	dump(chunks);
@@ -51,10 +53,14 @@ var generate = function generate(input, options) {
 	debugEcho(ui);
 	subhead("Javascript");
 	debugEcho(js);
+	subhead("CSS");
+	debugEcho(css);
+	subhead("Settings");
+	dump(settings);
 
-	// Preprocess the options, by supplying the default values
-	options = preprocess_options(options);
-	var context = new ConverterContext([], [], options);
+	// Preprocess the settings, by supplying the default values
+	settings = preprocess_settings(settings);
+	var context = new ConverterContext(settings);
 
 	// Parse the tree
 	var result_parse = parser.parse(ui);

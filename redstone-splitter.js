@@ -15,7 +15,7 @@ var array_indexOfSmallest = require("./utils.js").array_indexOfSmallest;
  */
 var split = function split(input, blocks) {
 	if (blocks === undefined) {
-		blocks = ["server", "client", "ui"];
+		blocks = ["server", "client", "ui", "css", "settings"];
 	}
 
 	var blockcomments = blocks.map(function(val) {

@@ -38,10 +38,10 @@ var DynamicExpression = function DynamicExpression(expression, idName) {
  * @param {Object} options Object containing all the options, for possible
  * values and default values, see redstone-parser.js.
  */
-var ConverterContext = function ConverterContext(js, crumbs, options) {
-	this.js = js;
+var ConverterContext = function ConverterContext(options) {
+	this.js = [];
 	this.callbacks = [];
-	this.crumbs = crumbs;
+	this.crumbs = [];
 	this.options = options;
 }
 
