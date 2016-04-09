@@ -21,7 +21,7 @@ var context = {};
  * @param {ConvertorContext} newcontext The context to use
  * @private
  */
-var set_context = function set_context(newcontext) {
+ var set_context = function set_context(newcontext) {
     context = newcontext;
 }
 
@@ -30,7 +30,7 @@ var set_context = function set_context(newcontext) {
  * @private
  * @returns The final client js code
  */
-var generate_innerjs = function generate_innerjs() {
+ var generate_innerjs = function generate_innerjs() {
     var js = context.js.reverse();
     var result = "$(document).ready(function() {\n// --> Begin generated";
 
@@ -48,7 +48,7 @@ var generate_innerjs = function generate_innerjs() {
  * @private
  * @returns {Program} AST program containing the boot code for the Ractivity container.
  */
-var generate_reactivity = function generate_reactivity() {
+ var generate_reactivity = function generate_reactivity() {
     var result = {
         "type": "Program",
         "body": [
@@ -165,7 +165,7 @@ var generate_reactivity = function generate_reactivity() {
  * @private
  * @returns {Object} Object containing mapping from idNames of crumbs to their on_update information
  */
-var optimize_crumbs = function optimize_crumbs(crumbs) {
+ var optimize_crumbs = function optimize_crumbs(crumbs) {
     var newobj = {};
 
     crumbs.forEach(function (crumb) {
@@ -181,7 +181,7 @@ var optimize_crumbs = function optimize_crumbs(crumbs) {
  * @private
  * @returns Javascript code so the client can read information about crumbs.
  */
-var generate_crumbsjs = function generate_crumbsjs() {
+ var generate_crumbsjs = function generate_crumbsjs() {
     var crumbs = optimize_crumbs(context.crumbs);
     var result = "";
     result += "CRUMBS = " + JSON.stringify(crumbs) + ";";
