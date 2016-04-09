@@ -1,44 +1,59 @@
 /* @server */ 
 {
   function broadcast(name, message) {
-      console.log(name + " said: " + message);
-      displayMessage(name, message);
+	  console.log(name + " said: " + message);
+	  displayMessage(name, message);
   }
 }
 
 /* @client */
 {
-    // Doesn't work:
-    // var last = {message: "no-message", author: "no-author"};
+	// Doesn't work:
+	// var last = {message: "no-message", author: "no-author"};
 
-    // Does work
-    var last;
-    last = {};
-    last.message = "no-message";
-    last.author = "no-author";
+	// Does work
+	var last;
+	last = {};
+	last.message = "no-message";
+	last.author = "no-author";
 
-    var hassmiley = false;
+	var hassmiley = false;
 
-    function randomInt(min, max) {
-    	return Math.floor(Math.random() * (max - min + 1)) + min;
+	function randomInt(min, max) {
+		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
 	
 	var name = "user" + randomInt(100, 10000),
-        text = $("#msg"),
-        log  = $("#log");
+		text = $("#msg"),
+		log  = $("#log");
 
-    function sendmsg() {
-       var msg = text.val();
-       broadcast(name, msg);
-       text.val("");
-    }
+	function sendmsg() {
+	   var msg = text.val();
+	   broadcast(name, msg);
+	   text.val("");
+	}
 
-    function displayMessage(name, message) {
-        log.append(name + " said: " + message + "<br>");
-        last.message = message; // Must be on client (!)
-        last.author  = name;
-        hassmiley = (message.indexOf(":)") != -1);
-    }
+	function displayMessage(name, message) {
+		log.append(name + " said: " + message + "<br>");
+		last.message = message; // Must be on client (!)
+		last.author  = name;
+		hassmiley = (message.indexOf(":)") != -1);
+	}
+
+	function create_heroes() {
+		var a, b;
+		a = [];
+
+		b = {}; b.alias = "Bat Man"; b.realname = "Bruce Wayne"; a.push(b);
+		b = {}; b.alias = "Superman"; b.realname = "Clark Kent"; a.push(b);
+		b = {}; b.alias = "Spiderman"; b.realname = "Peter Parker"; a.push(b);
+		b = {}; b.alias = "Daredevil"; b.realname = "Matthew Michael Murdock"; a.push(b);
+		return a;
+	}
+
+	var superheroes;
+	superheroes = create_heroes();
+	console.log(superheroes);
 }
 
 /* @ui */
@@ -70,3 +85,7 @@ body
 		p Last message doesn't have a smiley face! :(
 	p.
 		Last message: {{last.message}} by {{last.author}}.
+
+	div#heroes
+		{{#each superheroes}}
+			p {{alias}} = {{realname}}
