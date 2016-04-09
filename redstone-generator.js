@@ -3,6 +3,13 @@ var DynamicBlock      = require("./redstone-types.js").DynamicBlock;
 
 var randomstring = require("randomstring");
 
+var context;
+
+// TODO: JSDoc
+var set_context = function set_context(newcontext) {
+	context = newcontext;
+}
+
 /**
  * Creates a string for identation.
  * @param {Number} ident The indentation level.
@@ -18,11 +25,10 @@ var create_indent = function create_indent(indent, str) {
 
 /**
  * Generates HTML for all elements inside another element.
- * @param {ConverterContext} context The context to use.
  * @param {Array} content The contents of a higher tag.
  * @param {Number} indent The indentation level to use.
  */
-var generate_innerHTML = function generate_innerHTML(context, content, indent) {
+var generate_innerHTML = function generate_innerHTML(content, indent) {
 	if (content.length > 0) {
 		var first = content[0];
 		// If onlye size 1, and type is text: do not use newlines.
@@ -30,7 +36,7 @@ var generate_innerHTML = function generate_innerHTML(context, content, indent) {
 			return first;
 		} else {
 			var innerHTML = content.map(function(sub) {
-				return generate_tree(context, sub, indent + 1);
+				return generate_tree(sub, indent + 1);
 			}).join("\n");
 
 			return "\n" + innerHTML + "\n" + create_indent(indent);
@@ -41,11 +47,10 @@ var generate_innerHTML = function generate_innerHTML(context, content, indent) {
 
 /**
  * Generate soras definitions for HTML.
- * @param {ConverterContext} context The context to use.
  * @param {Tag} tag The tag to get id, classes and attributes for.
  * @returns {String} String containing the soras definitions in HTML.
  */
-var generate_soras = function generate_soras(context, tag) {
+var generate_soras = function generate_soras(tag) {
 	var resultHTML = "";
 
 	// Add attributes
@@ -76,15 +81,14 @@ var generate_soras = function generate_soras(context, tag) {
 
 /**
  * Generate the opening tag, including the soras definitions.
- * @param {ConverterContext} context The context to use.
  * @param {Tag} tag The tag to get id, classes and attributes for.
  * @param {Boolean} selfclosing Wether this tag is a self-closing tag.
  * @returns {String} String containing the opening tag for the given tag.
  */
-var generate_opentag = function generate_opentag(context, tag, selfclosing) {
+var generate_opentag = function generate_opentag(tag, selfclosing) {
 	var tagname = tag.tagname;
 
-	var resultHTML = "<" + tagname + generate_soras(context, tag);
+	var resultHTML = "<" + tagname + generate_soras(tag);
 	if ( (selfclosing === true) && (context.options.selfclosing_backslash) ) {
 		resultHTML += " /";
 	}
@@ -129,23 +133,22 @@ var preprocess_tag = function preprocess_tag(tag) {
 /**
  * Generates HTML for a generic tag name, with an innerHTML and no limitations
  * on classes, ids or attributes.
- * @param {ConverterContext} context The context to use.
  * @param {Tag} tag The tag to generate HTML code for.
  * @param {Number} indent The indentation level to use.
  * @private
  * @returns HTML for the given tag.
  */
-var generate_generic = function generate_generic(context, tag, indent) {
+var generate_generic = function generate_generic(tag, indent) {
 	preprocess_tag(tag);
 
 	var content = tag.content;
 	var resultHTML = create_indent(indent);
 
 	// Generate opening tag
-	resultHTML += generate_opentag(context, tag);
+	resultHTML += generate_opentag(tag);
 
 	// Add innerHTML
-	resultHTML += generate_innerHTML(context, content, indent);
+	resultHTML += generate_innerHTML(content, indent);
 
 	// Generate closing tag
 	resultHTML += generate_closetag(tag);
@@ -156,18 +159,17 @@ var generate_generic = function generate_generic(context, tag, indent) {
 /**
  * Generates HTML for a generic tag name, without any innerHTML and no
  * limitations on classes, ids or attributes. E.g. br, img...
- * @param {ConverterContext} context The context to use.
  * @param {Tag} tag The tag to generate HTML code for.
  * @param {Number} indent The indentation level to use.
  * @private
  * @returns HTML for the given tag.
  */
-var generate_selfclosing = function generate_selfclosing(context, tag, indent) {
+var generate_selfclosing = function generate_selfclosing(tag, indent) {
 	preprocess_tag(tag);
 
 	var resultHTML = create_indent(indent);
 
-	resultHTML += generate_opentag(context, tag, true);
+	resultHTML += generate_opentag(tag, true);
 	return resultHTML;
 };
 
@@ -178,7 +180,7 @@ var generate_selfclosing = function generate_selfclosing(context, tag, indent) {
  * @private
  * @returns HTML for the given tag.
  */
-var generate_dynamic_expression = function generate_dynamic_expression(context, dynamic, indent) {
+var generate_dynamic_expression = function generate_dynamic_expression(dynamic, indent) {
 	var randomid = dynamic.idName;
 	var expression = dynamic.expression;
 	var html;
@@ -193,7 +195,7 @@ var generate_dynamic_expression = function generate_dynamic_expression(context, 
 };
 
 // TODO: JSDoc
-var generate_dynamic_block = function generate_dynamic_block(context, dynamic, indent) {
+var generate_dynamic_block = function generate_dynamic_block(dynamic, indent) {
 	var randomid = dynamic.idName;
 	var type = dynamic.type;
 	var html = "";
@@ -201,12 +203,12 @@ var generate_dynamic_block = function generate_dynamic_block(context, dynamic, i
 	switch (type) {
 		case "if":
 			html += create_indent(indent) + "{{#if " + randomid + "}}\n";
-			html += generate_list(dynamic.true_branch, context, indent + 1);
+			html += generate_list(dynamic.true_branch, indent + 1);
 			html += "\n";
 
 			if (dynamic.false_branch.length > 0) {
 				html += create_indent(indent) + "{{else}}\n";
-				html += generate_list(dynamic.false_branch, context, indent + 1);
+				html += generate_list(dynamic.false_branch, indent + 1);
 				html += "\n";
 			}
 
@@ -215,7 +217,7 @@ var generate_dynamic_block = function generate_dynamic_block(context, dynamic, i
 
 		case "each":
 			html += create_indent(indent) + "{{#each " + randomid + "}}\n";
-			html += generate_list(dynamic.body, context, indent + 1);
+			html += generate_list(dynamic.body, indent + 1);
 			html += create_indent(indent) + "{{/each}}\n";
 			break;
 	}
@@ -252,46 +254,49 @@ var find_generator = function find_generator(tagname) {
  * @private
  * @returns HTML for the entire tree.
  */
-var generate_tree = function generate_tree(context, tree, indent) {
+var generate_tree = function generate_tree(tree, indent) {
 	if (typeof tree == "string") {
 		return create_indent(indent) + tree;
 	}
 	
 	if (tree instanceof DynamicExpression) {
-		return generate_dynamic_expression(context, tree, indent);
+		return generate_dynamic_expression(tree, indent);
 	}
 	
 	if (tree instanceof DynamicBlock) {
-		return generate_dynamic_block(context, tree, indent);
+		return generate_dynamic_block(tree, indent);
 	}
 
 	var tag = tree;
 	var tagname = tag.tagname;
 	var generator = find_generator(tagname);
-	return generator(context, tag, indent);
+	return generator(tag, indent);
 };
 
 // TODO: JSDoc
-var generate_list = function generate_list(input, context, indentation) {
+var generate_list = function generate_list(input, indentation) {
 	// Set default value
 	if (indentation === undefined) {
 		indentation = 0;
 	}
 
 	return input.map(function (tree) {
-		return generate_tree(context, tree, indentation);
+		return generate_tree(tree, indentation);
 	}).join("\n");
 }
 
 /**
  * Generates HTML for given list
  * @param {Array} input The parsed document
+ * @param {ConvertorContext} newcontext The context to use
  * @returns HTML code for the given tree.
  */
-var generate = function generate(input, context) {
+var generate = function generate(input, newcontext) {
+	set_context(newcontext);
+
 	var html = "<!DOCTYPE html>\n";
 	html += "<html>\n";
-	html += generate_list(input, context);
+	html += generate_list(input);
 
 	html += "\n</html>";
 	return html;
