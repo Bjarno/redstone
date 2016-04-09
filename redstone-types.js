@@ -1,3 +1,7 @@
+/***************/
+/* Definitions */
+/***************/
+
 /**
  * Represents an HTML tag, together with the content.
  * @constructor
@@ -30,6 +34,15 @@ var DynamicExpression = function DynamicExpression(expression, idName) {
 };
 
 /**
+ * Object keeping track of the contents of a dynamic block. E.g. an {{#if}} or an {{#each}}
+ * @constructor
+ * @param {String} type The type of the dynamic block.
+ */
+var DynamicBlock = function DynamicBlock(type) {
+	this.type = type;
+}
+
+/**
  * Object with options, and metadata of a conversion.
  * @constructor
  * @param {Object} options Object containing all the options, for possible
@@ -43,10 +56,10 @@ var ConverterContext = function ConverterContext(options) {
 	this.css = false;
 }
 
-// TODO: JSDoc
-var DynamicBlock = function DynamicBlock(type) {
-	this.type = type;
-}
+
+/***********/
+/* Exports */
+/***********/
 
 exports.Tag = Tag;
 exports.DynamicExpression = DynamicExpression;
