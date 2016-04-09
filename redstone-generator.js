@@ -1,9 +1,23 @@
+/***********/
+/* Imports */
+/***********/
+
 var DynamicExpression = require("./redstone-types.js").DynamicExpression;
 var DynamicBlock      = require("./redstone-types.js").DynamicBlock;
 
 var randomstring = require("randomstring");
 
+
+/**********/
+/* Fields */
+/**********/
+
 var context = {};
+
+
+/***************/
+/* Definitions */
+/***************/
 
 /**
  * Sets the context to use to get information from.
@@ -346,4 +360,9 @@ var generate_list = function generate_list(input, indentation) {
  	return html;
  };
 
- exports.generate = generate;
+
+/***********/
+/* Exports */
+/***********/
+
+exports.generate = generate;
