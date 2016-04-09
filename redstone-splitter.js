@@ -1,8 +1,13 @@
 /**
  * Dirty scanner function to split a .redstone file and "split" it into
  * both Javascript (@client and @server) code, and the UI code (@ui).
- * While not perfect, it should be able to handle the job well.
+ * While not perfect, it should be able to handle the job well for now.
  */
+
+
+/***************/
+/* Definitions */
+/***************/
 
 var array_indexOfSmallest = require("./utils.js").array_indexOfSmallest;
 
@@ -54,5 +59,9 @@ var split = function split(input, blocks) {
 
 	return rest;
 }
+
+/***********/
+/* Exports */
+/***********/
 
 exports.split = split;
