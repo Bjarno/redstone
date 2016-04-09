@@ -181,13 +181,13 @@ var generate_selfclosing = function generate_selfclosing(context, tag, indent) {
 var generate_dynamic_expression = function generate_dynamic_expression(context, dynamic, indent) {
 	var randomid = dynamic.idName;
 	var expression = dynamic.expression;
+	var html;
 
-	// Generate placeholder HTML code
-	// var html = create_indent(indent) + "<span id=\"" + randomid + "\">";
-	// html += "<!-- {{" + expression + "}} --></span>";
-	// return html;
-
-	var html = "{{" + randomid + "}}";
+	if (randomid !== undefined) {
+		html = "{{" + randomid + "}}";
+	} else {
+		html = "{{" + expression + "}}";
+	}
 
 	return html;
 };
@@ -206,15 +206,17 @@ var generate_dynamic_block = function generate_dynamic_block(context, dynamic, i
 
 			if (dynamic.false_branch.length > 0) {
 				html += create_indent(indent) + "{{else}}\n";
-				html += generate_list(dynamic.false_branch, indent + 1);
+				html += generate_list(dynamic.false_branch, context, indent + 1);
 				html += "\n";
 			}
 
-			html += create_indent(indent) + "{{/if}}\n"
+			html += create_indent(indent) + "{{/if}}\n";
 			break;
 
 		case "each":
-			throw "NYI";
+			html += create_indent(indent) + "{{#each " + randomid + "}}\n";
+			html += generate_list(dynamic.body, context, indent + 1);
+			html += create_indent(indent) + "{{/each}}\n";
 			break;
 	}
 

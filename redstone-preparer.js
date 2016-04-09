@@ -335,8 +335,19 @@ var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
 
             var old_in_each = is_in_each();
             set_in_each_flag(true);
-            prepare_tree(body);
+            body.forEach(function (a) {
+                prepare_tree(a);
+            });
             set_in_each_flag(old_in_each);
+
+            var parsedExpression = parse_ast(obj_expr);
+            var crumb = {
+                id: randomId,
+                on_update: parsedExpression
+            };
+
+            context.crumbs.push(crumb);
+            dynamic.crumb = crumb;
 
     }
 }
