@@ -556,7 +556,18 @@ var parse_dynamicblock_each = function parse_dynamicblock_each(indentation, pars
 
     var totalbody = [body.result];
 
-    // TODO: Parse multiple blocks as long as indentation is larger
+    // While there is more to read
+    while (next_idx < lines.length) {
+        var next = parse_line_indentation(lines[next_idx]);
+
+        if (next.indentation > indentation) {
+            var parsedblock = parse_block(lines, next_idx);
+            totalbody.push(parsedblock.result);
+            next_idx = parsedblock.next_idx;
+        } else {
+            break;
+        }
+    }
 
     result.body = totalbody;
     result.object = expression;
