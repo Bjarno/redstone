@@ -548,7 +548,16 @@ var parse_dynamicblock_if = function parse_dynamicblock_if(indentation, parsed_t
 
 // TODO: JSDoc
 var parse_dynamicblock_each = function parse_dynamicblock_each(indentation, parsed_tag, lines, idx) {
-    throw "NYI";
+    var result = new DynamicBlock("each");
+    var expression = parsed_tag.rest;
+
+    var contents = parse_block(lines, idx + 1);
+    var next_idx = contents.next_idx;
+
+    result.contents = contents.result;
+    result.object = expression;
+
+    return {"next_idx": next_idx, "result": result};
 }
 
 // TODO: JSDoc
