@@ -1,13 +1,35 @@
+/***********/
+/* Imports */
+/***********/
+
 var Tag = require("./redstone-types.js").Tag;
+
+
+/**********/
+/* Fields */
+/**********/
 
 var context = {};
 
-// TODO: JSDoc
+
+/***************/
+/* Definitions */
+/***************/
+
+/**
+ * Sets the context to use to get information from.
+ * @param {ConvertorContext} newcontext The context to use
+ * @private
+ */
 var set_context = function set_context(newcontext) {
     context = newcontext;
 }
 
-// TODO: JSDoc
+/**
+ * Generates the final clientside Javascript code, wrapped in a jQuery $(document).ready(...)
+ * @private
+ * @returns The final client js code
+ */
 var generate_innerjs = function generate_innerjs() {
     var js = context.js.reverse();
     var result = "$(document).ready(function() {\n// --> Begin generated";
@@ -21,7 +43,11 @@ var generate_innerjs = function generate_innerjs() {
     return result;
 }
 
-// TODO: JSDoc
+/**
+ * Generates esprima AST for the part of the code that starts the Ractivity container.
+ * @private
+ * @returns {Program} AST program containing the boot code for the Ractivity container.
+ */
 var generate_reactivity = function generate_reactivity() {
     var result = {
         "type": "Program",
@@ -121,7 +147,7 @@ var generate_reactivity = function generate_reactivity() {
         });
     };
 
-
+    // Add all crumbs with a currently undefined value.
     context.crumbs.forEach(function (crumb) {
         push_kv(crumb.id, {
             "type": "Identifier",
@@ -132,7 +158,13 @@ var generate_reactivity = function generate_reactivity() {
     return result;
 };
 
-// TODO: JSDoc
+/**
+ * Creates a new object containing all the crumb information, from a given crumbs array.
+ * This method also removes graph information from the original
+ * @param {Array} crumbs Array containing all crumbs.
+ * @private
+ * @returns {Object} Object containing mapping from idNames of crumbs to their on_update information
+ */
 var optimize_crumbs = function optimize_crumbs(crumbs) {
     var newobj = {};
 
@@ -144,7 +176,11 @@ var optimize_crumbs = function optimize_crumbs(crumbs) {
     return newobj;
 }
 
-// TODO: JSDoc
+/**
+ * Generates Javascript code with information about the crumbs, stored in a CRUMBS variable.
+ * @private
+ * @returns Javascript code so the client can read information about crumbs.
+ */
 var generate_crumbsjs = function generate_crumbsjs() {
     var crumbs = optimize_crumbs(context.crumbs);
     var result = "";
@@ -160,7 +196,9 @@ var generate_crumbsjs = function generate_crumbsjs() {
  var applyContext = function applyContext(input, newcontext) {
     set_context(newcontext);
 
+    // Find specific elements in the tree
     input.forEach(function(tree) {
+        // Add elements to head tag
         if (tree.tagname === "head") {
             // Add jQuery
             var jquery = new Tag("script");
@@ -212,6 +250,7 @@ var generate_crumbsjs = function generate_crumbsjs() {
             }
         }
 
+        // Change the inner tags of the body, so they are inside a Ractive container (called render-target).
         if (tree.tagname === "body") {
             var temp = tree.content;
             tree.content = [];
@@ -232,5 +271,10 @@ var generate_crumbsjs = function generate_crumbsjs() {
         }
     });
 }
+
+
+/***********/
+/* Exports */
+/***********/
 
 exports.applyContext = applyContext;
