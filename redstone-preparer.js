@@ -6,6 +6,24 @@ var randomstring = require("randomstring");
 var esprima = require("esprima");
 var escodegen = require("escodegen");
 
+var context = {};
+var flag_in_each = false;
+
+// TODO: JSDoc
+var set_context = function set_context(newcontext) {
+    context = newcontext;
+}
+
+// TODO: JSDoc
+var set_in_each_flag = function set_in_each_flag(flag) {
+    flag_in_each = flag;
+}
+
+// TODO: JSDoc
+var is_in_each = function is_in_each() {
+    return flag_in_each;
+}
+
 /**
  * Recursively finds all the variable names in the given expression for 
  * a function's arguments.
@@ -219,7 +237,7 @@ var escodegen = require("escodegen");
  * @param {Tag} tag The tag to find (or generate) an id for.
  * @returns {String} The id of the tag
  */
- var get_id = function get_id(context, tag) {
+ var get_id = function get_id(tag) {
     var id = tag.id;
     if (typeof id === "string") {
         return id;
@@ -233,55 +251,57 @@ var escodegen = require("escodegen");
 
 /**
  * Generates Javascript code to install an event listener.
- * @param {ConverterContext} context The context to use.
  * @param {Tag} tag The tag that should be used to link the callback to the
  * event.
  * @param {String} ev The event to use. Assumes $(...).<event> exists.
  * @param {String} callback Name of the global callback function.
  * @private
  */
- var generate_js_callback = function generate_js_callback(context, tag, ev, callback) {
+ var generate_js_callback = function generate_js_callback(tag, ev, callback) {
     if (tag.tagname === "html") {
         throw "NYI";
     }
 
     context.callbacks.push(callback); // Makes sure that Stip knows it is called on client-side
 
-    var id = get_id(context, tag);
+    var id = get_id(tag);
     var js = "$(\"#" + id + "\")." + ev + "(" + callback + ");";
     context.js.push(js);
 };
 
 // TODO: JSDoc
-var generate_randomrid = function generate_randomrid(context) {
+var generate_randomrid = function generate_randomrid() {
     return "r" + randomstring.generate(context.random_length);
 }
 
 /**
  * Prepares a dynamic expression.
- * @param {ConverterContext} context The context to use.
  * @param {DynamicExpression} dynamic The segment to generate code for.
  * @private
  */
- var prepare_dynamic_expression = function prepare_dynamic_expression(context, dynamic) {
-    // Prefix with r, as first character can be a number, and r = reactivity.
-    var randomId = generate_randomrid(context);
-    var expression = dynamic.expression;
-    var AST = esprima.parse(expression);
-    var parsedExpression = parse_ast(AST);
+ var prepare_dynamic_expression = function prepare_dynamic_expression(dynamic) {
+    // Only do something when not in {{#each}}
 
-    dynamic.idName = randomId;
+    if (!is_in_each()) {
+        // Prefix with r, as first character can be a number, and r = reactivity.
+        var randomId = generate_randomrid();
+        var expression = dynamic.expression;
+        var AST = esprima.parse(expression);
+        var parsedExpression = parse_ast(AST);
 
-    context.crumbs.push({
-        id: randomId,
-        on_update: parsedExpression
-    });
+        dynamic.idName = randomId;
+
+        context.crumbs.push({
+            id: randomId,
+            on_update: parsedExpression
+        });
+    }
 };
 
 // TODO: JSDoc
-var prepare_dynamic_block = function prepare_dynamic_block(context, dynamic) {
+var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
     var type = dynamic.type;
-    var randomId = generate_randomrid(context);
+    var randomId = generate_randomrid();
     dynamic.idName = randomId;
 
     switch (type) {
@@ -291,11 +311,11 @@ var prepare_dynamic_block = function prepare_dynamic_block(context, dynamic) {
             var false_branch = dynamic.false_branch;
 
             true_branch.forEach(function (expression) {
-                prepare_tree(expression, context);
+                prepare_tree(expression);
             });
 
             false_branch.forEach(function (expression) {
-                prepare_tree(expression, context);
+                prepare_tree(expression);
             });
 
             var parsedExpression = parse_ast(predicate);
@@ -310,7 +330,13 @@ var prepare_dynamic_block = function prepare_dynamic_block(context, dynamic) {
             break;
 
         case "each":
-            throw "NYI";
+            var obj_expr = esprima.parse(dynamic.object);
+            var body = dynamic.body;
+
+            var old_in_each = is_in_each();
+            set_in_each_flag(true);
+            prepare_tree(body);
+            set_in_each_flag(old_in_each);
 
     }
 }
@@ -318,10 +344,9 @@ var prepare_dynamic_block = function prepare_dynamic_block(context, dynamic) {
 /**
  * Prepares a tree, looking for dynamic segments and callback installers.
  * @param {Tag} tree The tree to handle.
- * @param {ConverterContext} context The context to use.
  * @private
  */
- var prepare_tree = function prepare_tree(tree, context) {
+ var prepare_tree = function prepare_tree(tree) {
     var jstype = typeof tree;
 
     if ( (jstype == "string") || (jstype == "boolean") || (jstype == "undefined") ) {
@@ -329,11 +354,11 @@ var prepare_dynamic_block = function prepare_dynamic_block(context, dynamic) {
     }
     
     if (tree instanceof DynamicExpression) {
-        return prepare_dynamic_expression(context, tree);
+        return prepare_dynamic_expression(tree);
     }
 
     if (tree instanceof DynamicBlock) {
-        return prepare_dynamic_block(context, tree);
+        return prepare_dynamic_block(tree);
     }
 
     // Install callbacks
@@ -343,14 +368,14 @@ var prepare_dynamic_block = function prepare_dynamic_block(context, dynamic) {
             if (name[0] == "@") {
                 var ev = name.substring(1, name.length);
                 var callback = attributes[name];
-                generate_js_callback(context, tree, ev, callback);
+                generate_js_callback(tree, ev, callback);
             }
         }
     }
 
     // Loop over content of the tree.
     tree.content.forEach(function(subtree) {
-        prepare_tree(subtree, context);
+        prepare_tree(subtree);
     });
 };
 
@@ -360,7 +385,9 @@ var prepare_dynamic_block = function prepare_dynamic_block(context, dynamic) {
  * @param {Array} input Array of HTML trees.
  * @param {ConverterContext} context The context to use.
  */
- var prepare = function prepare(input, context) {
+ var prepare = function prepare(input, newcontext) {
+    set_context(newcontext);
+    
     input.forEach(function(tree) {
         prepare_tree(tree, context);
     });
