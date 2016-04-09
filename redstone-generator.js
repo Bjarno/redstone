@@ -218,9 +218,6 @@ var generate_dynamic_block = function generate_dynamic_block(context, dynamic, i
 			break;
 	}
 
-	console.log("html: ");
-	console.log(html);
-
 	return html;
 }
 
