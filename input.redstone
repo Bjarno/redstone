@@ -27,6 +27,8 @@
 		text = $("#msg"),
 		log  = $("#log");
 
+	var messages = [];
+
 	function sendmsg() {
 	   var msg = text.val();
 	   broadcast(name, msg);
@@ -34,36 +36,21 @@
 	}
 
 	function displayMessage(name, message) {
-		log.append(name + " said: " + message + "<br>");
 		last.message = message; // Must be on client (!)
 		last.author  = name;
 		hassmiley = (message.indexOf(":)") != -1);
+		
+		var m = {};
+		m.name = name;
+		m.message = message;
+		messages.push(m);
 	}
-
-	function create_heroes() {
-		var a, b;
-		a = [];
-
-		b = {}; b.alias = "Bat Man"; b.realname = "Bruce Wayne"; a.push(b);
-		b = {}; b.alias = "Superman"; b.realname = "Clark Kent"; a.push(b);
-		b = {}; b.alias = "Spiderman"; b.realname = "Peter Parker"; a.push(b);
-		b = {}; b.alias = "Daredevil"; b.realname = "Matthew Michael Murdock"; a.push(b);
-		return a;
-	}
-
-	var superheroes;
-	superheroes = create_heroes();
-	console.log(superheroes);
 }
 
 /* @ui */
 head
 	title Chatting, made simple.
 	style..
-		body {
-			background-color: #ccc;
-			font-family: sans-serif;
-		}
 		textarea, #log {
 			display: block;
 			font-family: monospace;
@@ -77,6 +64,8 @@ head
 	link[rel=stylesheet][type=text/css][href=style.css]
 body
 	div#log
+		{{#each messages}}
+			p {{name}} says: {{message}}
 	textarea#msg
 	button[@click=sendmsg]#send Send
 	{{#if hassmiley}}
@@ -85,7 +74,3 @@ body
 		p Last message doesn't have a smiley face! :(
 	p.
 		Last message: {{last.message}} by {{last.author}}.
-
-	div#heroes
-		{{#each superheroes}}
-			p {{alias}} = {{realname}}
