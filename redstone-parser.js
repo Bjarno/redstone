@@ -17,10 +17,20 @@ var NextBlockType = {
     "EXTENDED_TEXT": 3
 };
 
+var lines = [];
 
 /***************/
 /* Definitions */
 /***************/
+
+/**
+ * Sets the lines to use.
+ * @param {Array} newlines Array containing the lines to parse
+ * @private
+ */
+ var set_lines = function set_lines(newlines) {
+    lines = newlines;
+};
 
 /**
  * Splits a line in an indentation level, and the content.
@@ -107,7 +117,7 @@ var NextBlockType = {
  */
  function isLetter(str) {
   return str.length === 1 && str.match(/[a-z]/i);
-}
+};
 
 /**
  * Returns whether the given string has length one (a character), and the
@@ -117,7 +127,7 @@ var NextBlockType = {
  */
  function isNumber(str) {
   return (str.length === 1) && str.match(/[0-9]/);
-}
+};
 
 /**
  * Reads a string, starting from a certain index, and finds the attribute
@@ -172,7 +182,7 @@ var NextBlockType = {
     }
 
     throw "Did not find ] to end attribute definition";
-}
+};
 
 /**
  * Reads a tagdata string and makes a tokenized version.
@@ -247,53 +257,54 @@ var NextBlockType = {
 
         switch (type) {
             case "string":
-            throw "Unable to apply string on position '" + idx + "'.";
+                throw "Unable to apply string on position '" + idx + "'.";
 
             case "seperator":
-            if (idx + 1 >= tokens.length) {
-                throw "Token overflow.";
-            }
-
-            var sepchar = token.data;
-            var nexttoken = tokens[idx + 1];
-            
-            if (nexttoken.type !== "string") {
-                throw "Next token is not a string.";
-            }
-
-            switch (sepchar) {
-                case ".":
-                classes.push(nexttoken.data);
-                break;
-
-                case "#":
-                if (id !== null) {
-                    throw "double id given";
+                if (idx + 1 >= tokens.length) {
+                    throw "Token overflow.";
                 }
-                id = nexttoken.data;
-                break;
 
-                default:
-                throw "Unknown seperator type.";
-            }
+                var sepchar = token.data;
+                var nexttoken = tokens[idx + 1];
+
+                if (nexttoken.type !== "string") {
+                    throw "Next token is not a string.";
+                }
+
+                switch (sepchar) {
+                    case ".":
+                    classes.push(nexttoken.data);
+                    break;
+
+                    case "#":
+                    if (id !== null) {
+                        throw "double id given";
+                    }
+                    id = nexttoken.data;
+                    break;
+
+                    default:
+                    throw "Unknown seperator type.";
+                }
 
                 // Extra fast-forward, as we are parsing 2 tokens here
                 idx++;
-                break;
+            break;
 
-                case "attributevalue":
+            case "attributevalue":
                 if (attributes.hasOwnProperty(token.name)) {
                     throw "attribute already used";
                 }
+
                 attributes[token.name] = token.value;
                 break;
-            }
-
-            idx++;
         }
 
-        return new Tag(tagname, id, classes, attributes);
-    };
+        idx++;
+    }
+
+    return new Tag(tagname, id, classes, attributes);
+};
 
 /**
  * Transforms a text, replacing {{expression}} with DynamicExpressions. The result
@@ -336,7 +347,6 @@ var NextBlockType = {
 /**
  * Parses all the blocks starting at a certain indentation, and adds the result
  * as the content of the given tag.
- * @param {Array} lines Array containing all the lines.
  * @param {Tag} tag The tag to add the new blocks to.
  * @param {Number} idx The index in the lines array to start parsing.
  * @param {Number} indentation The indentation level of the prior block.
@@ -344,7 +354,7 @@ var NextBlockType = {
  * @returns {Object} Object with the next index to use for parsing the next
  * block (key: next_idx), and the final tag.
  */
- var parse_subblocks = function parse_subblocks(lines, tag, idx, indentation) {
+ var parse_subblocks = function parse_subblocks(tag, idx, indentation) {
     var next_idx = idx;
     var has_next = (next_idx < lines.length);
 
@@ -353,7 +363,7 @@ var NextBlockType = {
         var next = parse_line_indentation(lines[idx]);
 
         if (next.indentation > indentation) {
-            var a = parse_block(lines, idx);
+            var a = parse_block(idx);
             next_idx = a.next_idx;
             tag.content.push(a.result);
         } else {
@@ -370,7 +380,6 @@ var NextBlockType = {
  * Parses all the blocks starting at a certain indentation, and adds the result
  * as the content of the given tag. Expects all the following blocks to be
  * textual blocks. Unless they have an higher indentation of the first block.
- * @param {Array} lines Array containing all the lines.
  * @param {Tag} tag The tag to add the new blocks to.
  * @param {Number} idx The index in the lines array to start parsing.
  * @param {Number} indentation The indentation level of the prior block.
@@ -378,7 +387,7 @@ var NextBlockType = {
  * @returns {Object} Object with the next index to use for parsing the next
  * block (key: next_idx), and the final tag.
  */
- var parse_textblocks = function parse_textblocks(lines, tag, idx, indentation) {
+ var parse_textblocks = function parse_textblocks(tag, idx, indentation) {
     var next_idx = idx;
     var has_next = (next_idx < lines.length);
     
@@ -397,7 +406,7 @@ var NextBlockType = {
             cmp_indentation = next_indentation;
             next_idx = idx + 1;
         } else {
-            var a = parse_block(lines, idx);
+            var a = parse_block(idx);
             next_idx = a.next_idx;
             tag.content.push(a.result);
         }
@@ -425,7 +434,6 @@ return {"next_idx": next_idx, "result": tag};
  * Parses all the blocks starting at a certain indentation, and adds the result
  * as the content of the given tag. Expects all the following blocks to be
  * textual blocks. Unless they have an higher indentation of the first block.
- * @param {Array} lines Array containing all the lines.
  * @param {Tag} tag The tag to add the new blocks to.
  * @param {Number} idx The index in the lines array to start parsing.
  * @param {Number} indentation The indentation level of the prior block.
@@ -433,8 +441,7 @@ return {"next_idx": next_idx, "result": tag};
  * @returns {Object} Object with the next index to use for parsing the next
  * block (key: next_idx), and the final tag.
  */
- var parse_extended_textblocks =
- function parse_extended_textblocks(lines, tag, idx, indentation) {
+ var parse_extended_textblocks = function parse_extended_textblocks(tag, idx, indentation) {
     var next_idx = idx;
     var has_next = (next_idx < lines.length);
 
@@ -518,7 +525,7 @@ return {"next_idx": next_idx, "result": tag};
  * @private
  * @returns Object containing the dynamic if block (key: result) and the next index to read (key: next_idx)
  */
- var parse_dynamicblock_if = function parse_dynamicblock_if(indentation, parsed_tag, lines, idx) {
+ var parse_dynamicblock_if = function parse_dynamicblock_if(indentation, parsed_tag, idx) {
     var expression = parsed_tag.rest;
     result = new DynamicBlock("if");
     result.predicate = expression;
@@ -526,7 +533,7 @@ return {"next_idx": next_idx, "result": tag};
     result.true_branch  = [];
     result.false_branch = [];
 
-    var true_branch = parse_block(lines, idx + 1);
+    var true_branch = parse_block(idx + 1);
     result.true_branch.push(true_branch.result);
     var next_idx = true_branch.next_idx;
 
@@ -539,7 +546,7 @@ return {"next_idx": next_idx, "result": tag};
 
         // More in current branch
         if (next.indentation > indentation) {
-            parsedblock = parse_block(lines, next_idx);
+            parsedblock = parse_block(next_idx);
             
             if (at_true_branch) {
                 result.true_branch.push(parsedblock.result)
@@ -563,7 +570,7 @@ return {"next_idx": next_idx, "result": tag};
                         throw "else expects no arguments. Found '" + parsed_next_tag.rest + "'";
                 }
 
-                var false_branch = parse_block(lines, next_idx + 1);
+                var false_branch = parse_block(next_idx + 1);
                 result.false_branch.push(false_branch.result);
                 next_idx = false_branch.next_idx;
 
@@ -585,11 +592,11 @@ return {"next_idx": next_idx, "result": result};
  * @private
  * @returns Object containing the dynamic each block (key: result) and the next index to read (key: next_idx)
  */
- var parse_dynamicblock_each = function parse_dynamicblock_each(indentation, parsed_tag, lines, idx) {
+ var parse_dynamicblock_each = function parse_dynamicblock_each(indentation, parsed_tag, idx) {
     var result = new DynamicBlock("each");
     var expression = parsed_tag.rest;
 
-    var body = parse_block(lines, idx + 1);
+    var body = parse_block(idx + 1);
     var next_idx = body.next_idx;
 
     var totalbody = [body.result];
@@ -619,7 +626,7 @@ return {"next_idx": next_idx, "result": result};
  * @private
  * @returns Object containing the dynamic each block (key: result) and the next index to read (key: next_idx)
  */
- var parse_dynamicblock = function parse_dynamicblock(lines, idx) {
+ var parse_dynamicblock = function parse_dynamicblock(idx) {
     var current = parse_line_indentation(lines[idx]);
     var indentation = current.indentation;
     var data = current.data;
@@ -628,13 +635,13 @@ return {"next_idx": next_idx, "result": result};
 
     switch (keyword) {
         case "if":
-        return parse_dynamicblock_if(indentation, parsed_tag, lines, idx);
+        return parse_dynamicblock_if(indentation, parsed_tag, idx);
 
         case "else":
         throw "Standalone else is not allowed.";
 
         case "each":
-        return parse_dynamicblock_each(indentation, parsed_tag, lines, idx);
+        return parse_dynamicblock_each(indentation, parsed_tag, idx);
 
         default:
         throw "Unknown type of Dynamic Block '" + keyword + "'.";
@@ -644,18 +651,17 @@ return {"next_idx": next_idx, "result": result};
 /**
  * Parses a block by creating a new tag, and reading the next blocks with an
  * higher indentation level, and adding it to the contents of this tag.
- * @param {Array} lines Array containing all the lines.
  * @private
  * @returns {Object} Object with the next index to use for parsing the next
  * block (key: next_idx), and the final tag.
  */
- var parse_block = function parse_block(lines, idx) {
+ var parse_block = function parse_block(idx) {
     var current = parse_line_indentation(lines[idx]);
     var indentation = current.indentation;
     var data = current.data;
 
     if (is_dynamicblock(data)) {
-        return parse_dynamicblock(lines, idx);
+        return parse_dynamicblock(idx);
     }
 
     var tagdata = parse_tagline(data);
@@ -671,7 +677,7 @@ return {"next_idx": next_idx, "result": result};
     }
 
     var method = get_method_of_next_type(next_type);
-    return method(lines, tag, next_idx, indentation);
+    return method(tag, next_idx, indentation);
 };
 
 /**
@@ -681,7 +687,8 @@ return {"next_idx": next_idx, "result": result};
  * @returns {Array} Array containing trees starting at the top level.
  */
  var parse = function parse(input) {
-    var lines = input.split("\n");
+    var read_lines = input.split("\n");
+    set_lines(read_lines);
 
     // Filter out blank lines
     lines = lines.filter(function(line) {
@@ -694,7 +701,7 @@ return {"next_idx": next_idx, "result": result};
     var has_next = (idx < lines.length);
     
     while (has_next) {
-        var blockresult = parse_block(lines, idx);
+        var blockresult = parse_block(idx);
         result.push(blockresult.result);
         idx = blockresult.next_idx;
         has_next = (idx < lines.length);
