@@ -2,7 +2,6 @@
 /* Imports */
 /***********/
 
-var Tag               = require("./redstone-types.js").Tag;
 var DynamicExpression = require("./redstone-types.js").DynamicExpression;
 var DynamicBlock      = require("./redstone-types.js").DynamicBlock;
 
@@ -25,12 +24,12 @@ var flag_in_each = false;
 
 /**
  * Sets the context to use to get information from.
- * @param {ConvertorContext} newcontext The context to use
+ * @param {ConverterContext} newContext The context to use
  * @private
  */
-var set_context = function set_context(newcontext) {
-    context = newcontext;
-}
+var set_context = function set_context(newContext) {
+    context = newContext;
+};
 
 /**
  * Sets the flag the preparer is currently descending or not in an {{#each}} block.
@@ -39,7 +38,7 @@ var set_context = function set_context(newcontext) {
  */
 var set_in_each_flag = function set_in_each_flag(flag) {
     flag_in_each = flag;
-}
+};
 
 /**
  * Returns the value of the flag that keeps track whether or not we are descending in an {{#each}} block.
@@ -48,7 +47,7 @@ var set_in_each_flag = function set_in_each_flag(flag) {
  */
 var is_in_each = function is_in_each() {
     return flag_in_each;
-}
+};
 
 /**
  * Recursively finds all the variable names in the given expression for 
@@ -77,8 +76,7 @@ var is_in_each = function is_in_each() {
 
 /**
  * Finds all the variable names in the argument.
- * @param {Argument} argument The argument of a function to find variable names
- * in.
+ * @param {Object} argument The argument of a function to find variable names in.
  * @private
  * @returns {Array} List of variable names in the argument.
  */
@@ -122,11 +120,9 @@ var is_in_each = function is_in_each() {
         result.concat(subresult);
     }
 
-    var filteredResult = result.filter(function(item, pos, self) {
+    return result.filter(function (item, pos, self) {
         return self.indexOf(item) == pos;
     });
-
-    return filteredResult;
 };
 
 /**
@@ -194,10 +190,9 @@ var is_in_each = function is_in_each() {
 
     switch (expression.type) {
         case esprima.Syntax.Identifier:
-            var varname = expression.name;
             return {
                 "type": "Identifier",
-                "varname": varname
+                "varname": expression.name
             };
 
         case esprima.Syntax.CallExpression:
@@ -300,13 +295,13 @@ var is_in_each = function is_in_each() {
 };
 
 /**
- * Generates a random identifier for a dynamic block/segment.
+ * Generates a random identifier for a dynamic (reactive) block/segment.
  * @private
- * @returns A random string
+ * @returns {String} A random string
  */
-var generate_randomrid = function generate_randomrid() {
+var generate_randomRId = function generate_randomRId() {
     return "r" + randomstring.generate(context.random_length);
-}
+};
 
 /**
  * Prepares a dynamic expression.
@@ -318,7 +313,7 @@ var generate_randomrid = function generate_randomrid() {
 
     if (!is_in_each()) {
         // Prefix with r, as first character can be a number, and r = reactivity.
-        var randomId = generate_randomrid();
+        var randomId = generate_randomRId();
         var expression = dynamic.expression;
         var AST = esprima.parse(expression);
         var parsedExpression = parse_ast(AST);
@@ -339,8 +334,10 @@ var generate_randomrid = function generate_randomrid() {
  */
 var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
     var type = dynamic.type;
-    var randomId = generate_randomrid();
+    var randomId = generate_randomRId();
     dynamic.idName = randomId;
+
+    var parsedExpression, crumb;
 
     switch (type) {
         case "if":
@@ -356,8 +353,8 @@ var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
                 prepare_tree(expression);
             });
 
-            var parsedExpression = parse_ast(predicate);
-            var crumb = {
+            parsedExpression = parse_ast(predicate);
+            crumb = {
                 id: randomId,
                 on_update: parsedExpression
             };
@@ -378,8 +375,8 @@ var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
             });
             set_in_each_flag(old_in_each);
 
-            var parsedExpression = parse_ast(obj_expr);
-            var crumb = {
+            parsedExpression = parse_ast(obj_expr);
+            crumb = {
                 id: randomId,
                 on_update: parsedExpression
             };
@@ -388,7 +385,7 @@ var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
             dynamic.crumb = crumb;
 
     }
-}
+};
 
 /**
  * Prepares a tree, looking for dynamic segments and callback installers.
@@ -438,7 +435,7 @@ var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
     set_context(newcontext);
     
     input.forEach(function(tree) {
-        prepare_tree(tree, context);
+        prepare_tree(tree);
     });
 };
 

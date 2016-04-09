@@ -21,24 +21,24 @@ var context = {};
 
 /**
  * Sets the context to use to get information from.
- * @param {ConvertorContext} newcontext The context to use
+ * @param {ConverterContext} newContext The context to use
  * @private
  */
- var set_context = function set_context(newcontext) {
-    context = newcontext;
-}
+ var set_context = function set_context(newContext) {
+    context = newContext;
+};
 
 /**
- * Creates a string for identation.
- * @param {Number} ident The indentation level.
- * @param {String} str The string to use for identation (default: "\t")
+ * Creates a string for indentation.
+ * @param {Number} indentation The indentation level.
+ * @param {String} [str] The string to use for indentation (default: "\t")
  * @private
  */
- var create_indent = function create_indent(indent, str) {
+ var create_indent = function create_indent(indentation, str) {
     if (str === undefined) {
         str = "\t";
     }
-    return str.repeat(indent);
+    return str.repeat(indentation);
 };
 
 /**
@@ -100,7 +100,7 @@ var context = {};
 /**
  * Generate the opening tag, including the soras definitions.
  * @param {Tag} tag The tag to get id, classes and attributes for.
- * @param {Boolean} selfclosing Wether this tag is a self-closing tag.
+ * @param {Boolean} [selfclosing] Whether this tag is a self-closing tag.
  * @returns {String} String containing the opening tag for the given tag.
  */
  var generate_opentag = function generate_opentag(tag, selfclosing) {
@@ -178,15 +178,14 @@ var context = {};
  * Generates HTML for a generic tag name, without any innerHTML and no
  * limitations on classes, ids or attributes. E.g. br, img...
  * @param {Tag} tag The tag to generate HTML code for.
- * @param {Number} indent The indentation level to use.
+ * @param {Number} indentation The indentation level to use.
  * @private
  * @returns HTML for the given tag.
  */
- var generate_selfclosing = function generate_selfclosing(tag, indent) {
+ var generate_selfclosing = function generate_selfclosing(tag, indentation) {
     preprocess_tag(tag);
 
-    var resultHTML = create_indent(indent);
-
+    var resultHTML = create_indent(indentation);
     resultHTML += generate_opentag(tag, true);
     return resultHTML;
 };
@@ -194,19 +193,19 @@ var context = {};
 /**
  * Generates HTML for a dynamic segment.
  * @param {DynamicExpression} dynamic The segment to generate code for.
- * @param {Number} indent The indentation level to use.
+ * @param {Number} indentation The indentation level of the given segment.
  * @private
  * @returns HTML for the given tag.
  */
- var generate_dynamic_expression = function generate_dynamic_expression(dynamic, indent) {
+ var generate_dynamic_expression = function generate_dynamic_expression(dynamic, indentation) {
     var randomid = dynamic.idName;
     var expression = dynamic.expression;
-    var html;
+    var html = create_indent(indentation);
 
     if (randomid !== undefined) {
-        html = "{{" + randomid + "}}";
+        html += "{{" + randomid + "}}";
     } else {
-        html = "{{" + expression + "}}";
+        html += "{{" + expression + "}}";
     }
 
     return html;
@@ -236,7 +235,7 @@ var context = {};
     html += create_indent(indent) + "{{/if}}\n";
 
     return html;
-}
+};
 
 /**
  * Generates a dynamic if block.
@@ -254,7 +253,7 @@ var context = {};
     html += create_indent(indent) + "{{/each}}\n";
 
     return html;
-}
+};
 
 /**
  * Generates HTML code for a dynamic block. E.g. {{#if predicate}} or {{#each object}}
@@ -275,7 +274,7 @@ var context = {};
         default:
         throw "Unknown type of dynamic block: '" + type + "'."
     }
-}
+};
 
 /**
  * Returns the correct generator, given a tagname.
@@ -301,7 +300,7 @@ var context = {};
 
 /**
  * Generates for a given tree (Tag).
- * @param {Tag} The root of the tree.
+ * @param {Tag|DynamicExpression|DynamicBlock} tree The root of the tree.
  * @param {Number} indent The indentation level to use.
  * @private
  * @returns HTML for the entire tree.
@@ -341,16 +340,16 @@ var context = {};
     return input.map(function (tree) {
         return generate_tree(tree, indentation);
     }).join("\n");
-}
+};
 
 /**
  * Generates HTML for given list
  * @param {Array} input The parsed document
- * @param {ConvertorContext} newcontext The context to use
+ * @param {ConverterContext} newContext The context to use
  * @returns HTML code for the given tree.
  */
- var generate = function generate(input, newcontext) {
-    set_context(newcontext);
+ var generate = function generate(input, newContext) {
+    set_context(newContext);
 
     var html = "<!DOCTYPE html>\n";
     html += "<html>\n";

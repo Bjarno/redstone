@@ -115,7 +115,7 @@ var lines = [];
  * @param {String} str The string to check whether it is a letter.
  * @returns {Boolean} Whether the given string is a letter.
  */
- function isLetter(str) {
+ var isLetter = function isLetter(str) {
   return str.length === 1 && str.match(/[a-z]/i);
 };
 
@@ -125,7 +125,7 @@ var lines = [];
  * @param {String} str The string to check whether it is a number.
  * @returns {Boolean} Whether the given string is a number.
  */
- function isNumber(str) {
+ var isNumber = function isNumber(str) {
   return (str.length === 1) && str.match(/[0-9]/);
 };
 
@@ -137,7 +137,7 @@ var lines = [];
  * @returns {Object} Object with the resulting token (key: token) and the
  * next index to continue parsing (key: next_idx).
  */
- function parse_tagdata_attribute(data, idx) {
+var parse_tagdata_attribute = function parse_tagdata_attribute(data, idx) {
     idx++;
     var name = "";
     var value = "";
@@ -422,12 +422,12 @@ return {"next_idx": next_idx, "result": tag};
 
 /**
  * Removes indentation from a string.
- * @param {Number} ident The indentation level.
+ * @param {Number} indentation The indentation level.
  * @param {String} str The string to delete indentation from.
  * @private
  */
- var remove_indent = function remove_indent(indent, str) {
-    return str.substring(indent, str.length);
+ var remove_indent = function remove_indent(indentation, str) {
+    return str.substring(indentation, str.length);
 };
 
 /**
@@ -515,7 +515,7 @@ return {"next_idx": next_idx, "result": tag};
     var rests = rest.split(" ", 2);
 
     return {"keyword": rests[0], "rest": rests[1]};
-}
+};
 
 /**
  * Parses a dynamic if block, and the matching else block
@@ -582,7 +582,7 @@ return {"next_idx": next_idx, "result": tag};
     }
 }
 return {"next_idx": next_idx, "result": result};
-}
+};
 
 /**
  * Parses a dynamic each block, and the matching else block
@@ -618,7 +618,7 @@ return {"next_idx": next_idx, "result": result};
     result.object = expression;
 
     return {"next_idx": next_idx, "result": result};
-}
+};
 
 /**
  * Parses a dynamic block.
@@ -646,7 +646,7 @@ return {"next_idx": next_idx, "result": result};
         default:
         throw "Unknown type of Dynamic Block '" + keyword + "'.";
     }
-}
+};
 
 /**
  * Parses a block by creating a new tag, and reading the next blocks with an
@@ -658,15 +658,15 @@ return {"next_idx": next_idx, "result": result};
  var parse_block = function parse_block(idx) {
     var current = parse_line_indentation(lines[idx]);
     var indentation = current.indentation;
-    var data = current.data;
+    var lineData = current.data;
 
-    if (is_dynamicblock(data)) {
+    if (is_dynamicblock(lineData)) {
         return parse_dynamicblock(idx);
     }
 
-    var tagdata = parse_tagline(data);
+    var tagdata = parse_tagline(lineData);
     var next_type = tagdata.next_type;
-    var data = tagdata.data;
+    data = tagdata.data;
     var content = tagdata.content;
     
     var tag = parse_tagdata(data);

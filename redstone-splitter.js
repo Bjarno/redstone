@@ -14,7 +14,7 @@ var array_indexOfSmallest = require("./utils.js").array_indexOfSmallest;
 /**
  * Splits a string document, by using tagged comment blocks.
  * @param {String} input The input file
- * @param {Array} blocks Array of strings of the different blocks.
+ * @param {Array} [blocks] Array of strings of the different blocks.
  * @returns {Object} Object containing key pairs of the different blocks, with
  * its values arrays of the different blocks.
  */
@@ -37,12 +37,11 @@ var split = function split(input, blocks) {
 
 	var smallestpos = positions[smallestidx];
 	var smallestblockcomment = blockcomments[smallestidx];
-	var smallestblock = blocks[smallestidx]
+	var smallestblock = blocks[smallestidx];
 
 	// Generate input without /* @... */, to find end of block.
 
-	var end = smallestpos;
-	var first_input = input.substring(0, end);
+	var first_input = input.substring(0, smallestpos);
 	var start = smallestpos + smallestblockcomment.length;
 	var last_input = input.substring(start, input.length);
 
@@ -58,7 +57,7 @@ var split = function split(input, blocks) {
 	rest.unknown.push(first_input);
 
 	return rest;
-}
+};
 
 /***********/
 /* Exports */

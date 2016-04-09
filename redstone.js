@@ -13,13 +13,12 @@ var dump = require("./utils.js").dump;
 var head = require("./utils.js").head;
 var subhead = require("./utils.js").subhead;
 var debugEcho = require("./utils.js").debugEcho;
-var readFile = require("./utils.js").readFile;
 
 /**
- * Fills in the default values for an settings object. It will create (and 
+ * Fills in the default values for an settings object. It will create (and
  * return) an empty settings object with all default settings, if an invalid
  * one is given.
- * @param {Object} Object containing settings.
+ * @param {Object} settings Object containing settings.
  */
 var preprocess_settings = function preprocess_settings(settings) {
 	if (typeof settings !== "object") {
@@ -59,7 +58,7 @@ var generate = function generate(input) {
 	subhead("Javascript");
 	debugEcho(js);
 	subhead("CSS");
-	debugEcho(css);
+	debugEcho(css ? css : "none");
 	subhead("Settings");
 	dump(settings);
 

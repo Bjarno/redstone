@@ -3,6 +3,7 @@
 /***********/
 
 var Tag = require("./redstone-types.js").Tag;
+var escodegen = require("escodegen");
 
 
 /**********/
@@ -18,17 +19,17 @@ var context = {};
 
 /**
  * Sets the context to use to get information from.
- * @param {ConvertorContext} newcontext The context to use
+ * @param {ConverterContext} newContext The context to use
  * @private
  */
- var set_context = function set_context(newcontext) {
-    context = newcontext;
-}
+ var set_context = function set_context(newContext) {
+    context = newContext;
+};
 
 /**
  * Generates the final clientside Javascript code, wrapped in a jQuery $(document).ready(...)
  * @private
- * @returns The final client js code
+ * @returns {String} The final client js code
  */
  var generate_innerjs = function generate_innerjs() {
     var js = context.js.reverse();
@@ -38,15 +39,15 @@ var context = {};
         result += "\n" + block;
     });
 
-    result += "\n// <-- End generated\n});"
+    result += "\n// <-- End generated\n});";
 
     return result;
-}
+};
 
 /**
  * Generates esprima AST for the part of the code that starts the Ractivity container.
  * @private
- * @returns {Program} AST program containing the boot code for the Ractivity container.
+ * @returns {Object} AST program containing the boot code for the Ractivity container.
  */
  var generate_reactivity = function generate_reactivity() {
     var result = {
@@ -151,7 +152,7 @@ var context = {};
     context.crumbs.forEach(function (crumb) {
         push_kv(crumb.id, {
             "type": "Identifier",
-            "value": "undefined",
+            "value": "undefined"
         });
     });
 
@@ -174,27 +175,28 @@ var context = {};
     });
 
     return newobj;
-}
+};
 
 /**
  * Generates Javascript code with information about the crumbs, stored in a CRUMBS variable.
  * @private
- * @returns Javascript code so the client can read information about crumbs.
+ * @returns {String} Javascript code so the client can read information about crumbs.
  */
  var generate_crumbsjs = function generate_crumbsjs() {
     var crumbs = optimize_crumbs(context.crumbs);
     var result = "";
-    result += "CRUMBS = " + JSON.stringify(crumbs) + ";";
+    var json = JSON.stringify(crumbs);
+    result += "CRUMBS = " +  json + ";";
     return result;
-}
+};
 
 /**
  * Includes Javascript rules and external libraries into the HTML trees.
  * @param {Array} input Array of HTML trees.
- * @param {ConverterContext} newcontext The context to use.
+ * @param {ConverterContext} newContext The context to use.
  */
- var applyContext = function applyContext(input, newcontext) {
-    set_context(newcontext);
+ var applyContext = function applyContext(input, newContext) {
+    set_context(newContext);
 
     // Find specific elements in the tree
     input.forEach(function(tree) {
@@ -266,11 +268,11 @@ var context = {};
             tree.content.push(main_template);
 
             var reactivity = new Tag("script");
-            reactivity.content.push("\n" + escodegen.generate(generate_reactivity(context)) + "\n");
+            reactivity.content.push("\n" + escodegen.generate(generate_reactivity()) + "\n");
             tree.content.push(reactivity);
         }
     });
-}
+};
 
 
 /***********/

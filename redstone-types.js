@@ -6,11 +6,11 @@
  * Represents an HTML tag, together with the content.
  * @constructor
  * @param {String} tagname - The name of the tag.
- * @param {String} id - The id of the tag.
- * @param {Array} classes - Array containing the classes of the tag.
- * @param {Object} attributes - Object containing the attributes and values
+ * @param {String} [id] - The id of the tag.
+ * @param {Array} [classes] - Array containing the classes of the tag.
+ * @param {Object} [attributes] - Object containing the attributes and values
  * of this tag.
- * @param {Array|undefined} content - The contents of this tag.
+ * @param {Array} [content] - The contents of this tag.
  * @private
  */
 var Tag = function Tag(tagname, id, classes, attributes, content) {
@@ -24,9 +24,8 @@ var Tag = function Tag(tagname, id, classes, attributes, content) {
 /**
  * Represents a segment that is dynamically updated.
  * @constructor
- * @param {String} variablename - The name of the variable, that should be
- * used to dynamically update this segment.
- * @public
+ * @param {String} expression The raw expression
+ * @param {String} idName The idName of the DynamicExpression
  */
 var DynamicExpression = function DynamicExpression(expression, idName) {
 	this.expression = expression;
@@ -40,7 +39,8 @@ var DynamicExpression = function DynamicExpression(expression, idName) {
  */
 var DynamicBlock = function DynamicBlock(type) {
 	this.type = type;
-}
+	this.idName = undefined;
+};
 
 /**
  * Object with options, and metadata of a conversion.
@@ -54,7 +54,7 @@ var ConverterContext = function ConverterContext(options) {
 	this.crumbs = [];
 	this.options = options;
 	this.css = false;
-}
+};
 
 
 /***********/
