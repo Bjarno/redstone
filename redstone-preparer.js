@@ -161,14 +161,12 @@ var parse_memberexpression = function parse_memberexpression(expression) {
 };
 
 /**
- * Parses an AST tree of a dynamic expression, and outputs the type, and
- * information about the arguments (variable names) if it is a method call,
- * or how to treat the object (simple identifier, or a member expression).
+ * Parses an AST tree of a dynamic expression, and outputs the type, and information about the arguments (variable
+ * names) if it is a method call, or how to treat the object (simple identifier, or a member expression).
  * @param {AST} AST The AST tree of a dynamic expression.
  * @private
- * @returns {Object} Object with the type of the expression (key: type), and
- * depending on the type, more information about the variable names of the
- * arguments if it is a method call.
+ * @returns {Object} Object with the type of the expression (key: type), and depending on the type, more information
+ * about the variable names of the arguments if it is a method call.
  */
 var parse_ast = function parse_ast(AST) {
     if (AST.type !== esprima.Syntax.Program) {
@@ -276,8 +274,7 @@ var get_id = function get_id(tag) {
 
 /**
  * Generates Javascript code to install an event listener.
- * @param {Tag} tag The tag that should be used to link the callback to the
- * event.
+ * @param {Tag} tag The tag that should be used to link the callback to the event.
  * @param {String} ev The event to use. Assumes $(...).<event> exists.
  * @param {String} callback Name of the global callback function.
  * @private
@@ -426,8 +423,7 @@ var prepare_tree = function prepare_tree(tree) {
 };
 
 /**
- * Generates crumbs for dynamic content, and generates
- * Javascript for installing callbacks.
+ * Generates crumbs for dynamic content, and generates Javascript for installing callbacks.
  * @param {Array} input Array of HTML trees.
  * @param {ConverterContext} newcontext The context to use.
  */

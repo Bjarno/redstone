@@ -30,7 +30,7 @@ var preprocess_settings = function preprocess_settings(settings) {
 	if (!settings.hasOwnProperty("selfclosing_backslash")) {
 		settings.selfclosing_backslash = false;
 	}
-	
+
 	return settings;
 };
 
@@ -48,7 +48,7 @@ var generate = function generate(input) {
 			"/* @client */" + chunks.client.join("\n") + "\n" +
 			"/* @server */" + chunks.server.join("\n"),
 		css      = (chunks.hasOwnProperty("css") ? chunks.css.join("\n") : false),
-		settings = (chunks.hasOwnProperty("settings") ? chunks.settings : {});
+		settings = (chunks.hasOwnProperty("settings") ? chunks.settings.join("\n") : "{}");
 
 	head("Raw chunks");
 	dump(chunks);

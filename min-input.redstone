@@ -8,20 +8,12 @@
 
 /* @client */
 {
-	function randomInt(min, max) {
-		return Math.floor(Math.random() * (max - min + 1)) + min;
-	}
-	
-	var name = "user" + randomInt(100, 10000),
-		text = $("#msg"),
-		log  = $("#log");
+	var name = "user" + (Math.floor(Math.random() * 9901) + 100);
+    var messages = [];
 
-	var messages = [];
-
-	function sendmsg() {
-		var msg = text.val();
-		broadcast(name, msg);
-		text.val("");
+	function sendMessage() {
+		broadcast(name, $("#msg").val());
+		$("#msg").val("");
 	}
 
 	function displayMessage(name, message) {
@@ -37,25 +29,4 @@ body
 		{{#each messages}}
 			p {{name}} says: {{message}}
 	textarea#msg
-	button[@click=sendmsg]#send Send
-
-/* @css */
-textarea, #log {
-	display: block;
-	font-family: monospace;
-	width: 85%;
-}
-
-#log {
-	height: 250px;
-	overflow: auto;
-}
-
-#log p {
-	margin: 2px;
-}
-
-/* @settings */
-{
-    "random_length": 5
-}
+	button[@click=sendMessage]#send Send
