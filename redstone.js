@@ -24,12 +24,13 @@ var preprocess_settings = function preprocess_settings(settings) {
 	if (typeof settings !== "object") {
 		settings = {};
 	}
-	if (!(settings.hasOwnProperty("random_length"))) {
+	if (!settings.hasOwnProperty("random_length")) {
 		settings.random_length = 32;
 	}
-	if (!(settings.hasOwnProperty("selfclosing_backslash"))) {
+	if (!settings.hasOwnProperty("selfclosing_backslash")) {
 		settings.selfclosing_backslash = false;
 	}
+	
 	return settings;
 };
 
@@ -62,7 +63,8 @@ var generate = function generate(input) {
 	subhead("Settings");
 	dump(settings);
 
-	// Preprocess the settings, by supplying the default values
+	// Pre-process the settings, by supplying the default values
+	settings = JSON.parse(settings);
 	settings = preprocess_settings(settings);
 	var context = new ConverterContext(settings);
 	context.css = css;

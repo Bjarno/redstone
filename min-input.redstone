@@ -54,3 +54,8 @@ textarea, #log {
 #log p {
 	margin: 2px;
 }
+
+/* @settings */
+{
+    "random_length": 5
+}

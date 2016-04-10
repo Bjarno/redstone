@@ -268,7 +268,7 @@ var get_id = function get_id(tag) {
         return id;
     }
 
-    var len = context.random_length;
+    var len = context.options.random_length;
     id = randomstring.generate(len);
     tag.id = id;
     return id;
@@ -300,7 +300,7 @@ var generate_js_callback = function generate_js_callback(tag, ev, callback) {
  * @returns {String} A random string
  */
 var generate_randomRId = function generate_randomRId() {
-    return "r" + randomstring.generate(context.random_length);
+    return "r" + randomstring.generate(context.options.random_length);
 };
 
 /**
