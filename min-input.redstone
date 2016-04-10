@@ -9,7 +9,7 @@
 /* @client */
 {
 	var name = "user" + (Math.floor(Math.random() * 9901) + 100);
-    var messages = [];
+	var messages = [];
 
 	function sendMessage() {
 		broadcast(name, $("#msg").val());
