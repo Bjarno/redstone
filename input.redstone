@@ -1,4 +1,4 @@
-/* @server */ 
+/* @server */
 {
   function broadcast(name, message) {
 	  console.log(name + " said: " + message);
@@ -17,12 +17,10 @@
 	last.message = "no-message";
 	last.author = "no-author";
 
-	var hassmiley = false;
-
 	function randomInt(min, max) {
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
-	
+
 	var name = "user" + randomInt(100, 10000),
 		text = $("#msg");
 
@@ -37,13 +35,18 @@
 	function displayMessage(name, message) {
 		last.message = message; // Must be on client (!)
 		last.author  = name;
-		hassmiley = (message.indexOf(":)") != -1);
-		
+
 		var m = {};
 		m.name = name;
 		m.message = message;
 		messages.push(m);
 	}
+
+	var count = 0;
+
+    function increaseCounter() {
+        count = count + 1;
+    }
 }
 
 /* @ui */
@@ -60,16 +63,12 @@ head
 			overflow: auto;
 			background-color: white;
 		}
-	link[rel=stylesheet][type=text/css][href=style.css]
 body
 	div#log
 		{{#each messages}}
 			p {{name}} says: {{message}}
 	textarea#msg
 	button[@click=sendmsg]#send Send
-	{{#if hassmiley}}
-		p Last message has a smiley face!
-	{{#else}}
-		p Last message doesn't have a smiley face! :(
 	p.
 		Last message: {{last.message}} by {{last.author}}.
+	button[@click=increaseCounter]#countbutton I've been clicked {{count}} times.
