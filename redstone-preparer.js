@@ -62,6 +62,7 @@ var is_in_each = function is_in_each() {
 var parse_memberexpression_varname = function parse_memberexpression_varname(expression) {
     switch (expression.type) {
         case esprima.Syntax.Identifier:
+            expression.isInCrumb = true; // While evaluating, make sure we know this identifier name should be looked up locally
             return expression.name;
 
         case esprima.Syntax.MemberExpression:
@@ -87,6 +88,7 @@ var find_varnames_expression = function find_varnames_expression(expression) {
             break;
 
         case esprima.Syntax.Identifier:
+            expression.isInCrumb = true; // While evaluating, make sure we know this identifier name should be looked up locally
             result.push(expression.name);
             break;
 
