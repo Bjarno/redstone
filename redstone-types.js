@@ -71,6 +71,7 @@ var ConverterContext = function ConverterContext(options) {
 	this.options = options;
 	this.css = false;
 	this.idNames = [];
+	this.varname2declNode = {};
 };
 
 /**
