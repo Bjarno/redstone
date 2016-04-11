@@ -65,13 +65,14 @@ var DynamicEachBlock = function DynamicEachBlock(objectExpression) {
  * values and default values, see redstone-parser.js.
  */
 var ConverterContext = function ConverterContext(options) {
-	this.js = [];
-	this.callbacks = [];
-	this.crumbs = [];
-	this.options = options;
-	this.css = false;
-	this.idNames = [];
-	this.varname2declNode = {};
+	this.js = []; // List of generated Javascript
+	this.callbacks = []; // List of callback names (as strings)
+	this.crumbs = []; // List containing crumbs
+	this.options = options; // Object containing options
+	this.css = false; // Generated + supplied css
+	this.idNames = []; // List of generated idNames, to make sure there are no duplicates
+	this.varname2declNode = {}; // Mapping from variable names (as strings) to their declaration nodes
+	this.stip = {}; // Information about Stip tool is temporary saved here
 };
 
 /**
