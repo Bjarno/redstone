@@ -3,7 +3,10 @@
 /***********/
 
 var DynamicExpression = require("./redstone-types.js").DynamicExpression;
-var DynamicBlock      = require("./redstone-types.js").DynamicBlock;
+var DynamicIfBlock    = require("./redstone-types.js").DynamicIfBlock;
+var DynamicEachBlock  = require("./redstone-types.js").DynamicEachBlock;
+var Crumb             = require("./redstone-types.js").Crumb;
+var Tag               = require("./redstone-types.js").Tag;
 
 var randomstring = require("randomstring");
 var esprima = require("esprima");
@@ -50,110 +53,20 @@ var is_in_each = function is_in_each() {
 };
 
 /**
- * Recursively finds all the variable names in the given expression for
- * a function's arguments.
- * @param {Expression} expression The expression to look for variable names for.
- * @private
- * @returns {Array} List of variable names in this expression.
- */
-var find_varnames_expression = function find_varnames_expression(expression) {
-    switch (expression.type) {
-        case esprima.Syntax.Literal:
-            return [];
-
-        case esprima.Syntax.BinaryExpression:
-            var result = find_varnames_expression(expression.left);
-            result = result.concat(find_varnames_expression(expression.right));
-            return result;
-
-        case esprima.Syntax.Identifier:
-            return [expression.name];
-
-        default:
-            throw "Unknown ExpressionStatement type '" + expression.type + "'.";
-    }
-};
-
-/**
- * Finds all the variable names in the argument.
- * @param {Object} argument The argument of a function to find variable names in.
- * @private
- * @returns {Array} List of variable names in the argument.
- */
-var find_varnames_argument = function find_varnames_argument(argument) {
-    // Note about arguments:
-    // Args can only be identifiers, literals or combination using
-    // BinaryExpressions.
-
-    var type = argument.type;
-
-    switch (type) {
-        case esprima.Syntax.Literal:
-            return [];
-
-        case esprima.Syntax.Identifier:
-            return [argument.name];
-
-        case esprima.Syntax.ExpressionStatement:
-            var expression = argument.expression;
-            return find_varnames_expression(expression);
-
-        default:
-            throw "Unknown type " + type + " of statement as argument.";
-    }
-};
-
-/**
- * Finds all the variable names in the arguments.
- * Results are filtered, so each variable name only occurs once.
- * @param {Array} args List of arguments of a method call.
- * @private
- * @returns {Array} List of variable names as Strings.
- */
-var find_varnames_arguments = function find_varnames_arguments(args) {
-    var result = [];
-
-    var subresult;
-    for (var i = 0; i < args.length; i++) {
-        var argument = args[i];
-        subresult = find_varnames_argument(argument);
-        result.concat(subresult);
-    }
-
-    return result.filter(function (item, pos, self) {
-        return self.indexOf(item) == pos;
-    });
-};
-
-/**
  * Parses a MemberExpression to find the hierarchy of properties.
  * @param {MemberExpression} expression The expression to find the combination of the variable name (most-left) and the property hierarchy that is
  * requested from the MemberExpression.
  * @private
- * @returns {Object} containing the variable name (key: varname) and the ordered hierarchy of accessed properties (key: properties)
+ * @returns {String} containing the variable name (key: varname) and the ordered hierarchy of accessed properties (key: properties)
  */
-var parse_memberexpression = function parse_memberexpression(expression) {
+var parse_memberexpression_varname = function parse_memberexpression_varname(expression) {
     switch (expression.type) {
         case esprima.Syntax.Identifier:
-            var varname = expression.name;
-            return {
-                varname: varname,
-                properties: []
-            };
+            return expression.name;
 
         case esprima.Syntax.MemberExpression:
-            var property = expression.property;
-            var object = expression.object;
-
-            // Check type of property (only allow identifiers)
-            if (property.type !== esprima.Syntax.Identifier) {
-                throw "Only supports identifiers for MemberExpression's property.";
-            }
-
-            // Get the next level, and append/push this property at the end
-            var a = parse_memberexpression(object);
-            a.properties.push(property.name);
-            return a;
+            // Get the next level
+            return parse_memberexpression_varname(expression.object);
 
         default:
             throw "Only supports identifiers (or nested MemberExpressions) for MemberExpression's object.";
@@ -161,14 +74,47 @@ var parse_memberexpression = function parse_memberexpression(expression) {
 };
 
 /**
+ * Recursively finds all the (top-level) variable names in the given expression
+ * @param {Expression} expression The expression to look for variable names for.
+ * @private
+ * @returns {Array} List of variable names in this expression.
+ */
+var find_varnames_expression = function find_varnames_expression(expression) {
+    var result = [];
+
+    switch (expression.type) {
+        case esprima.Syntax.Literal:
+            break;
+
+        case esprima.Syntax.Identifier:
+            result.push(expression.name);
+            break;
+
+        case esprima.Syntax.MemberExpression:
+            result.push(parse_memberexpression_varname(expression));
+            break;
+
+        case esprima.Syntax.BinaryExpression:
+            result = result.concat(find_varnames_expression(expression.left));
+            result = result.concat(find_varnames_expression(expression.right));
+            break;
+
+        default:
+            throw "Unknown ExpressionStatement type '" + expression.type + "'.";
+    }
+
+    return result;
+};
+
+/**
  * Parses an AST tree of a dynamic expression, and outputs the type, and information about the arguments (variable
  * names) if it is a method call, or how to treat the object (simple identifier, or a member expression).
- * @param {AST} AST The AST tree of a dynamic expression.
+ * @param {Object} AST The AST tree of a dynamic expression.
  * @private
- * @returns {Object} Object with the type of the expression (key: type), and depending on the type, more information
+ * @returns {Array} Object with the type of the expression (key: type), and depending on the type, more information
  * about the variable names of the arguments if it is a method call.
  */
-var parse_ast = function parse_ast(AST) {
+var parse_ast_varnames = function parse_ast_varnames(AST) {
     if (AST.type !== esprima.Syntax.Program) {
         throw "AST should start with Program";
     }
@@ -180,79 +126,10 @@ var parse_ast = function parse_ast(AST) {
 
     var statement = body[0];
     if (statement.type !== esprima.Syntax.ExpressionStatement) {
-        throw "The inner contents of a literal expression should be, as the name " +
-        " applies, an expression.";
+        throw "The inner contents of an dynamic expression should be an expression.";
     }
 
-    var expression = statement.expression;
-
-    switch (expression.type) {
-        case esprima.Syntax.Identifier:
-            return {
-                "type": "Identifier",
-                "varname": expression.name
-            };
-
-        case esprima.Syntax.CallExpression:
-            var callee = expression.callee;
-            var args = expression.arguments;
-
-            // Get variablenames in arguments
-            var varnames = find_varnames_arguments(args);
-
-            // Check if format is obj.func(args) or func(args)
-
-            switch (callee.type) {
-                case esprima.Syntax.Identifier:
-                    return {
-                        "type": "SimpleCallExpression",
-                        "variables": varnames,
-                        "function": callee.name
-                    };
-
-                case esprima.Syntax.MemberExpression:
-                    if (callee.computed) {
-                        throw "Unknown what to do when value is computed.";
-                    }
-
-                    if (callee.object.type !== esprima.Syntax.Identifier) {
-                        throw "Only supports identifiers for MemberExpressions's object.";
-                    }
-
-                    if (callee.property.type !== esprima.Syntax.Identifier) {
-                        throw "Only supports identifiers for MemberExpressions's property.";
-                    }
-
-                    return {
-                        "type": "MemberCallExpression",
-                        "variables": varnames,
-                        "property": callee.property.name,
-                        "object": callee.object.name
-                    };
-
-                default:
-                    throw "Unsupported type of CallExpression.";
-            }
-            break;
-
-        case esprima.Syntax.MemberExpression:
-            if (expression.computed) {
-                throw "Unknown what to do when value is computed.";
-            }
-
-            var a          = parse_memberexpression(expression),
-                varname    = a.varname,
-                properties = a.properties;
-
-            return {
-                "type": "MemberExpression",
-                "properties": properties,
-                "varname": varname
-            };
-
-        default:
-            throw "Unsupported type of Expression '" + expression.type + "'.";
-    }
+    return find_varnames_expression(statement.expression);
 };
 
 /**
@@ -297,7 +174,17 @@ var generate_js_callback = function generate_js_callback(tag, ev, callback) {
  * @returns {String} A random string
  */
 var generate_randomRId = function generate_randomRId() {
-    return "r" + randomstring.generate(context.options.random_length);
+    var r;
+
+    // Keep creating random idNames, until it is unique
+    do {
+        r = "r" + randomstring.generate(context.options.random_length);
+    } while (context.idNames.indexOf(r) !== -1);
+
+    // Let context know about this new idName
+    context.idNames.push(r);
+
+    return r;
 };
 
 /**
@@ -307,103 +194,95 @@ var generate_randomRId = function generate_randomRId() {
  */
 var prepare_dynamic_expression = function prepare_dynamic_expression(dynamic) {
     // Only do something when not in {{#each}}
-
     if (!is_in_each()) {
         // Prefix with r, as first character can be a number, and r = reactivity.
         var randomId = generate_randomRId();
         var expression = dynamic.expression;
         var AST = esprima.parse(expression);
-        var parsedExpression = parse_ast(AST);
+        var variableNames = parse_ast_varnames(AST);
 
-        dynamic.idName = randomId;
-
-        context.crumbs.push({
-            id: randomId,
-            on_update: parsedExpression
-        });
+        var crumb = new Crumb(randomId, variableNames, AST);
+        context.crumbs.push(crumb);
+        dynamic.crumb = crumb;
     }
 };
 
 /**
+ * Prepares a dynamic if block.
+ * @param {DynamicIfBlock} dynamic The block to prepare
+ * @private
+ */
+var prepare_dynamic_if_block = function prepare_dynamic_if_block(dynamic) {
+    var randomId = generate_randomRId();
+    var parsedPredicateExpression = esprima.parse(dynamic.predicateExpression);
+    var true_branch = dynamic.true_branch;
+    var false_branch = dynamic.false_branch;
+
+    true_branch.forEach(function (expression) {
+        prepare(expression);
+    });
+
+    false_branch.forEach(function (expression) {
+        prepare(expression);
+    });
+
+    var varNames = parse_ast_varnames(parsedPredicateExpression);
+    var crumb = new Crumb(randomId, varNames, parsedPredicateExpression);
+
+    context.crumbs.push(crumb);
+    dynamic.crumb = crumb;
+};
+
+/**
+ * Prepares a dynamic each block.
+ * @param {DynamicEachBlock} dynamic The block to prepare
+ * @private
+ */
+var prepare_dynamic_each_block = function prepare_dynamic_each_block(dynamic) {
+    var randomId = generate_randomRId();
+    var parsedObjectExpression = esprima.parse(dynamic.objectExpression);
+    var body = dynamic.body;
+
+    // Set/unset flag, so dynamic expressions are not parsed and taken for granted
+    var old_in_each_flag = is_in_each();
+    set_in_each_flag(true);
+    body.forEach(function (a) {
+        prepare(a);
+    });
+    set_in_each_flag(old_in_each_flag);
+
+    var variableNames = parse_ast_varnames(parsedObjectExpression);
+    var crumb = new Crumb(randomId, variableNames, parsedObjectExpression);
+
+    context.crumbs.push(crumb);
+    dynamic.crumb = crumb;
+}
+
+/**
  * Prepares a dynamic block.
- * @param {DynamicBlock} dynamic The block to prepare
+ * @param {DynamicIfBlock|DynamicEachBlock} dynamic The block to prepare
  * @private
  */
 var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
     var type = dynamic.type;
-    var randomId = generate_randomRId();
-    dynamic.idName = randomId;
-
-    var parsedExpression, crumb;
 
     switch (type) {
         case "if":
-            var predicate = esprima.parse(dynamic.predicate);
-            var true_branch = dynamic.true_branch;
-            var false_branch = dynamic.false_branch;
-
-            true_branch.forEach(function (expression) {
-                prepare_tree(expression);
-            });
-
-            false_branch.forEach(function (expression) {
-                prepare_tree(expression);
-            });
-
-            parsedExpression = parse_ast(predicate);
-            crumb = {
-                id: randomId,
-                on_update: parsedExpression
-            };
-
-            context.crumbs.push(crumb);
-
-            dynamic.crumb = crumb;
+            prepare_dynamic_if_block(dynamic);
             break;
 
         case "each":
-            var obj_expr = esprima.parse(dynamic.object);
-            var body = dynamic.body;
-
-            var old_in_each = is_in_each();
-            set_in_each_flag(true);
-            body.forEach(function (a) {
-                prepare_tree(a);
-            });
-            set_in_each_flag(old_in_each);
-
-            parsedExpression = parse_ast(obj_expr);
-            crumb = {
-                id: randomId,
-                on_update: parsedExpression
-            };
-
-            context.crumbs.push(crumb);
-            dynamic.crumb = crumb;
-
+            prepare_dynamic_each_block(dynamic);
+            break;
     }
 };
 
 /**
- * Prepares a tree, looking for dynamic segments and callback installers.
- * @param {Tag} tree The tree to handle.
+ * Prepares a dynamic tag.
+ * @param {Tag} tree The tag to prepare
  * @private
  */
-var prepare_tree = function prepare_tree(tree) {
-    var jstype = typeof tree;
-
-    if ( (jstype == "string") || (jstype == "boolean") || (jstype == "undefined") ) {
-        return;
-    }
-
-    if (tree instanceof DynamicExpression) {
-        return prepare_dynamic_expression(tree);
-    }
-
-    if (tree instanceof DynamicBlock) {
-        return prepare_dynamic_block(tree);
-    }
-
+var prepare_tag = function prepare_tag(tree) {
     // Install callbacks
     var attributes = tree.attributes;
     for (var name in attributes) {
@@ -418,8 +297,66 @@ var prepare_tree = function prepare_tree(tree) {
 
     // Loop over content of the tree.
     tree.content.forEach(function(subtree) {
-        prepare_tree(subtree);
+        prepare(subtree);
     });
+}
+
+/**
+ * Returns whether the given object is a dynamic expression
+ * @param {Object} obj The object to check
+ * @private
+ * @returns boolean true when the given object is a dynamic expression, false otherwise
+ */
+var is_dynamicExpression = function is_dynamicExpression(obj) {
+    return (obj instanceof DynamicExpression);
+};
+
+/**
+ * Returns whether the given object is a dynamic block
+ * @param {Object} obj The object to check
+ * @private
+ * @returns boolean true when the given object is a dynamic block, false otherwise
+ */
+var is_dynamicBlock = function is_dynamicBlock(obj) {
+    return ( (obj instanceof DynamicEachBlock) || (obj instanceof DynamicIfBlock) );
+};
+
+/**
+ * Returns whether the given object is a normal (HTML) tag
+ * @param {Object} obj The object to check
+ * @private
+ * @returns boolean true when the given object is a tag, false otherwise
+ */
+
+var is_tag = function is_tag(obj) {
+    return (obj instanceof Tag);
+};
+
+/**
+ * Prepares a tree, looking for dynamic segments and callback installers.
+ * @param {Tag|String|Boolean|undefined|DynamicExpression|DynamicIfBlock|DynamicEachBlock} obj The object to prepare.
+ * @private
+ */
+var prepare = function prepare_tree(obj) {
+    var jstype = typeof obj;
+
+    if ( (jstype == "string") || (jstype == "boolean") || (jstype == "undefined") ) {
+        return;
+    }
+
+    if (is_dynamicExpression(obj)) {
+        return prepare_dynamic_expression(obj);
+    }
+
+    if (is_dynamicBlock(obj)) {
+        return prepare_dynamic_block(obj);
+    }
+
+    if (is_tag(obj)) {
+        return prepare_tag(obj);
+    }
+
+    throw "Unknown type of \"tree\":" + obj;
 };
 
 /**
@@ -427,11 +364,11 @@ var prepare_tree = function prepare_tree(tree) {
  * @param {Array} input Array of HTML trees.
  * @param {ConverterContext} newcontext The context to use.
  */
-var prepare = function prepare(input, newcontext) {
+var prepare_array = function prepare_array(input, newcontext) {
     set_context(newcontext);
 
     input.forEach(function(tree) {
-        prepare_tree(tree);
+        prepare(tree);
     });
 };
 
@@ -440,4 +377,4 @@ var prepare = function prepare(input, newcontext) {
 /* Exports */
 /***********/
 
-exports.prepare = prepare;
+exports.prepare = prepare_array;

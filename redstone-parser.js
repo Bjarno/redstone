@@ -2,9 +2,10 @@
 /* Imports */
 /***********/
 
-var Tag            = require("./redstone-types.js").Tag;
+var Tag               = require("./redstone-types.js").Tag;
 var DynamicExpression = require("./redstone-types.js").DynamicExpression;
-var DynamicBlock = require("./redstone-types.js").DynamicBlock;
+var DynamicIfBlock    = require("./redstone-types.js").DynamicIfBlock;
+var DynamicEachBlock  = require("./redstone-types.js").DynamicEachBlock;
 
 
 /**********/
@@ -523,22 +524,20 @@ var parse_dynamicblock_tag = function parse_dynamicblock_tag(data) {
  * @param {Object} parsed_tag Object containing information about the tag (result of parse_dynamicblock_tag).
  * @param {Number} idx The current index we are reading
  * @private
- * @returns Object containing the dynamic if block (key: result) and the next index to read (key: next_idx)
+ * @returns {Object} containing the dynamic if block (key: result) and the next index to read (key: next_idx)
  */
 var parse_dynamicblock_if = function parse_dynamicblock_if(indentation, parsed_tag, idx) {
     var expression = parsed_tag.rest;
-    result = new DynamicBlock("if");
-    result.predicate = expression;
+    var result = new DynamicIfBlock(expression);
 
-    result.true_branch  = [];
-    result.false_branch = [];
-
+    // Parse the first block
     var true_branch = parse_block(idx + 1);
     result.true_branch.push(true_branch.result);
     var next_idx = true_branch.next_idx;
 
+    // Prepare the read more...
     var at_true_branch = true;
-    var parsedblock;
+    var parsedBlock;
 
     // While there is more to read
     while (next_idx < lines.length) {
@@ -546,15 +545,15 @@ var parse_dynamicblock_if = function parse_dynamicblock_if(indentation, parsed_t
 
         // More in current branch
         if (next.indentation > indentation) {
-            parsedblock = parse_block(next_idx);
+            parsedBlock = parse_block(next_idx);
 
             if (at_true_branch) {
-                result.true_branch.push(parsedblock.result)
+                result.true_branch.push(parsedBlock.result)
             } else {
-                result.false_branch.push(parsedblock.result)
+                result.false_branch.push(parsedBlock.result)
             }
 
-            next_idx = parsedblock.next_idx;
+            next_idx = parsedBlock.next_idx;
         } else {
             // Possible {{#else}}
             if (is_dynamicblock(next.data)) {
@@ -581,6 +580,7 @@ var parse_dynamicblock_if = function parse_dynamicblock_if(indentation, parsed_t
             }
         }
     }
+
     return {"next_idx": next_idx, "result": result};
 };
 
@@ -593,28 +593,28 @@ var parse_dynamicblock_if = function parse_dynamicblock_if(indentation, parsed_t
  * @returns Object containing the dynamic each block (key: result) and the next index to read (key: next_idx)
  */
 var parse_dynamicblock_each = function parse_dynamicblock_each(indentation, parsed_tag, idx) {
-    var result = new DynamicBlock("each");
     var expression = parsed_tag.rest;
+    var result = new DynamicEachBlock(expression);
 
     var body = parse_block(idx + 1);
     var next_idx = body.next_idx;
 
-    var totalbody = [body.result];
+    var totalBody = [body.result];
 
     // While there is more to read
     while (next_idx < lines.length) {
         var next = parse_line_indentation(lines[next_idx]);
 
         if (next.indentation > indentation) {
-            var parsedblock = parse_block(lines, next_idx);
-            totalbody.push(parsedblock.result);
+            var parsedblock = parse_block(next_idx);
+            totalBody.push(parsedblock.result);
             next_idx = parsedblock.next_idx;
         } else {
             break;
         }
     }
 
-    result.body = totalbody;
+    result.body = totalBody;
     result.object = expression;
 
     return {"next_idx": next_idx, "result": result};

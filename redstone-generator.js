@@ -150,7 +150,7 @@ var preprocess_tag = function preprocess_tag(tag) {
 
 /**
  * Generates HTML for a generic tag name, with an innerHTML and no limitations
- * on classes, ids or attributes.
+ * on classes, idNames or attributes.
  * @param {Tag} tag The tag to generate HTML code for.
  * @param {Number} indent The indentation level to use.
  * @private
@@ -176,7 +176,7 @@ var generate_generic = function generate_generic(tag, indent) {
 
 /**
  * Generates HTML for a generic tag name, without any innerHTML and no
- * limitations on classes, ids or attributes. E.g. br, img...
+ * limitations on classes, idNames or attributes. E.g. br, img...
  * @param {Tag} tag The tag to generate HTML code for.
  * @param {Number} indentation The indentation level to use.
  * @private
@@ -245,10 +245,10 @@ var generate_dynamic_block_if = function generate_dynamic_block_if(dynamic, inde
  * @returns HTML for the given tag.
  */
 var generate_dynamic_block_each = function generate_dynamic_block_each(dynamic, indent) {
-    var randomid = dynamic.idName;
+    var randomId = dynamic.idName;
     var html = "";
 
-    html += create_indent(indent) + "{{#each " + randomid + "}}\n";
+    html += create_indent(indent) + "{{#each " + randomId + "}}\n";
     html += generate_list(dynamic.body, indent + 1);
     html += create_indent(indent) + "{{/each}}\n";
 
