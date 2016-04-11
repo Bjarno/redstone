@@ -246,6 +246,11 @@ var applyContext = function applyContext(input, newContext) {
             objspy.attributes.src = "js/objspy.js";
             tree.content.push(objspy);
 
+            // Add esprima syntax definitions
+            var esprimaSyntax = new Tag("script");
+            esprimaSyntax.attributes.src = "js/esprima-syntax.js";
+            tree.content.push(esprimaSyntax);
+
             // Add own function definitions (redstone.js);
             var redstoneJS = new Tag("script");
             redstoneJS.attributes.src = "js/redstone.js";

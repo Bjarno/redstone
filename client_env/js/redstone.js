@@ -1,46 +1,72 @@
-function RUpdateGUI(idname, newvalue) {
-	var crumb = CRUMBS[idname];
+var updateCrumb = function updateCrumb(crumb, newValue) {
+	ractive.set(crumb.idName, newValue);
+};
 
-	var cleanupOldValue = function (oldvalue) {
+var variableName2Value = {};
+
+var evaluateExpression = function evaluateExpression(expression) {
+	var type = expression.type;
+
+	switch (type) {
+		case esprima.Syntax.Program:
+			var bodyLength = expression.body.length;
+			if (bodyLength != 1) {
+				console.log("!!! Program.body.length should be equal to 1");
+				console.log("!!! Got " + bodyLength);
+				return false;
+			}
+			return evaluateExpression(expression.body[0]);
+
+		case esprima.Syntax.ExpressionStatement:
+			return evaluateExpression(expression.expression);
+
+		case esprima.Syntax.Identifier:
+			if (expression.hasOwnProperty("isInCrumb")) {
+				return variableName2Value[expression.name];
+			} else {
+				console.log("!!! I don't know what to do with identifier that is not in crumb");
+				return false;
+			}
+
+		default:
+			console.log("!!! unknown type of expression: " + type);
+	}
+};
+
+function RUpdateGUI(variableName, value) {
+	// Clean up old value
+	if (variableName2Value.hasOwnProperty(variableName)) {
+		var oldValue = variableName2Value[variableName];
 		if (typeof oldvalue == 'object') {
-			OBJSPY.untrack(oldvalue, idname);
+			OBJSPY.untrack(oldvalue, variableName);
 		}
+	}
+
+	// Set new value
+	variableName2Value[variableName] = value;
+
+	var crumbIds = VARTOCRUMBID[variableName];
+
+	var onInternalUpdate = function onInternalUpdate() {
+		crumbIds.map(function (crumbId) {
+			return CRUMBS[crumbId];
+		}).forEach(function (crumb) {
+			var value = evaluateExpression(crumb.parsedExpression);
+			updateCrumb(crumb, value);
+		});
 	};
 
-	var update = function (newvalue) {
-		cleanupOldValue(ractive.get(idname));
+	// Do initial update
+	onInternalUpdate();
 
-		var subvalue = undefined;
-
-		switch (crumb.type) {
-			case "Identifier":
-				subvalue = newvalue;
-				break;
-
-			case "MemberExpression":
-				subvalue = newvalue;
-				for (var i = 0; i < crumb.properties.length; i++) {
-					if (subvalue === undefined) {
-						break; // Stop looking
-					}
-					var propname = crumb.properties[i];
-					subvalue = subvalue[propname];
-				}
-				break;
-		}
-
-		ractive.set(idname, subvalue);
-	};
-
-	update(newvalue);
-
-	if (typeof newvalue == 'object') {
+	// Track value
+	if (typeof value == 'object') {
 		OBJSPY.track(
-				newvalue,
-				function (prop, action, difference, oldvalue, fullnewvalue) {
-					update(fullnewvalue);
-				},
-				idname
+			value,
+			function (prop, action, difference, oldvalue, fullnewvalue) {
+				onInternalUpdate();
+			},
+			variableName
 		);
 	}
 }
