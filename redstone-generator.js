@@ -197,13 +197,13 @@ var generate_selfclosing = function generate_selfclosing(tag, indentation) {
  * @returns {String} HTML for the given tag.
  */
 var generate_dynamic_expression = function generate_dynamic_expression(dynamic, indentation) {
-    var randomId = dynamic.crumb.idName;
-    var expression = dynamic.expression;
     var html = create_indent(indentation);
 
-    if (randomId !== undefined) {
+    if (dynamic.crumb !== null) {
+        var randomId = dynamic.crumb.idName;
         html += "{{" + randomId + "}}";
     } else {
+        var expression = dynamic.expression;
         html += "{{" + expression + "}}";
     }
 

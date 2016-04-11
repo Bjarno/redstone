@@ -85,7 +85,7 @@ var ConverterContext = function ConverterContext(options) {
 var Crumb = function Crumb(idName, variableNames, parsedExpression) {
 	this.idName = idName; // The randomly generated name of this crumb
 	this.variableNames = (variableNames ? variableNames : []); // Array containing all the top-level variable names (for static analysis)
-	this.parsedExpression = (parsedExpression ? parsedExpression : null); // While unused in Redstone tool, used while evaluating crumbs
+	this.parsedExpression = (parsedExpression ? parsedExpression : null); // Used while evaluating crumbs
 };
 
 /***********/

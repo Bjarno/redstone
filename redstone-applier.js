@@ -160,22 +160,42 @@ var generate_reactivity = function generate_reactivity() {
 };
 
 /**
- * Creates a new object containing all the crumb information, from a given crumbs array.
- * This method also removes graph information from the original
+ * Creates a new object (mapping) containing all the crumb information, from a given crumbs array.
  * @param {Array} crumbs Array containing all crumbs.
  * @private
  * @returns {Object} Object containing mapping from idNames of crumbs to their on_update information
  */
-var optimize_crumbs = function optimize_crumbs(crumbs) {
+var crumbs_to_mapping = function crumbs_to_mapping(crumbs) {
     var newobj = {};
 
     crumbs.forEach(function (crumb) {
-        newobj[crumb.id] = crumb.on_update;
-        delete crumb.on_update.graph;
+        newobj[crumb.idName] = crumb;
     });
 
     return newobj;
 };
+
+/**
+ * Creates a mapping from variable names to crumb identifiers
+ * @param {Array} crumbs Array containing all crumbs.
+ * @private
+ * @returns {Object} Object containing mapping from variable names to crumb idNames.
+ */
+var crumbs_to_varnamemapping = function crumbs_to_varnamemapping(crumbs) {
+    var newobj = {};
+
+    crumbs.forEach(function (crumb) {
+        var randomId = crumb.idName;
+        crumb.variableNames.forEach(function (varname) {
+            if (!newobj.hasOwnProperty(varname)) {
+                newobj[varname] = [];
+            }
+            newobj[varname].push(randomId);
+        });
+    });
+
+    return newobj;
+}
 
 /**
  * Generates Javascript code with information about the crumbs, stored in a CRUMBS variable.
@@ -183,10 +203,9 @@ var optimize_crumbs = function optimize_crumbs(crumbs) {
  * @returns {String} Javascript code so the client can read information about crumbs.
  */
 var generate_crumbsjs = function generate_crumbsjs() {
-    var crumbs = optimize_crumbs(context.crumbs);
     var result = "";
-    var json = JSON.stringify(crumbs);
-    result += "CRUMBS = " +  json + ";";
+    result += "CRUMBS = " +  JSON.stringify(crumbs_to_mapping(context.crumbs)) + ";\n";
+    result += "VARTOCRUMBID = " + JSON.stringify(crumbs_to_varnamemapping(context.crumbs)) + ";";
     return result;
 };
 
