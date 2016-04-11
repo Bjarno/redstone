@@ -4,29 +4,31 @@
 	  console.log(name + " said: " + message);
 	  displayMessage(name, message);
   }
+
+  var serverCount = 0;
+
+  function sendCounter() {
+       receiveCounter(serverCount);
+  }
+
+  function sendIncrease() {
+       serverCount = serverCount + 1;
+       sendCounter();
+  }
 }
 
 /* @client */
 {
-	// Doesn't work:
-	// var last = {message: "no-message", author: "no-author"};
-
-	// Does work
-	var last;
-	last = {};
-	last.message = "no-message";
-	last.author = "no-author";
+	var last     = {message: "no-message", author: "no-author"},
+	    name     = "user" + randomInt(100, 10000),
+	    text     = $("#msg"),
+	    messages = [];
 
 	function randomInt(min, max) {
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
 
-	var name = "user" + randomInt(100, 10000),
-		text = $("#msg");
-
-	var messages = [];
-
-	function sendmsg() {
+	function sendMessage() {
 	   var msg = text.val();
 	   broadcast(name, msg);
 	   text.val("");
@@ -42,11 +44,12 @@
 		messages.push(m);
 	}
 
+	// TODO: Just use serverCount (?)
 	var count = 0;
-
-    function increaseCounter() {
-        count = count + 1;
-    }
+    function clickIncrease() { sendIncrease(); }
+    function handshake() { sendCounter(); }
+    function receiveCounter(c) { count = c; }
+    handshake();
 }
 
 /* @ui */
@@ -68,7 +71,11 @@ body
 		{{#each messages}}
 			p {{name}} says: {{message}}
 	textarea#msg
-	button[@click=sendmsg]#send Send
+	button[@click=sendMessage]#send Send
+	{{#if hassmiley}}
+		p I have smiley
+	{{#else}}
+		p I don't have smiley
 	p.
 		Last message: {{last.message}} by {{last.author}}.
-	button[@click=increaseCounter]#countbutton I've been clicked {{count}} times.
+	button[@click=clickIncrease]#countbutton I've been clicked {{count}} times.
