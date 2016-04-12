@@ -78,19 +78,19 @@ var evalBinaryExpression = function evalBinaryExpression(binaryExpression) {
 
 var evalCallExpression = function evalCallExpression(callExpression) {
 	var callee = callExpression.callee;
-	var method = null;
+	var methodObj = null;
 	var thisObj = null;
 
 	switch (callee.type) {
-		case Syntax.Syntax.Identifier:
-			method = METHODS[callee.name];
+		case esprima.Syntax.Identifier:
+			methodObj = METHODS[callee.name];
 			break;
 	}
 
 	var argumentExpressions = callExpression.arguments;
 	var arguments = argumentExpressions.map(eval);
 
-	method.apply(thisObj, arguments);
+	return methodObj.apply(thisObj, arguments);
 };
 
 var eval = function eval(ast) {

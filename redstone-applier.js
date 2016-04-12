@@ -41,14 +41,14 @@ var generate_innerjs = function generate_innerjs() {
     js.forEach(function(block) {
         result += "\n" + block;
     });
-
-    // Add call to initialize GUI
-    result += "\nRInitGUI();";
-
+    
     // "Link" methods by name
     context.functionNames.forEach(function(functionName) {
         result += "\nMETHODS[\"" + functionName + "\"] = " + functionName + ";";
     });
+
+    // Add call to initialize GUI
+    result += "\nRInitGUI();";
 
     // Close $(document).ready()
     result += "\n// <-- End generated\n});";
