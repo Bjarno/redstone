@@ -45,6 +45,11 @@ var generate_innerjs = function generate_innerjs() {
     // Add call to initialize GUI
     result += "\nRInitGUI();";
 
+    // "Link" methods by name
+    context.functionNames.forEach(function(functionName) {
+        result += "\nMETHODS[\"" + functionName + "\"] = " + functionName + ";";
+    });
+
     // Close $(document).ready()
     result += "\n// <-- End generated\n});";
 
@@ -212,7 +217,8 @@ var crumbs_to_varnamemapping = function crumbs_to_varnamemapping(crumbs) {
 var generate_crumbsjs = function generate_crumbsjs() {
     var result = "";
     result += "CRUMBS = " +  JSON.stringify(crumbs_to_mapping(context.crumbs)) + ";\n";
-    result += "VARTOCRUMBID = " + JSON.stringify(crumbs_to_varnamemapping(context.crumbs)) + ";";
+    result += "VARTOCRUMBID = " + JSON.stringify(crumbs_to_varnamemapping(context.crumbs)) + ";\n";
+    result += "METHODS = {};\n"; // Added dynamically
     return result;
 };
 
