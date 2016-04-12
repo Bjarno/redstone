@@ -153,6 +153,9 @@ function _RUpdateGUI(variableName, value) {
 	// Don't do anything if blocked
 	if (variableInfo[variableName].blocked) {
 		console.log("!!! Variable " + variableName + " is blocked, not allowing nested RUpdateGUI on same variable!");
+
+		// The new value is stored in finalValue
+		variableInfo[variableName].finalValue = value;
 		return false;
 	}
 
