@@ -48,7 +48,7 @@ var generate_innerjs = function generate_innerjs() {
     });
 
     // Add call to initialize GUI
-    result += "\nRInitGUI();";
+    result += "\n_RInitGUI();";
 
     // Close $(document).ready()
     result += "\n// <-- End generated\n});";
