@@ -47,7 +47,7 @@
 	var bar = 123;
 
 	function foo() {
-		bar = bar + 1;
+		bar = bar + 1; // This should update the GUI **AGAIN**, but it's not done because we locked the 'bar' variable
 		return bar * 2;
 	}
 
