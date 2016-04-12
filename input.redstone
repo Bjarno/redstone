@@ -46,6 +46,9 @@
 
 	var bar = 123;
 
+	// This function is used in GUI with variable bar as an argument
+	// Updating/initializing the variable bar means that this function should be executed, but the function object
+	// is only "saved" at the end of the @client block, thus we need to wait before updating the GUI
 	function foo() {
 		bar = bar + 1; // This should update the GUI **AGAIN**, but it's not done because we locked the 'bar' variable
 		return bar * 2;
