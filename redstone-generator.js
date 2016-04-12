@@ -48,13 +48,13 @@ var create_indent = function create_indent(indentation, str) {
 var generate_innerHTML = function generate_innerHTML(content, indent) {
     if (content.length > 0) {
         var first = content[0];
-        // If onlye size 1, and type is text: do not use newlines.
+        // If only size 1, and type is text: do not use newlines.
         if ( (content.length == 1) && (typeof first == "string") ) {
             return first;
         } else {
             var innerHTML = content.map(function(sub) {
                 return generate_tree(sub, indent + 1);
-            }).join("\n");
+            }).join("");
 
             return "\n" + innerHTML + "\n" + create_indent(indent);
         }
@@ -197,17 +197,13 @@ var generate_selfclosing = function generate_selfclosing(tag, indentation) {
  * @returns {String} HTML for the given tag.
  */
 var generate_dynamic_expression = function generate_dynamic_expression(dynamic, indentation) {
-    var html = create_indent(indentation);
-
     if (dynamic.crumb !== null) {
         var randomId = dynamic.crumb.idName;
-        html += "{{" + randomId + "}}";
+        return "{{" + randomId + "}}";
     } else {
         var expression = dynamic.expression;
-        html += "{{" + expression + "}}";
+        return "{{" + expression + "}}";
     }
-
-    return html;
 };
 
 /**
@@ -285,7 +281,7 @@ var find_generator = function find_generator(tagname) {
  */
 var generate_tree = function generate_tree(tree, indent) {
     if (typeof tree == "string") {
-        return create_indent(indent) + tree;
+        return tree;
     }
 
     if (tree instanceof DynamicExpression) {
