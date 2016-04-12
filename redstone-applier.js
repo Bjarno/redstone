@@ -48,7 +48,7 @@ var generate_innerjs = function generate_innerjs() {
     });
 
     // Add call to initialize GUI
-    result += "\n_RInitGUI();";
+    result += "\nREDSTONE.init();";
 
     // Close $(document).ready()
     result += "\n// <-- End generated\n});";

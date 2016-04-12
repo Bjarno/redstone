@@ -131,7 +131,7 @@ var eval = function eval(ast) {
 	}
 };
 
-function _RUpdateGUI(variableName, value) {
+var updateVariable = function updateVariable(variableName, value) {
 	// When not yet loaded, wait until loaded
 	if (!loaded) {
 		waitingUpdates.push({
@@ -152,7 +152,7 @@ function _RUpdateGUI(variableName, value) {
 
 	// Don't do anything if blocked
 	if (variableInfo[variableName].blocked) {
-		console.log("!!! Variable " + variableName + " is blocked, not allowing nested RUpdateGUI on same variable!");
+		console.log("!!! Variable " + variableName + " is blocked, not allowing nested updating GUI on same variable!");
 
 		// The new value is stored in finalValue
 		variableInfo[variableName].finalValue = value;
@@ -203,9 +203,9 @@ function _RUpdateGUI(variableName, value) {
 	}
 
 	return true;
-}
+};
 
-function _RInitGUI() {
+var initGUI = function initGUI() {
 	loaded = true;
 
 	// Evaluate crumbs without any varnames
@@ -225,7 +225,19 @@ function _RInitGUI() {
 	// Evaluate those that were waiting until loaded
 	for (var i = 0; i < waitingUpdates.length; i++) {
 		var upd = waitingUpdates[i];
-		_RUpdateGUI(upd.variableName, upd.value);
+		updateVariable(upd.variableName, upd.value);
 	}
 	waitingUpdates = [];
-}
+};
+
+var init = function init() {
+	initGUI();
+};
+
+REDSTONE = {};
+
+REDSTONE.init = init;
+REDSTONE.updateVariable = updateVariable;
+REDSTONE.getVarInfo = function(varname) {
+	return variableInfo[varname];
+};
