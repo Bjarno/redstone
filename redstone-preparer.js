@@ -101,6 +101,17 @@ var find_varnames_expression = function find_varnames_expression(expression) {
             result = result.concat(find_varnames_expression(expression.right));
             break;
 
+        case esprima.Syntax.CallExpression:
+            var calleeExpression = expression.callee;
+            var arguments = expression.arguments;
+
+            if (calleeExpression.type == esprima.Syntax.Identifier) {
+                context.functionNames.push(calleeExpression.name);
+            }
+
+            arguments.forEach(find_varnames_expression);
+            break;
+
         default:
             throw "Unknown ExpressionStatement type '" + expression.type + "'.";
     }

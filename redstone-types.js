@@ -73,6 +73,7 @@ var ConverterContext = function ConverterContext(options) {
 	this.idNames = []; // List of generated idNames, to make sure there are no duplicates
 	this.varname2declNode = {}; // Mapping from variable names (as strings) to their declaration nodes
 	this.stip = {}; // Information about Stip tool is temporary saved here
+	this.functionNames = []; // Array containing function names that are being used in crumbs
 };
 
 /**
