@@ -3,6 +3,8 @@ var updateCrumb = function updateCrumb(crumb, newValue) {
 };
 
 var variableInfo = {};
+var loaded = false;
+var waitingUpdates = [];
 
 var evalProgram = function evalProgram(program) {
 	var bodyLength = program.body.length;
@@ -78,12 +80,17 @@ var evalBinaryExpression = function evalBinaryExpression(binaryExpression) {
 
 var evalCallExpression = function evalCallExpression(callExpression) {
 	var callee = callExpression.callee;
-	var methodObj = null;
+	var methodObj;
 	var thisObj = null;
 
 	switch (callee.type) {
 		case esprima.Syntax.Identifier:
 			methodObj = METHODS[callee.name];
+
+			if (!methodObj) {
+				console.log("!!! method object undefined for " + callee.name);
+				return false;
+			}
 			break;
 	}
 
@@ -125,6 +132,15 @@ var eval = function eval(ast) {
 };
 
 function _RUpdateGUI(variableName, value) {
+	// When not yet loaded, wait until loaded
+	if (!loaded) {
+		waitingUpdates.push({
+			variableName: variableName,
+			value: value
+		});
+		return;
+	}
+
 	// Create info object if not yet created
 	if (!variableInfo.hasOwnProperty(variableName)) {
 		variableInfo[variableName] = {
@@ -187,8 +203,10 @@ function _RUpdateGUI(variableName, value) {
 }
 
 function _RInitGUI() {
-	var crumbIds = Object.keys(CRUMBS);
+	loaded = true;
 
+	// Evaluate crumbs without any varnames
+	var crumbIds = Object.keys(CRUMBS);
 	crumbIds.map(function(crumbId) {
 		return CRUMBS[crumbId];
 	}).forEach(function (crumb) {
@@ -200,4 +218,11 @@ function _RInitGUI() {
 			updateCrumb(crumb, value);
 		}
 	});
+
+	// Evaluate those that were waiting until loaded
+	for (var i = 0; i < waitingUpdates.length; i++) {
+		var upd = waitingUpdates[i];
+		_RUpdateGUI(upd.variableName, upd.value);
+	}
+	waitingUpdates = [];
 }

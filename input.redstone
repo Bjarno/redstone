@@ -44,6 +44,13 @@
 		messages.push(m);
 	}
 
+	var bar = 123;
+
+	function foo() {
+		bar = bar + 1;
+		return bar * 2;
+	}
+
 	// TODO: Just use serverCount (?)
 	var count = 0;
     function clickIncrease() { sendIncrease(); }
@@ -80,6 +87,8 @@ body
 		Last message: {{last.message}} by {{last.author + "a"}}.
 	p.
 		1 + 2 = {{1+2}}
+	p.
+		Foo: {{foo(bar)}}
 	p.
 		Random number: {{randomInt(10, 20)}}
 	button[@click=clickIncrease]#countbutton I've been clicked {{count}} times.

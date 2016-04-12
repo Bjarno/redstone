@@ -109,7 +109,9 @@ var find_varnames_expression = function find_varnames_expression(expression) {
                 context.functionNames.push(calleeExpression.name);
             }
 
-            arguments.forEach(find_varnames_expression);
+            arguments.forEach(function (argument) {
+                result = result.concat(find_varnames_expression(argument));
+            });
             break;
 
         default:
