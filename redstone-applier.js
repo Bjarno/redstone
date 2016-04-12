@@ -33,12 +33,19 @@ var set_context = function set_context(newContext) {
  */
 var generate_innerjs = function generate_innerjs() {
     var js = context.js.reverse();
-    var result = "$(document).ready(function() {\n// --> Begin generated";
+    var result = "";
+
+    // Open $(document).ready()
+    result += "$(document).ready(function() {\n// --> Begin generated";
 
     js.forEach(function(block) {
         result += "\n" + block;
     });
 
+    // Add call to initialize GUI
+    result += "\nRInitGUI();";
+
+    // Close $(document).ready()
     result += "\n// <-- End generated\n});";
 
     return result;

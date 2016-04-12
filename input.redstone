@@ -78,4 +78,6 @@ body
 		p I don't have smiley
 	p.
 		Last message: {{last.message}} by {{last.author + "a"}}.
+	p.
+		1 + 2 = {{1+2}}
 	button[@click=clickIncrease]#countbutton I've been clicked {{count}} times.

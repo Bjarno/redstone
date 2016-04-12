@@ -117,3 +117,19 @@ function RUpdateGUI(variableName, value) {
 		);
 	}
 }
+
+function RInitGUI() {
+	var crumbIds = Object.keys(CRUMBS);
+
+	crumbIds.map(function(crumbId) {
+		return CRUMBS[crumbId];
+	}).forEach(function (crumb) {
+		var variableNames = crumb.variableNames;
+
+		// Immediate evaluate after loading
+		if (variableNames.length === 0) {
+			var value = evaluateExpression(crumb.parsedExpression);
+			updateCrumb(crumb, value);
+		}
+	});
+}
