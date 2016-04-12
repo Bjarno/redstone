@@ -20,12 +20,95 @@ var evaluateExpression = function evaluateExpression(expression) {
 		case esprima.Syntax.ExpressionStatement:
 			return evaluateExpression(expression.expression);
 
+		case esprima.Syntax.Literal:
+			return expression.value;
+
 		case esprima.Syntax.Identifier:
 			if (expression.hasOwnProperty("isInCrumb")) {
 				return variableName2Value[expression.name];
 			} else {
 				console.log("!!! I don't know what to do with identifier that is not in crumb");
 				return false;
+			}
+
+		case esprima.Syntax.MemberExpression:
+			var object = evaluateExpression(expression.object);
+
+			if (expression.computed) {
+				console.log("!!! computed NYI");
+				return false;
+			} else {
+				return object[expression.property.name];
+			}
+
+		case esprima.Syntax.BinaryExpression:
+			var left = evaluateExpression(expression.left);
+			var right = evaluateExpression(expression.right);
+			var operator = expression.operator;
+
+			switch (operator) {
+				case "==":
+					return left == right;
+
+				case "===":
+					return left === right;
+
+				case "!=":
+					return left != right;
+
+				case "!==":
+					return left !== right;
+
+				case "<":
+					return left < right;
+
+				case "<=":
+					return left <= right;
+
+				case ">":
+					return left > right;
+
+				case ">=":
+					return left >= right;
+
+				case "<<":
+					return left << right;
+
+				case ">>":
+					return left >> right;
+
+				case ">>>":
+					return left >>> right;
+
+				case "+":
+					return left + right;
+
+				case "-":
+					return left - right;
+
+				case "*":
+					return left * right;
+
+				case "/":
+					return left / right;
+
+				case "%":
+					return left % right;
+
+				case "|":
+					return left | right;
+
+				case "^":
+					return left ^ right;
+
+				case "&":
+					return left & right;
+
+				case "in":
+					return left in right;
+
+				case "instanceof":
+					return left instanceof right;
 			}
 
 		default:
