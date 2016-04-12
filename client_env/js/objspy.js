@@ -6,59 +6,63 @@ var debug = false;
 
 var OBJSPY = {};
 
-var watcher = function(prop, action, difference, oldvalue) {
-	// Call listeners
-	var fullnewvalue = this;
+var createWatcher = function(obj) {
+	var fullValue = obj;
 
-	if (debug) {
-		console.log("Detected update!");
-		console.log("Prop: ");
-		console.log(prop);
-		console.log("Action: ");
-		console.log(action);
-		console.log("Difference: ");
-		console.log(difference);
-		console.log("Oldvalue: ");
-		console.log(oldvalue);
-		console.log("Fullnewvalue: ");
-		console.log(this);
-	}
+	var watcher = function (prop, action, difference, oldvalue) {
+		// Call listeners
+		if (debug) {
+			console.log("Detected update!");
+			console.log("Prop: ");
+			console.log(prop);
+			console.log("Action: ");
+			console.log(action);
+			console.log("Difference: ");
+			console.log(difference);
+			console.log("Oldvalue: ");
+			console.log(oldvalue);
+			console.log("Fullnewvalue: ");
+			console.log(this);
+		}
 
-	this.__varspy__.listeners.forEach(function (keyandlistener) {
-		var listener = keyandlistener.listener;
-		listener(prop, action, difference, oldvalue, fullnewvalue);
-	});
+		fullValue.__objspy__.listeners.forEach(function (keyandlistener) {
+			var listener = keyandlistener.listener;
+			listener(prop, action, difference, oldvalue, fullValue);
+		});
 
-	if (debug) {
-		console.log("-----------------------------------------------------------");
-	}
-}
+		if (debug) {
+			console.log("-----------------------------------------------------------");
+		}
+	};
+
+	return watcher;
+};
 
 OBJSPY.track = function(obj, func, givenKey) {
 	var startWatch = false;
 	var key, idx;
 
-	var desc = Object.getOwnPropertyDescriptor(obj, '__varspy__');
+	var desc = Object.getOwnPropertyDescriptor(obj, '__objspy__');
 	if (desc === undefined) {
 		key = (givenKey === undefined) ? makeId() : givenKey;
-		Object.defineProperty(obj, '__varspy__', {
-            enumerable: false,
-            configurable: true,
-            writable: false,
-            value: {
-            	listeners: [{
-            		key: key,
-            		listener: func
-            	}]
-            }
-        });
-        startWatch = true;
+		Object.defineProperty(obj, '__objspy__', {
+			enumerable: false,
+			configurable: true,
+			writable: false,
+			value: {
+				listeners: [{
+					key: key,
+					listener: func
+				}]
+			}
+		});
+		startWatch = true;
 	} else {
 		if (givenKey === undefined) {
 			do {
 				key = makeId();
 				idx = -1;
-				obj.__varspy__.listeners.forEach(function (keyandlistener, i) {
+				obj.__objspy__.listeners.forEach(function (keyandlistener, i) {
 					if (keyandlistener.key === key) {
 						idx = i;
 					}
@@ -69,14 +73,16 @@ OBJSPY.track = function(obj, func, givenKey) {
 			key = givenKey;
 		}
 
-		obj.__varspy__.listeners.push({
+		obj.__objspy__.listeners.push({
 			key: key,
 			listener: func
 		});
 	}
 
+	var watcher = createWatcher(obj);
+
 	if (startWatch) {
-		watch(obj, watcher, Infinity, true);	
+		watch(obj, watcher, Infinity, true);
 	}
 
 	return key;
@@ -84,7 +90,7 @@ OBJSPY.track = function(obj, func, givenKey) {
 
 OBJSPY.untrack = function(obj, key) {
 	var idx = -1;
-	obj.__varspy__.listeners.forEach(function (keyandlistener, i) {
+	obj.__objspy__.listeners.forEach(function (keyandlistener, i) {
 		if (keyandlistener.key === key) {
 			idx = i;
 		}
@@ -95,17 +101,17 @@ OBJSPY.untrack = function(obj, key) {
 	}
 
 	// Remove element
-	obj.__varspy__.listeners.splice(idx, 1);
+	obj.__objspy__.listeners.splice(idx, 1);
 
 	// "Half" Cleanup
-	if (obj.__varspy__.listeners.length === 0) {
+	if (obj.__objspy__.listeners.length === 0) {
 		if (debug) {
 			console.log("Stopped tracking an object.");
 			console.log(obj);
 		}
 		unwatch(obj);
 	}
-	// We could remove __varspy__ but it can safely remain there with an empty array, not that huge waste of space.
+	// We could remove __objspy__ but it can safely remain there with an empty array, not that huge waste of space.
 
 	return true;
 }

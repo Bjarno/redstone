@@ -93,5 +93,5 @@ body
 	p.
 		Foo: {{foo(bar)}}
 	p.
-		Random number: {{randomInt(10, 20)}}
+		Your lucky number: {{randomInt(1, 1000)}}
 	button[@click=clickIncrease]#countbutton I've been clicked {{count}} times.
