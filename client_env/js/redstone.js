@@ -2,7 +2,7 @@ var updateCrumb = function updateCrumb(crumb, newValue) {
 	ractive.set(crumb.idName, newValue);
 };
 
-var variableName2Value = {};
+var variableInfo = {};
 
 var evalProgram = function evalProgram(program) {
 	var bodyLength = program.body.length;
@@ -24,7 +24,7 @@ var evalLiteral = function evalLiteral(literal) {
 
 var evalIdentifier = function evalIdentifier(identifier) {
 	if (identifier.hasOwnProperty("isInCrumb")) {
-		return variableName2Value[identifier.name];
+		return variableInfo[identifier.name].value;
 	} else {
 		console.log("!!! I don't know what to do with identifier that is not in crumb");
 		return false;
@@ -124,17 +124,32 @@ var eval = function eval(ast) {
 	}
 };
 
-function RUpdateGUI(variableName, value) {
-	// Clean up old value
-	if (variableName2Value.hasOwnProperty(variableName)) {
-		var oldValue = variableName2Value[variableName];
-		if (typeof oldvalue == 'object') {
-			OBJSPY.untrack(oldvalue, variableName);
+function _RUpdateGUI(variableName, value) {
+	// Create info object if not yet created
+	if (!variableInfo.hasOwnProperty(variableName)) {
+		variableInfo[variableName] = {
+			value: undefined,
+			blocked: false,
+			finalValue : value
 		}
 	}
 
-	// Set new value
-	variableName2Value[variableName] = value;
+	// Don't do anything if blocked
+	if (variableInfo[variableName].blocked) {
+		console.log("!!! Variable " + variableName + " is blocked, not allowing nested RUpdateGUI on same variable!");
+		return false;
+	}
+
+	// Clean up old value
+	var oldValue = variableInfo[variableName].value;
+	if (typeof oldvalue == 'object') {
+		OBJSPY.untrack(oldvalue, variableName);
+	}
+
+	// Block and set new value
+	variableInfo[variableName].blocked = true;
+	variableInfo[variableName].finalValue = value;
+	variableInfo[variableName].value = value;
 
 	var crumbIds = VARTOCRUMBID[variableName];
 
@@ -150,6 +165,13 @@ function RUpdateGUI(variableName, value) {
 	// Do initial update
 	onInternalUpdate();
 
+	// Unblock
+	variableInfo[variableName].blocked = false;
+
+	// Set the final value
+	value = variableInfo[variableName].finalValue;
+	variableInfo[variableName].value = value;
+
 	// Track value
 	if (typeof value == 'object') {
 		OBJSPY.track(
@@ -160,9 +182,11 @@ function RUpdateGUI(variableName, value) {
 			variableName
 		);
 	}
+
+	return true;
 }
 
-function RInitGUI() {
+function _RInitGUI() {
 	var crumbIds = Object.keys(CRUMBS);
 
 	crumbIds.map(function(crumbId) {

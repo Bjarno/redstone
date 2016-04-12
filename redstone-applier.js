@@ -41,7 +41,7 @@ var generate_innerjs = function generate_innerjs() {
     js.forEach(function(block) {
         result += "\n" + block;
     });
-    
+
     // "Link" methods by name
     context.functionNames.forEach(function(functionName) {
         result += "\nMETHODS[\"" + functionName + "\"] = " + functionName + ";";
