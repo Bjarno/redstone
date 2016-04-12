@@ -202,7 +202,7 @@ var crumbs_to_varnamemapping = function crumbs_to_varnamemapping(crumbs) {
     });
 
     return newobj;
-}
+};
 
 /**
  * Generates Javascript code with information about the crumbs, stored in a CRUMBS variable.
