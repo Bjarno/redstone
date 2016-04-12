@@ -4,75 +4,119 @@ var updateCrumb = function updateCrumb(crumb, newValue) {
 
 var variableName2Value = {};
 
-var evaluateExpression = function evaluateExpression(expression) {
-	var type = expression.type;
+var evalProgram = function evalProgram(program) {
+	var bodyLength = program.body.length;
+	if (bodyLength != 1) {
+		console.log("!!! Program.body.length should be equal to 1");
+		console.log("!!! Got " + bodyLength);
+		return false;
+	}
+	return eval(program.body[0]);
+};
+
+var evalExpressionStatement = function evalExpressionStatement(expressionStatement) {
+	return eval(expressionStatement.expression);
+};
+
+var evalLiteral = function evalLiteral(literal) {
+	return literal.value;
+};
+
+var evalIdentifier = function evalIdentifier(identifier) {
+	if (identifier.hasOwnProperty("isInCrumb")) {
+		return variableName2Value[identifier.name];
+	} else {
+		console.log("!!! I don't know what to do with identifier that is not in crumb");
+		return false;
+	}
+};
+
+var evalMemberExpression = function evalMemberExpression(memberExpression) {
+	var object = eval(memberExpression.object);
+
+	if (memberExpression.computed) {
+		console.log("!!! computed NYI");
+		return false;
+	} else {
+		return object[memberExpression.property.name];
+	}
+};
+
+var evalBinaryExpression = function evalBinaryExpression(binaryExpression) {
+	var left = eval(binaryExpression.left);
+	var right = eval(binaryExpression.right);
+	var operator = binaryExpression.operator;
+
+	switch (operator) {
+		case "==":          return left == right;
+		case "===":         return left === right;
+		case "!=":          return left != right;
+		case "!==":         return left !== right;
+		case "<":           return left < right;
+		case "<=":          return left <= right;
+		case ">":           return left > right;
+		case ">=":	        return left >= right;
+		case "<<":          return left << right;
+		case ">>":	        return left >> right;
+		case ">>>":         return left >>> right;
+		case "+":           return left + right;
+		case "-":           return left - right;
+		case "*":           return left * right;
+		case "/":           return left / right;
+		case "%":           return left % right;
+		case "|":           return left | right;
+		case "^":           return left ^ right;
+		case "&":           return left & right;
+		case "in":          return left in right;
+		case "instanceof":  return left instanceof right;
+
+		default:
+			console.log("!!! Unknown type of BinaryOperator: " + operator);
+			return false;
+	}
+};
+
+var evalCallExpression = function evalCallExpression(callExpression) {
+	var callee = callExpression.callee;
+	var method = null;
+	var thisObj = null;
+
+	switch (callee.type) {
+		case Syntax.Syntax.Identifier:
+			method = METHODS[callee.name];
+			break;
+	}
+
+	var argumentExpressions = callExpression.arguments;
+	var arguments = argumentExpressions.map(eval);
+
+	method.apply(thisObj, arguments);
+};
+
+var eval = function eval(ast) {
+	var type = ast.type;
 
 	switch (type) {
 		case esprima.Syntax.Program:
-			var bodyLength = expression.body.length;
-			if (bodyLength != 1) {
-				console.log("!!! Program.body.length should be equal to 1");
-				console.log("!!! Got " + bodyLength);
-				return false;
-			}
-			return evaluateExpression(expression.body[0]);
+			return evalProgram(ast);
 
 		case esprima.Syntax.ExpressionStatement:
-			return evaluateExpression(expression.expression);
+			return evalExpressionStatement(ast);
 
 		case esprima.Syntax.Literal:
-			return expression.value;
+			return evalLiteral(ast);
 
 		case esprima.Syntax.Identifier:
-			if (expression.hasOwnProperty("isInCrumb")) {
-				return variableName2Value[expression.name];
-			} else {
-				console.log("!!! I don't know what to do with identifier that is not in crumb");
-				return false;
-			}
+			return evalIdentifier(ast);
 
 		case esprima.Syntax.MemberExpression:
-			var object = evaluateExpression(expression.object);
-
-			if (expression.computed) {
-				console.log("!!! computed NYI");
-				return false;
-			} else {
-				return object[expression.property.name];
-			}
+			return evalMemberExpression(ast);
 
 		case esprima.Syntax.BinaryExpression:
-			var left = evaluateExpression(expression.left);
-			var right = evaluateExpression(expression.right);
-			var operator = expression.operator;
+			return evalBinaryExpression(ast);
 
-			switch (operator) {
-				case "==":          return left == right;
-				case "===":         return left === right;
-				case "!=":          return left != right;
-				case "!==":         return left !== right;
-				case "<":           return left < right;
-				case "<=":          return left <= right;
-				case ">":           return left > right;
-				case ">=":	        return left >= right;
-				case "<<":          return left << right;
-				case ">>":	        return left >> right;
-				case ">>>":         return left >>> right;
-				case "+":           return left + right;
-				case "-":           return left - right;
-				case "*":           return left * right;
-				case "/":           return left / right;
-				case "%":           return left % right;
-				case "|":           return left | right;
-				case "^":           return left ^ right;
-				case "&":           return left & right;
-				case "in":          return left in right;
-				case "instanceof":  return left instanceof right;
-
-				default:
-					console.log("!!! Unknown type of BinaryOperator: " + operator);
-					return false;
-			}
+		case esprima.Syntax.CallExpression:
+			return evalCallExpression(ast);
 
 		default:
 			console.log("!!! unknown type of expression: " + type);
@@ -98,7 +142,7 @@ function RUpdateGUI(variableName, value) {
 		crumbIds.map(function (crumbId) {
 			return CRUMBS[crumbId];
 		}).forEach(function (crumb) {
-			var value = evaluateExpression(crumb.parsedExpression);
+			var value = eval(crumb.parsedExpression);
 			updateCrumb(crumb, value);
 		});
 	};
@@ -128,7 +172,7 @@ function RInitGUI() {
 
 		// Immediate evaluate after loading
 		if (variableNames.length === 0) {
-			var value = evaluateExpression(crumb.parsedExpression);
+			var value = eval(crumb.parsedExpression);
 			updateCrumb(crumb, value);
 		}
 	});

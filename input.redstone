@@ -80,4 +80,6 @@ body
 		Last message: {{last.message}} by {{last.author + "a"}}.
 	p.
 		1 + 2 = {{1+2}}
+	p.
+		Random number: {{randomInt(10, 20)}}
 	button[@click=clickIncrease]#countbutton I've been clicked {{count}} times.
