@@ -30,6 +30,12 @@ var preprocess_settings = function preprocess_settings(settings) {
 	if (!settings.hasOwnProperty("selfclosing_backslash")) {
 		settings.selfclosing_backslash = false;
 	}
+	if (!settings.hasOwnProperty("server_hostname")) {
+		settings.server_hostname = "localhost";
+	}
+	if (!settings.hasOwnProperty("server_port")) {
+		settings.server_port = 3000;
+	}
 
 	return settings;
 };

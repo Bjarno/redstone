@@ -1,4 +1,4 @@
-/* @server */ 
+/* @server */
 {
 	function broadcast(name, message) {
 		console.log(name + " said: " + message);
@@ -17,7 +17,8 @@
 	}
 
 	function displayMessage(name, message) {
-		var m = {}; m.name = name; m.message = message; messages.push(m);
+		var m = {name: name, message: message};
+		messages.push(m);
 	}
 }
 
@@ -27,6 +28,6 @@ head
 body
 	div#log
 		{{#each messages}}
-			p {{name}} says: {{message}}
+			p {{name + " says: " + message}}
 	textarea#msg
 	button[@click=sendMessage]#send Send
