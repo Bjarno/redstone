@@ -22,7 +22,13 @@
 	var last     = {message: "no-message", author: "no-author"},
 	    name     = "user" + randomInt(100, 10000),
 	    text     = $("#msg"),
-	    messages = [];
+	    messages = [],
+	    testObj  = {};
+
+	testObj.a = 0;
+	testObj.display = function() {
+		return testObj.a * 2;
+	};
 
 	function randomInt(min, max) {
 		return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -94,4 +100,6 @@ body
 		Foo: {{foo(bar)}}
 	p.
 		Your lucky number: {{randomInt(1, 1000)}}
+	p.
+		Test with member: {{testObj.display()}}
 	button[@click=clickIncrease]#countbutton I've been clicked {{count}} times.

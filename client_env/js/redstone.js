@@ -92,6 +92,20 @@ var evalCallExpression = function evalCallExpression(callExpression) {
 				return false;
 			}
 			break;
+		
+		case esprima.Syntax.MemberExpression:
+			if (callee.computed) {
+				console.log("!!! computed NYI");
+				return false;
+			}
+
+			thisObj = eval(callee.object);
+			methodObj = thisObj[callee.property.name];
+			break;
+		
+		default:
+			console.log("!!! Unknown type of callExpression callee: " + callee.type);
+			return false;
 	}
 
 	var argumentExpressions = callExpression.arguments;

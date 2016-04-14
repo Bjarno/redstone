@@ -105,8 +105,14 @@ var find_varnames_expression = function find_varnames_expression(expression) {
             var calleeExpression = expression.callee;
             var arguments = expression.arguments;
 
-            if (calleeExpression.type == esprima.Syntax.Identifier) {
-                context.functionNames.push(calleeExpression.name);
+            switch (calleeExpression.type) {
+                case esprima.Syntax.Identifier:
+                    context.functionNames.push(calleeExpression.name);
+                    break;
+
+                case esprima.Syntax.MemberExpression:
+                    result.push(parse_memberexpression_varname(calleeExpression));
+                    break;
             }
 
             arguments.forEach(function (argument) {
