@@ -19,11 +19,13 @@
 
 /* @client */
 {
-	var last     = {message: "no-message", author: "no-author"},
-	    name     = "user" + randomInt(100, 10000),
-	    text     = $("#msg"),
-	    messages = [],
-	    testObj  = {};
+	var last      = {message: "no-message", author: "no-author"},
+	    name      = "user" + randomInt(100, 10000),
+	    text      = $("#msg"),
+	    messages  = [],
+	    testObj   = {};
+
+	// var hassmiley = false;
 
 	testObj.a = 0;
 	testObj.display = function() {
@@ -48,6 +50,8 @@
 		m.name = name;
 		m.message = message;
 		messages.push(m);
+
+		// smiley = false;
 	}
 
 	var bar = 123;
@@ -62,7 +66,7 @@
 
 	// TODO: Use a shared variable (stores)
 	var count = 0;
-    function clickIncrease() { sendIncrease(); }
+    function clickIncrease() { testObj.a += 1; sendIncrease(); }
     function handshake() { sendCounter(); }
     function receiveCounter(c) { count = c; }
     handshake();
@@ -88,7 +92,7 @@ body
 			p {{name}} says: {{message}}
 	textarea#msg
 	button[@click=sendMessage]#send Send
-	{{#if hassmiley}}
+	{{#if smiley}}
 		p I have smiley
 	{{#else}}
 		p I don't have smiley
@@ -104,4 +108,5 @@ body
 		Your lucky number: {{randomInt(1, 1000)}}
 	p.
 		Test with member: {{testObj.display()}}
+
 	button[@click=clickIncrease]#countbutton I've been clicked {{count}} times.

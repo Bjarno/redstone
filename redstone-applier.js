@@ -162,7 +162,7 @@ var generate_reactivity = function generate_reactivity() {
 
     // Add all crumbs with a currently undefined value.
     context.crumbs.forEach(function (crumb) {
-        push_kv(crumb.id, {
+        push_kv(crumb.idName, {
             "type": "Identifier",
             "value": "undefined"
         });

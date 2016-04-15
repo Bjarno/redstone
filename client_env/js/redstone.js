@@ -39,6 +39,7 @@ var evalMemberExpression = function evalMemberExpression(memberExpression) {
 	if (memberExpression.computed) {
 		return object[eval(memberExpression.property)];
 	} else {
+		// If not computed, property has type identifier according to specification
 		return object[memberExpression.property.name];
 	}
 };
