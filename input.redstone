@@ -93,6 +93,8 @@ body
 	textarea#msg
 	p {{- visible in HTML comment}}
 	p {{/ not visible in HTML comment}}
+	{{- visible in HTML comment}}
+	{{/ not visible in HTML comment}}
 	button[@click=sendMessage]#send Send
 	{{#if smiley}}
 		p I have smiley

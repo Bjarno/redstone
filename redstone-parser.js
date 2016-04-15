@@ -649,6 +649,29 @@ var parse_dynamicblock = function parse_dynamicblock(idx) {
 };
 
 /**
+ * Checks whether the given lineData denotes a comment
+ * @param lineData The line to parse
+ * @returns {boolean} true if the given lineData is a comment, false otherwise
+ */
+var is_comment = function is_comment(lineData) {
+    return ( (lineData.indexOf("{{- ") === 0) || (lineData.indexOf("{{/ ") === 0) );
+};
+
+// TODO: JSDoc
+var parse_comment = function parse_comment(idx) {
+    var lineData = parse_line_indentation(lines[idx]).data;
+
+    var endPos = lineData.indexOf("}}");
+    var comment = lineData.substring(2, endPos); // Will be identified as comment later
+    // Only supply part of comment (+ type of comment), dirty, but otherwise there is code duplication
+
+    return {
+        "next_idx": idx + 1,
+        "result": new DynamicExpression(comment)
+    };
+};
+
+/**
  * Parses a block by creating a new tag, and reading the next blocks with an
  * higher indentation level, and adding it to the contents of this tag.
  * @private
@@ -662,6 +685,10 @@ var parse_block = function parse_block(idx) {
 
     if (is_dynamicblock(lineData)) {
         return parse_dynamicblock(idx);
+    }
+
+    if (is_comment(lineData)) {
+        return parse_comment(idx);
     }
 
     var tagdata = parse_tagline(lineData);
