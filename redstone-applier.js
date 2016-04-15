@@ -222,6 +222,96 @@ var generate_crumbsjs = function generate_crumbsjs() {
     return result;
 };
 
+// TODO: JSDoc
+var generate_head_content = function generate_head_content() {
+    var result = [];
+
+    // Add jQuery
+    var jquery = new Tag("script");
+    jquery.attributes.src = "js/jquery-2.2.1.min.js";
+    result.push(jquery);
+
+    // Add Client RPC library
+    var clientrpc = new Tag("script");
+    clientrpc.attributes.src = "js/rpc.js";
+    result.push(clientrpc);
+
+    // Add Ractive (Reactive library)
+    var ractive = new Tag("script");
+    ractive.attributes.src = "js/ractive-0.7.3.js";
+    result.push(ractive);
+
+    // Add Watch.js
+    var watchjs = new Tag("script");
+    watchjs.attributes.src = "js/watch.js";
+    result.push(watchjs);
+
+    // Add Objspy
+    var objspy = new Tag("script");
+    objspy.attributes.src = "js/objspy.js";
+    result.push(objspy);
+
+    // Add esprima syntax definitions
+    var esprimaSyntax = new Tag("script");
+    esprimaSyntax.attributes.src = "js/esprima-syntax.js";
+    result.push(esprimaSyntax);
+
+    // Add own function definitions (redstone.js);
+    var redstoneJS = new Tag("script");
+    redstoneJS.attributes.src = "js/redstone.js";
+    result.push(redstoneJS);
+
+    // Add crumb information
+    var crumbs = new Tag("script");
+    var crumbsJs = generate_crumbsjs();
+    crumbs.content.push(crumbsJs + "\n");
+    result.push(crumbs);
+
+    // Add generated Javascript
+    var scripttag = new Tag("script");
+    var innerJs = generate_innerjs();
+    scripttag.content.push(innerJs + "\n");
+    result.push(scripttag);
+
+    // Add CSS style (if supplied)
+    if (context.css) {
+        var css = new Tag("style");
+        css.content.push(context.css);
+        result.push(css);
+    }
+
+    return result;
+};
+
+// TODO: JSDoc
+var applyHead = function applyHead(head) {
+    var newTags = generate_head_content();
+
+    newTags.forEach(function(t) {
+         head.content.push(t);
+    });
+};
+
+// TODO: JSDoc
+var applyBody = function applyBody(body) {
+    var temp = body.content;
+    body.content = [];
+
+    var render_target = new Tag("div");
+    render_target.id = "render-target";
+    body.content.push(render_target);
+
+    var main_template = new Tag("script");
+    main_template.id = "main-template";
+    main_template.attributes.type = "text/ractive";
+    main_template.content = temp;
+    body.content.push(main_template);
+
+    var reactivity = new Tag("script");
+    reactivity.content.push("\n" + escodegen.generate(generate_reactivity()) + "\n");
+    body.content.push(reactivity);
+};
+
 /**
  * Includes Javascript rules and external libraries into the HTML trees.
  * @param {Array} input Array of HTML trees.
@@ -230,85 +320,45 @@ var generate_crumbsjs = function generate_crumbsjs() {
 var applyContext = function applyContext(input, newContext) {
     set_context(newContext);
 
+    var seenHead = false;
+    var seenBody = false;
+
     // Find specific elements in the tree
     input.forEach(function(tree) {
-        // Add elements to head tag
-        if (tree.tagname === "head") {
-            // Add jQuery
-            var jquery = new Tag("script");
-            jquery.attributes.src = "js/jquery-2.2.1.min.js";
-            tree.content.push(jquery);
+        switch (tree.tagname) {
+            case "head":
+                if (seenHead) {
+                    throw "head already seen!";
+                }
+                seenHead = true;
+                applyHead(tree);
+                break;
 
-            // Add Client RPC library
-            var clientrpc = new Tag("script");
-            clientrpc.attributes.src = "js/rpc.js";
-            tree.content.push(clientrpc);
+            case "body":
+                if (seenBody) {
+                    throw "body already seen!";
+                }
+                seenBody = true;
+                applyBody(tree);
+                break;
 
-            // Add Ractive (Reactive library)
-            var ractive = new Tag("script");
-            ractive.attributes.src = "js/ractive-0.7.3.js";
-            tree.content.push(ractive);
-
-            // Add Watch.js
-            var watchjs = new Tag("script");
-            watchjs.attributes.src = "js/watch.js";
-            tree.content.push(watchjs);
-
-            // Add Objspy
-            var objspy = new Tag("script");
-            objspy.attributes.src = "js/objspy.js";
-            tree.content.push(objspy);
-
-            // Add esprima syntax definitions
-            var esprimaSyntax = new Tag("script");
-            esprimaSyntax.attributes.src = "js/esprima-syntax.js";
-            tree.content.push(esprimaSyntax);
-
-            // Add own function definitions (redstone.js);
-            var redstoneJS = new Tag("script");
-            redstoneJS.attributes.src = "js/redstone.js";
-            tree.content.push(redstoneJS);
-
-            // Add crumb information
-            var crumbs = new Tag("script");
-            var crumbsJs = generate_crumbsjs();
-            crumbs.content.push(crumbsJs + "\n");
-            tree.content.push(crumbs);
-
-            // Add generated Javascript
-            var scripttag = new Tag("script");
-            var innerJs = generate_innerjs();
-            scripttag.content.push(innerJs + "\n");
-            tree.content.push(scripttag);
-
-            // Add CSS style (if supplied)
-            if (context.css) {
-                var css = new Tag("style");
-                css.content.push(context.css);
-                tree.content.push(css);
-            }
-        }
-
-        // Change the inner tags of the body, so they are inside a Ractive container (called render-target).
-        if (tree.tagname === "body") {
-            var temp = tree.content;
-            tree.content = [];
-
-            var render_target = new Tag("div");
-            render_target.id = "render-target";
-            tree.content.push(render_target);
-
-            var main_template = new Tag("script");
-            main_template.id = "main-template";
-            main_template.attributes.type = "text/ractive";
-            main_template.content = temp;
-            tree.content.push(main_template);
-
-            var reactivity = new Tag("script");
-            reactivity.content.push("\n" + escodegen.generate(generate_reactivity()) + "\n");
-            tree.content.push(reactivity);
+            default:
+                throw "Not allowing " + tree.tagname + " to be top-level.";
         }
     });
+
+    // If head was not seen, add it
+    if (!seenHead) {
+        var newHead = new Tag("head");
+        applyHead(newHead);
+        input.push(newHead);
+    }
+
+    if (!seenBody) {
+        var newBody = new Tag("body");
+        applyBody(newBody);
+        input.push(newBody);
+    }
 };
 
 

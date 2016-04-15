@@ -339,6 +339,32 @@ var generate_list = function generate_list(input, indentation) {
     }).join("\n");
 };
 
+// TODO: JSDoc
+var generate_head = function generate_head(input) {
+    var resultHTML = "";
+    
+    input.forEach(function (tag) {
+         if (tag.tagname === "head") {
+             resultHTML = generate_tree(tag);
+         }
+    });
+
+    return resultHTML;
+};
+
+// TODO: JSDoc
+var generate_body = function generate_body(input) {
+    var resultHTML = "";
+
+    input.forEach(function (tag) {
+        if (tag.tagname === "body") {
+            resultHTML = generate_tree(tag, 1);
+        }
+    });
+
+    return resultHTML;
+};
+
 /**
  * Generates HTML for given list
  * @param {Array} input The parsed document
@@ -350,8 +376,8 @@ var generate = function generate(input, newContext) {
 
     var html = "<!DOCTYPE html>\n";
     html += "<html>\n";
-    html += generate_list(input);
-
+    html += generate_head(input) + "\n";
+    html += generate_body(input) + "\n";
     html += "\n</html>";
     return html;
 };

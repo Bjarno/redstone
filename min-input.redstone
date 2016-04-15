@@ -23,8 +23,6 @@
 }
 
 /* @ui */
-head
-	title Chatting, made simple.
 body
 	div#log
 		{{#each messages}}
