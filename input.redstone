@@ -91,6 +91,8 @@ body
 		{{#each messages}}
 			p {{name}} says: {{message}}
 	textarea#msg
+	p {{- visible in HTML comment}}
+	p {{/ not visible in HTML comment}}
 	button[@click=sendMessage]#send Send
 	{{#if smiley}}
 		p I have smiley

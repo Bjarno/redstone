@@ -262,7 +262,7 @@ var parse_tagdata = function parse_tagdata(data) {
 
             case "seperator":
                 if (idx + 1 >= tokens.length) {
-                    throw "Token overflow.";
+                    throw "Token overflow on " + data + ".";
                 }
 
                 var sepchar = token.data;

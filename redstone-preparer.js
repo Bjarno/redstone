@@ -224,18 +224,39 @@ var generate_randomRId = function generate_randomRId() {
  * @private
  */
 var prepare_dynamic_expression = function prepare_dynamic_expression(dynamic) {
-    // Only do something when not in {{#each}}
-    if (!is_in_each()) {
-        // Prefix with r, as first character can be a number, and r = reactivity.
-        var randomId = generate_randomRId();
-        var expression = dynamic.expression;
-        var AST = esprima.parse(expression);
-        var variableNames = parse_ast_varnames(AST);
+    var expression = dynamic.expression;
 
-        var crumb = new Crumb(randomId, variableNames, AST);
-        context.crumbs.push(crumb);
-        dynamic.crumb = crumb;
+    // Don't do anything if it is an invisible HTML comment
+    if (expression.indexOf("- ") === 0) {
+        dynamic.isComment = true;
+        dynamic.isHiddenComment = false;
+        dynamic.expression = expression.substring(2);
+        return;
     }
+
+    // Don't do anything if it is a visible HTML comment
+    if (expression.indexOf("/ ") === 0) {
+        dynamic.isComment = true;
+        dynamic.isHiddenComment = true;
+        dynamic.expression = expression.substring(2);
+        return;
+    }
+
+    // Only do something when not in {{#each}}
+    if (is_in_each()) {
+        return;
+    }
+
+    // Prefix with r, as first character can be a number, and r = reactivity.
+    var randomId = generate_randomRId();
+
+    var AST = esprima.parse(expression);
+    var variableNames = parse_ast_varnames(AST);
+
+    var crumb = new Crumb(randomId, variableNames, AST);
+    context.crumbs.push(crumb);
+    dynamic.crumb = crumb;
+
 };
 
 /**
@@ -287,7 +308,7 @@ var prepare_dynamic_each_block = function prepare_dynamic_each_block(dynamic) {
 
     context.crumbs.push(crumb);
     dynamic.crumb = crumb;
-}
+};
 
 /**
  * Prepares a dynamic block.

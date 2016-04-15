@@ -30,6 +30,8 @@ var Tag = function Tag(tagname, id, classes, attributes, content) {
 var DynamicExpression = function DynamicExpression(expression) {
 	this.expression = expression;
 	this.crumb = null;
+	this.isComment = false;
+	this.isHiddenComment = false;
 };
 
 /**

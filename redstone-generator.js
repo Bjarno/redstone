@@ -190,6 +190,21 @@ var generate_selfclosing = function generate_selfclosing(tag, indentation) {
 };
 
 /**
+ * Generates HTML for some code.
+ * @param {DynamicExpression} dynamic The comment to generate code for.
+ * @param {Number} indentation The indentation level of the given segment.
+ * @private
+ * @returns {String} HTML for the tag.
+ */
+var generate_dynamic_expression_is_comment = function generate_dynamic_expression_is_comment(dynamic, indentation) {
+    if (dynamic.isHiddenComment) {
+        return "";
+    } else {
+        return create_indent(indentation) + "<!-- " + dynamic.expression + " -->";
+    }
+};
+
+/**
  * Generates HTML for a dynamic segment.
  * @param {DynamicExpression} dynamic The segment to generate code for.
  * @param {Number} indentation The indentation level of the given segment.
@@ -197,6 +212,10 @@ var generate_selfclosing = function generate_selfclosing(tag, indentation) {
  * @returns {String} HTML for the given tag.
  */
 var generate_dynamic_expression = function generate_dynamic_expression(dynamic, indentation) {
+    if (dynamic.isComment) {
+        return generate_dynamic_expression_is_comment(dynamic, indentation);
+    }
+
     if (dynamic.crumb !== null) {
         var randomId = dynamic.crumb.idName;
         return "{{" + randomId + "}}";
