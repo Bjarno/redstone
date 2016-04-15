@@ -57,21 +57,31 @@ var is_in_each = function is_in_each() {
  * @param {MemberExpression} expression The expression to find the combination of the variable name (most-left) and the property hierarchy that is
  * requested from the MemberExpression.
  * @private
- * @returns {String} containing the variable name (key: varname) and the ordered hierarchy of accessed properties (key: properties)
+ * @returns {Array} Array containing variable top-level variables name of things inside a MemberExpression
  */
 var parse_memberexpression_varname = function parse_memberexpression_varname(expression) {
+    var result = [];
+
     switch (expression.type) {
         case esprima.Syntax.Identifier:
             expression.isInCrumb = true; // While evaluating, make sure we know this identifier name should be looked up locally
-            return expression.name;
+            result.push(expression.name);
+            break;
 
         case esprima.Syntax.MemberExpression:
             // Get the next level
-            return parse_memberexpression_varname(expression.object);
+            if (expression.computed) {
+                result = result.concat(find_varnames_expression(expression.property));
+            }
+            
+            result = result.concat(parse_memberexpression_varname(expression.object));
+            break;
 
         default:
             throw "Only supports identifiers (or nested MemberExpressions) for MemberExpression's object.";
     }
+
+    return result;
 };
 
 /**

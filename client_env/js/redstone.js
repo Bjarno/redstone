@@ -37,8 +37,7 @@ var evalMemberExpression = function evalMemberExpression(memberExpression) {
 	var object = eval(memberExpression.object);
 
 	if (memberExpression.computed) {
-		console.log("!!! computed NYI");
-		return false;
+		return object[eval(memberExpression.property)];
 	} else {
 		return object[memberExpression.property.name];
 	}

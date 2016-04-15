@@ -60,7 +60,7 @@
 		return bar * 2;
 	}
 
-	// TODO: Just use serverCount (?)
+	// TODO: Use a shared variable (stores)
 	var count = 0;
     function clickIncrease() { sendIncrease(); }
     function handshake() { sendCounter(); }
@@ -94,6 +94,8 @@ body
 		p I don't have smiley
 	p.
 		Last message: {{last.message}} by {{last.author + "a"}}.
+	p.
+		Last author only: {{last["author"]}}
 	p.
 		1 + 2 = {{1+2}}
 	p.
