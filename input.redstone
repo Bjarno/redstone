@@ -25,7 +25,7 @@
 	    messages  = [],
 	    testObj   = {};
 
-	// var hassmiley = false;
+	var hassmiley = false;
 
 	testObj.a = 0;
 	testObj.display = function() {
@@ -51,7 +51,7 @@
 		m.message = message;
 		messages.push(m);
 
-		// smiley = false;
+		smiley = false;
 	}
 
 	var bar = 123;

@@ -73,7 +73,7 @@ var parse_memberexpression_varname = function parse_memberexpression_varname(exp
             if (expression.computed) {
                 result = result.concat(find_varnames_expression(expression.property));
             }
-            
+
             result = result.concat(parse_memberexpression_varname(expression.object));
             break;
 
@@ -103,7 +103,7 @@ var find_varnames_expression = function find_varnames_expression(expression) {
             break;
 
         case esprima.Syntax.MemberExpression:
-            result.push(parse_memberexpression_varname(expression));
+            result = result.concat(parse_memberexpression_varname(expression));
             break;
 
         case esprima.Syntax.BinaryExpression:
@@ -121,7 +121,7 @@ var find_varnames_expression = function find_varnames_expression(expression) {
                     break;
 
                 case esprima.Syntax.MemberExpression:
-                    result.push(parse_memberexpression_varname(calleeExpression));
+                    result = result.concat(parse_memberexpression_varname(calleeExpression));
                     break;
             }
 
