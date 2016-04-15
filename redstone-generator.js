@@ -5,6 +5,7 @@
 var DynamicExpression = require("./redstone-types.js").DynamicExpression;
 var DynamicIfBlock    = require("./redstone-types.js").DynamicIfBlock;
 var DynamicEachBlock  = require("./redstone-types.js").DynamicEachBlock;
+var Tag               = require("./redstone-types.js").Tag;
 
 
 /**********/
@@ -52,9 +53,13 @@ var generate_innerHTML = function generate_innerHTML(content, indent) {
         if ( (content.length == 1) && (typeof first == "string") ) {
             return first;
         } else {
+            var hasTagInside = false;
             var innerHTML = content.map(function(sub) {
+                if (sub instanceof Tag) {
+                    hasTagInside = true;
+                }
                 return generate_tree(sub, indent + 1);
-            }).join("");
+            }).join(hasTagInside ? "\n" : "");
 
             return "\n" + innerHTML + "\n" + create_indent(indent);
         }
