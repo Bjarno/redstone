@@ -40,6 +40,50 @@ var preprocess_settings = function preprocess_settings(settings) {
 	return settings;
 };
 
+// TODO: JSDoc
+var build_js = function build_js(chunks) {
+	var output = chunks.unknown + "\n";
+
+	if (chunks.client.length > 0) {
+		output += "/* @client */";
+		output += chunks.client.join("\n") + "\n";
+	}
+
+	if (chunks.server.length > 0) {
+		output += "/* @server */";
+		output += chunks.server.join("\n") + "\n";
+	}
+	
+	return output;
+};
+
+// TODO: JSDoc
+var build_css = function build_css(chunks) {
+	var output = "";
+
+	if (chunks.css.length > 0) {
+		output += chunks.css.join("\n");
+	}
+
+	return output;
+};
+
+// TODO: JSDoc
+var build_settings = function build_settings(chunks) {
+	if (chunks.settings.length == 1) {
+		return chunks.settings[0];
+	} else if (chunks.settings != 0) {
+		throw "Only one @settings block allowed";
+	} else {
+		return "{}";
+	}
+};
+
+// TODO: JSDoc
+var build_ui = function build_ui(chunks) {
+	return chunks.ui.join("\n");
+};
+
 /**
  * Runs the redstone tool on the given input
  * @param {String} input The text input file
@@ -49,12 +93,10 @@ var preprocess_settings = function preprocess_settings(settings) {
 var generate = function generate(input) {
 	// Split input into Redstone, and Javascript
 	var chunks = splitter.split(input);
-	var ui       = chunks.ui.join("\n");
-	var js       = chunks.unknown + "\n" +
-			"/* @client */" + chunks.client.join("\n") + "\n" +
-			"/* @server */" + chunks.server.join("\n"),
-		css      = (chunks.hasOwnProperty("css") ? chunks.css.join("\n") : false),
-		settings = (chunks.hasOwnProperty("settings") ? chunks.settings.join("\n") : "{}");
+	var ui       = build_ui(chunks);
+	var js       = build_js(chunks),
+		css      = build_css(chunks),
+		settings = build_settings(chunks);
 
 	head("Raw chunks");
 	dump(chunks);
