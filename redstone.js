@@ -44,14 +44,18 @@ var preprocess_settings = function preprocess_settings(settings) {
 var build_js = function build_js(chunks) {
 	var output = chunks.unknown + "\n";
 
+	output += "/* @client */";
 	if (chunks.client.length > 0) {
-		output += "/* @client */";
 		output += chunks.client.join("\n") + "\n";
+	} else {
+		output += "{}";
 	}
 
+	output += "/* @server */";
 	if (chunks.server.length > 0) {
-		output += "/* @server */";
 		output += chunks.server.join("\n") + "\n";
+	} else {
+		output += "{}";
 	}
 	
 	return output;
