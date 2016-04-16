@@ -61,6 +61,10 @@ var generate_innerHTML = function generate_innerHTML(content, indent) {
                 return generate_tree(sub, indent + 1);
             }).join(hasTagInside ? "\n" : "");
 
+            if (!hasTagInside) {
+                innerHTML = create_indent(indent + 1) + innerHTML;
+            }
+
             return "\n" + innerHTML + "\n" + create_indent(indent);
         }
     }
@@ -298,12 +302,16 @@ var find_generator = function find_generator(tagname) {
 
 /**
  * Generates for a given tree (Tag).
- * @param {Tag|DynamicExpression|DynamicIfBlock|DynamicEachBlock} tree The root of the tree.
- * @param {Number} indent The indentation level to use.
+ * @param {Tag|DynamicExpression|DynamicIfBlock|DynamicEachBlock|String} tree The root of the tree.
+ * @param {Number} (indent) The indentation level to use.
  * @private
  * @returns {String} HTML for the entire tree.
  */
 var generate_tree = function generate_tree(tree, indent) {
+    if (indent === undefined) {
+        indent = 0;
+    }
+
     if (typeof tree == "string") {
         return tree;
     }
@@ -354,7 +362,7 @@ var generate_head = function generate_head(input) {
     
     input.forEach(function (tag) {
          if (tag.tagname === "head") {
-             resultHTML = generate_tree(tag);
+             resultHTML = generate_tree(tag, 1);
          }
     });
 
