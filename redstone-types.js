@@ -93,7 +93,12 @@ var Crumb = function Crumb(idName, variableNames, parsedExpression) {
 	this.parsedExpression = (parsedExpression ? parsedExpression : null); // Used while evaluating crumbs
 };
 
-// TODO: JSDoc
+/**
+ * An ExposedValue, which allows for two-way binding of the client interface
+ * @param idName The randomly generated identifier for the ractive library
+ * @param fieldname The name of the variable
+ * @constructor
+ */
 var ExposedValue = function ExposedValues(idName, fieldname) {
 	this.idName = idName;
 	this.fieldname = fieldname;

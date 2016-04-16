@@ -336,17 +336,30 @@ var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
     }
 };
 
-// TODO: JSDoc
+/**
+ * Checks whether the given attribute value is an exposed value/variable
+ * @param value The attribute value to check
+ * @returns {boolean} true if it is an exposed value/variable, false otherwise
+ */
 var is_exposed_value = function is_exposed_value(value) {
     return ( (value.indexOf("{{") === 0) && (value.indexOf("}}") === value.length - 2) );
 };
 
-// TODO: JSDoc
+/**
+ * Returns the fieldname/variable name of the exposed value, from an attribute value
+ * @param value The attribute value
+ * @returns {string} The fieldname only of this exposed value/variable
+ */
 var get_exposed_value_fieldname = function get_exposed_value_fieldname(value) {
     return value.substring(2, value.length - 2).trim();
 };
 
-// TODO: JSDoc
+/**
+ * Parses an exposed value/variable attribute definition
+ * @param tag The tag
+ * @param name The name of the attribute
+ * @param value The value of the attribute
+ */
 var parse_exposed_value = function parse_exposed_value(tag, name, value) {
     var randomId = generate_randomRId();
     var fieldname = get_exposed_value_fieldname(value);

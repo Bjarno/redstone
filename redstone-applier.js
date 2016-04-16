@@ -26,8 +26,11 @@ var set_context = function set_context(newContext) {
     context = newContext;
 };
 
-// TODO: JSDoc
-
+/**
+ * Generates code that generates a function to update variables from ui layer to client layer, and installs it to
+ * client redstone.js
+ * @returns {Object} The generated AST for handling this part of the application
+ */
 var generate_update_gui_vars = function generate_update_gui_vars() {
     var result = {
         "type": "Program",
