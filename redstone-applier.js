@@ -414,6 +414,16 @@ var applyHead = function applyHead(head) {
     });
 };
 
+/**
+ * Adds a title to a just generated head tag
+ * @returns {Tag} head the head tag to prcoess
+ */
+var applyDefaultHead = function applyDefaultHead(head) {
+    var title = new Tag("title");
+    title.content.push("Redstone App");
+    head.content.push(title);
+};
+
 // TODO: JSDoc
 var generate_loading_html = function generate_loading_html() {
     var loading = new Tag("div", "loading");
@@ -488,6 +498,7 @@ var applyContext = function applyContext(input, newContext) {
     // If head was not seen, add it
     if (!seenHead) {
         var newHead = new Tag("head");
+        applyDefaultHead(newHead);
         applyHead(newHead);
         input.push(newHead);
     }
