@@ -37,58 +37,38 @@ var generate_update_gui_vars = function generate_update_gui_vars() {
                 "expression": {
                     "type": "CallExpression",
                     "callee": {
-                        "type": "FunctionExpression",
-                        "id": null,
-                        "params": [],
-                        "defaults": [],
-                        "body": {
-                            "type": "BlockStatement",
-                            "body": [
-                                {
-                                    "type": "ExpressionStatement",
-                                    "expression": {
-                                        "type": "CallExpression",
-                                        "callee": {
-                                            "type": "MemberExpression",
-                                            "computed": false,
-                                            "object": {
-                                                "type": "Identifier",
-                                                "name": "REDSTONE"
-                                            },
-                                            "property": {
-                                                "type": "Identifier",
-                                                "name": "setUpdateGUIvariables"
-                                            }
-                                        },
-                                        "arguments": [
-                                            {
-                                                "type": "FunctionExpression",
-                                                "id": null,
-                                                "params": [],
-                                                "defaults": [],
-                                                "body": {
-                                                    "type": "BlockStatement",
-                                                    "body": []
-                                                },
-                                                "generator": false,
-                                                "expression": false
-                                            }
-                                        ]
-                                    }
-                                }
-                            ]
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                            "type": "Identifier",
+                            "name": "REDSTONE"
                         },
-                        "generator": false,
-                        "expression": false
+                        "property": {
+                            "type": "Identifier",
+                            "name": "setUpdateGUIvariables"
+                        }
                     },
-                    "arguments": []
+                    "arguments": [
+                        {
+                            "type": "FunctionExpression",
+                            "id": null,
+                            "params": [],
+                            "defaults": [],
+                            "body": {
+                                "type": "BlockStatement",
+                                "body": []
+                            },
+                            "generator": false,
+                            "expression": false
+                        }
+                    ]
                 }
             }
         ],
         "sourceType": "script"
     };
 
-    var body = result.body[0].expression.callee.body.body[0].expression.arguments[0].body.body;
+    var body = result.body[0].expression.arguments[0].body.body;
 
     var add_updatevar = function add_updatevar(name) {
         var node = {
