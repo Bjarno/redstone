@@ -32,83 +32,78 @@ var set_context = function set_context(newContext) {
  * @returns {Object} The generated AST for handling this part of the application
  */
 var generate_update_gui_vars = function generate_update_gui_vars() {
-    var result = {
-        "type": "Program",
-        "body": [
-            {
-                "type": "ExpressionStatement",
-                "expression": {
-                    "type": "CallExpression",
-                    "callee": {
-                        "type": "MemberExpression",
-                        "computed": false,
-                        "object": {
-                            "type": "Identifier",
-                            "name": "REDSTONE"
+    var result = [];
+
+    var add_updatevar = function add_updatevar(name) {
+        var node = {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "AssignmentExpression",
+                        "operator": "=",
+                        "left": {
+                            "type": "MemberExpression",
+                            "computed": true,
+                            "object": {
+                                "type": "MemberExpression",
+                                "computed": false,
+                                "object": {
+                                    "type": "Identifier",
+                                    "name": "REDSTONE"
+                                },
+                                "property": {
+                                    "type": "Identifier",
+                                    "name": "UPDATECLIENTVAR"
+                                }
+                            },
+                            "property": {
+                                "type": "Literal",
+                                "value": name,
+                                "raw": "\"" + name + "\""
+                            }
                         },
-                        "property": {
-                            "type": "Identifier",
-                            "name": "setUpdateGUIvariables"
-                        }
-                    },
-                    "arguments": [
-                        {
+                        "right": {
                             "type": "FunctionExpression",
                             "id": null,
-                            "params": [],
+                            "params": [
+                                {
+                                    "type": "Identifier",
+                                    "name": ((name === "newvalue") ? "newv" : "newvalue")
+                                }
+                            ],
                             "defaults": [],
                             "body": {
                                 "type": "BlockStatement",
-                                "body": []
+                                "body": [
+                                    {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                            "type": "AssignmentExpression",
+                                            "operator": "=",
+                                            "left": {
+                                                "type": "Identifier",
+                                                "name": name
+                                            },
+                                            "right": {
+                                                "type": "Identifier",
+                                                "name": ((name === "newvalue") ? "newv" : "newvalue")
+                                            }
+                                        }
+                                    }
+                                ]
                             },
                             "generator": false,
                             "expression": false
                         }
-                    ]
+                    }
                 }
-            }
-        ],
-        "sourceType": "script"
-    };
-
-    var body = result.body[0].expression.arguments[0].body.body;
-
-    var add_updatevar = function add_updatevar(name) {
-        var node = {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "AssignmentExpression",
-                "operator": "=",
-                "left": {
-                    "type": "Identifier",
-                    "name": name
-                },
-                "right": {
-                    "type": "CallExpression",
-                    "callee": {
-                        "type": "MemberExpression",
-                        "computed": false,
-                        "object": {
-                            "type": "Identifier",
-                            "name": "REDSTONE"
-                        },
-                        "property": {
-                            "type": "Identifier",
-                            "name": "getFromUI"
-                        }
-                    },
-                    "arguments": [
-                        {
-                            "type": "Literal",
-                            "value": name,
-                            "raw": "\"" + name + "\""
-                        }
-                    ]
-                }
-            }
+            ],
+            "sourceType": "script"
         };
 
-        body.push(node);
+        result.push(node);
     };
 
     var exposedValues = context.exposedValues;
@@ -142,8 +137,14 @@ var generate_innerjs = function generate_innerjs() {
         result += "\nREDSTONE.METHODS[\"" + functionName + "\"] = " + functionName + ";";
     });
 
+    result += "\nREDSTONE.UPDATECLIENTVAR = {};";
+
     // Create function to update GUI variables
-    result += "\n" + escodegen.generate(generate_update_gui_vars());
+    var updateClientVars = generate_update_gui_vars();
+
+    updateClientVars.forEach(function (ast) {
+        result += "\n" + escodegen.generate(ast);
+    });
 
     // Add call to initialize GUI
     result += "\nREDSTONE.init();";

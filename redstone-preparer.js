@@ -361,8 +361,16 @@ var get_exposed_value_fieldname = function get_exposed_value_fieldname(value) {
  * @param value The value of the attribute
  */
 var parse_exposed_value = function parse_exposed_value(tag, name, value) {
-    var randomId = generate_randomRId();
+    var randomId;
     var fieldname = get_exposed_value_fieldname(value);
+
+    if (context.exposedValues[fieldname] === undefined) {
+        randomId = generate_randomRId();
+    } else {
+        // Steal it's random identifier
+        randomId = context.exposedValues[fieldname];
+    }
+
     tag.attributes[name] = new ExposedValue(randomId, fieldname);
 
     context.exposedValues[fieldname] = randomId;

@@ -166,7 +166,11 @@ REDSTONE = {};
 		}
 	};
 
-	var updateVariable = function updateVariable(variableName, value) {
+	var updateVariable = function updateVariable(variableName, value, doRactiveUpdateIfExposed) {
+		if (doRactiveUpdateIfExposed === undefined) {
+			doRactiveUpdateIfExposed = true;
+		}
+
 		// When not yet loaded, wait until loaded
 		if (!loaded) {
 			waitingUpdates.push({
@@ -177,7 +181,7 @@ REDSTONE = {};
 		}
 
 		// If this variable is a ui->client variable, update
-		if (variableName in REDSTONE.EXPOSEDVALUES) {
+		if ( (variableName in REDSTONE.EXPOSEDVALUES) && (doRactiveUpdateIfExposed) ) {
 			ractive.set(REDSTONE.EXPOSEDVALUES[variableName], value);
 		}
 
@@ -206,16 +210,16 @@ REDSTONE = {};
 			OBJSPY.untrack(oldvalue, variableName);
 		}
 
+		// Get crumbs belonging to this variable
+		var crumbIds = REDSTONE.VARTOCRUMBID[variableName];
+		if (crumbIds === undefined) {
+			return;
+		}
+
 		// Block and set new value
 		variableInfo[variableName].blocked = true;
 		variableInfo[variableName].finalValue = value;
 		variableInfo[variableName].value = value;
-
-		var crumbIds = REDSTONE.VARTOCRUMBID[variableName];
-
-		if (crumbIds === undefined) {
-			return;
-		}
 
 		var onInternalUpdate = function onInternalUpdate() {
 			crumbIds.map(function (crumbId) {
@@ -273,38 +277,35 @@ REDSTONE = {};
 			updateVariable(upd.variableName, upd.value);
 		}
 		waitingUpdates = [];
+
+		// Install ractive observers
+		var exposedVariables = Object.keys(REDSTONE.EXPOSEDVALUES);
+		exposedVariables.forEach(function (varname) {
+			var rId = REDSTONE.EXPOSEDVALUES[varname];
+
+			ractive.observe(rId, function (newValue, oldValue) {
+				// Update client variable
+				REDSTONE.UPDATECLIENTVAR[varname](newValue);
+
+				// Update other crumbs
+				updateVariable(varname, newValue, false);
+			});
+		});
 	};
 
 	var init = function init() {
 		initGUI();
 	};
 
-	var getFromUI = function getFromUI(name) {
-		return ractive.get(REDSTONE.EXPOSEDVALUES[name]);
-	};
-
-	var updateGUIvariables = NIL;
-	var createCallback = function createCallback(func) {
-		var callback = function(ev) {
-			updateGUIvariables();
-			func(ev);
-		};
-
-		return callback;
-	};
-
-	var setUpdateGUIvariables = function setUpdateGUIvariables(updateGuivariablesFunc) {
-		updateGUIvariables = updateGuivariablesFunc;
+	var createCallback = function(func) {
+		return func;
 	};
 
 	REDSTONE.init = init;
 	REDSTONE.updateVariable = updateVariable;
-	REDSTONE.getFromUI = getFromUI;
 	REDSTONE.getVarInfo = function (varname) {
 		return variableInfo[varname];
 	};
-	REDSTONE.setUpdateGUIvariables = setUpdateGUIvariables;
-	REDSTONE.updateFromUI = updateGUIvariables;
 	REDSTONE.createCallback = createCallback;
 
 })();
