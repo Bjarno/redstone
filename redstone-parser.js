@@ -657,7 +657,12 @@ var is_comment = function is_comment(lineData) {
     return ( (lineData.indexOf("{{- ") === 0) || (lineData.indexOf("{{/ ") === 0) );
 };
 
-// TODO: JSDoc
+/**
+ * Parses a comment, at the start of a block
+ * @param idx The line to scan
+ * @returns {{next_idx: number, result: (DynamicExpression)}} Object containing the next position (key: next_idx) and
+ * the scanned block (key: result)
+ */
 var parse_comment = function parse_comment(idx) {
     var lineData = parse_line_indentation(lines[idx]).data;
 
@@ -693,7 +698,7 @@ var parse_block = function parse_block(idx) {
 
     var tagdata = parse_tagline(lineData);
     var next_type = tagdata.next_type;
-    data = tagdata.data;
+    var data = tagdata.data;
     var content = tagdata.content;
 
     var tag = parse_tagdata(data);

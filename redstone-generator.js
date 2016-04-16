@@ -344,7 +344,11 @@ var generate_list = function generate_list(input, indentation) {
     }).join("\n");
 };
 
-// TODO: JSDoc
+/**
+ * Generates the head for the generated tree
+ * @param {Array} input The input array containing all the top-level tags
+ * @returns {string} The final output HTML for the head
+ */
 var generate_head = function generate_head(input) {
     var resultHTML = "";
     
@@ -357,7 +361,11 @@ var generate_head = function generate_head(input) {
     return resultHTML;
 };
 
-// TODO: JSDoc
+/**
+ * Generates the body for the generated tree
+ * @param {Array} input The input array containing all the top-level tags
+ * @returns {string} The final output HTML for the body
+ */
 var generate_body = function generate_body(input) {
     var resultHTML = "";
 

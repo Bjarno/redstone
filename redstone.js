@@ -40,7 +40,11 @@ var preprocess_settings = function preprocess_settings(settings) {
 	return settings;
 };
 
-// TODO: JSDoc
+/**
+ * Builds the Javascript code from the chunks
+ * @param {Array} chunks Chunks object containing all chunks.
+ * @returns {string} The compound Javascript code for Stip.js
+ */
 var build_js = function build_js(chunks) {
 	var output = chunks.unknown + "\n";
 
@@ -61,7 +65,11 @@ var build_js = function build_js(chunks) {
 	return output;
 };
 
-// TODO: JSDoc
+/**
+ * Builds the CSS code from the chunks
+ * @param {Array} chunks Chunks object containing all chunks.
+ * @returns {string} The final CSS code
+ */
 var build_css = function build_css(chunks) {
 	var output = "";
 
@@ -72,7 +80,11 @@ var build_css = function build_css(chunks) {
 	return output;
 };
 
-// TODO: JSDoc
+/**
+ * Builds the settings string from the chunks.
+ * @param {Array} chunks Chunks object containing all chunks.
+ * @returns {string} The final settings object, as a string
+ */
 var build_settings = function build_settings(chunks) {
 	if (chunks.settings.length == 1) {
 		return chunks.settings[0];
@@ -83,7 +95,11 @@ var build_settings = function build_settings(chunks) {
 	}
 };
 
-// TODO: JSDoc
+/**
+ * Builds the User Interface string from the chunks
+ * @param {Array} chunks Chunks object containing all chunks.
+ * @returns {string} The final User Interface definitions
+ */
 var build_ui = function build_ui(chunks) {
 	return chunks.ui.join("\n");
 };

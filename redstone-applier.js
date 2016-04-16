@@ -222,7 +222,10 @@ var generate_crumbsjs = function generate_crumbsjs() {
     return result;
 };
 
-// TODO: JSDoc
+/**
+ * Generates all the new head tags so they can be applied to the HEAD tag
+ * @returns {Array} Array containing the head tags that need to be added
+ */
 var generate_head_content = function generate_head_content() {
     var result = [];
 
@@ -283,7 +286,10 @@ var generate_head_content = function generate_head_content() {
     return result;
 };
 
-// TODO: JSDoc
+/**
+ * Does some magic tricks on the head tag
+ * @param {Tag} head The head tag to process
+ */
 var applyHead = function applyHead(head) {
     var newTags = generate_head_content();
 
@@ -292,7 +298,10 @@ var applyHead = function applyHead(head) {
     });
 };
 
-// TODO: JSDoc
+/**
+ * Does some magic tricks on the body tag
+ * @param {Tag} body The body tag to process
+ */
 var applyBody = function applyBody(body) {
     var temp = body.content;
     body.content = [];
