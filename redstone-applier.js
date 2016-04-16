@@ -154,6 +154,10 @@ var generate_innerjs = function generate_innerjs() {
         result += "\n" + block;
     });
 
+    // Show result
+    result += "\n$(\"#loading\").fadeOut(250);";
+    result += "\n$(\"#render-target\").fadeIn(250);";
+
     // Close $(document).ready()
     result += "\n// <-- End generated\n});";
 
@@ -388,6 +392,13 @@ var generate_head_content = function generate_head_content() {
         result.push(css);
     }
 
+    // Add loading css
+    var loadingCSS = new Tag("link");
+    loadingCSS.attributes.rel = "stylesheet";
+    loadingCSS.attributes.type = "text/css";
+    loadingCSS.attributes.href = "css/loading.css";
+    result.push(loadingCSS);
+
     return result;
 };
 
@@ -403,6 +414,16 @@ var applyHead = function applyHead(head) {
     });
 };
 
+// TODO: JSDoc
+var generate_loading_html = function generate_loading_html() {
+    var loading = new Tag("div", "loading");
+    var loadingCircle = new Tag("div");
+    loadingCircle.classes.push("loader");
+    loading.content.push(loadingCircle);
+
+    return loading;
+};
+
 /**
  * Does some magic tricks on the body tag
  * @param {Tag} body The body tag to process
@@ -410,6 +431,9 @@ var applyHead = function applyHead(head) {
 var applyBody = function applyBody(body) {
     var temp = body.content;
     body.content = [];
+
+    // Add loading
+    body.content.push(generate_loading_html());
 
     var render_target = new Tag("div");
     render_target.id = "render-target";
