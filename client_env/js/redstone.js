@@ -116,13 +116,16 @@
 				break;
 
 			case esprima.Syntax.MemberExpression:
+				var property_name;
+
 				if (callee.computed) {
-					console.log("!!! computed NYI");
-					return false;
+					property_name = eval(callee.property);
+				} else {
+					property_name = callee.property.name;
 				}
 
 				thisObj = eval(callee.object);
-				methodObj = thisObj[callee.property.name];
+				methodObj = thisObj[property_name];
 				break;
 
 			default:
