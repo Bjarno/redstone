@@ -51,48 +51,27 @@
 		var operator = binaryExpression.operator;
 
 		switch (operator) {
-			case "==":
-				return left == right;
-			case "===":
-				return left === right;
-			case "!=":
-				return left != right;
-			case "!==":
-				return left !== right;
-			case "<":
-				return left < right;
-			case "<=":
-				return left <= right;
-			case ">":
-				return left > right;
-			case ">=":
-				return left >= right;
-			case "<<":
-				return left << right;
-			case ">>":
-				return left >> right;
-			case ">>>":
-				return left >>> right;
-			case "+":
-				return left + right;
-			case "-":
-				return left - right;
-			case "*":
-				return left * right;
-			case "/":
-				return left / right;
-			case "%":
-				return left % right;
-			case "|":
-				return left | right;
-			case "^":
-				return left ^ right;
-			case "&":
-				return left & right;
-			case "in":
-				return left in right;
-			case "instanceof":
-				return left instanceof right;
+			case "==":			return left == right;
+			case "===":			return left === right;
+			case "!=":			return left != right;
+			case "!==":			return left !== right;
+			case "<":			return left < right;
+			case "<=":			return left <= right;
+			case ">":			return left > right;
+			case ">=":			return left >= right;
+			case "<<":			return left << right;
+			case ">>":			return left >> right;
+			case ">>>":			return left >>> right;
+			case "+":			return left + right;
+			case "-":			return left - right;
+			case "*":			return left * right;
+			case "/":			return left / right;
+			case "%":			return left % right;
+			case "|":			return left | right;
+			case "^":			return left ^ right;
+			case "&":			return left & right;
+			case "in":			return left in right;
+			case "instanceof":	return left instanceof right;
 
 			default:
 				console.log("!!! Unknown type of BinaryOperator: " + operator);
