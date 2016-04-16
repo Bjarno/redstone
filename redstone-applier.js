@@ -26,6 +26,119 @@ var set_context = function set_context(newContext) {
     context = newContext;
 };
 
+// TODO: JSDoc
+
+var generate_update_gui_vars = function generate_update_gui_vars() {
+    var result = {
+        "type": "Program",
+        "body": [
+            {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "CallExpression",
+                    "callee": {
+                        "type": "FunctionExpression",
+                        "id": null,
+                        "params": [],
+                        "defaults": [],
+                        "body": {
+                            "type": "BlockStatement",
+                            "body": [
+                                {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                        "type": "CallExpression",
+                                        "callee": {
+                                            "type": "MemberExpression",
+                                            "computed": false,
+                                            "object": {
+                                                "type": "Identifier",
+                                                "name": "REDSTONE"
+                                            },
+                                            "property": {
+                                                "type": "Identifier",
+                                                "name": "setUpdateGUIvariables"
+                                            }
+                                        },
+                                        "arguments": [
+                                            {
+                                                "type": "FunctionExpression",
+                                                "id": null,
+                                                "params": [],
+                                                "defaults": [],
+                                                "body": {
+                                                    "type": "BlockStatement",
+                                                    "body": []
+                                                },
+                                                "generator": false,
+                                                "expression": false
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        "generator": false,
+                        "expression": false
+                    },
+                    "arguments": []
+                }
+            }
+        ],
+        "sourceType": "script"
+    };
+
+    var body = result.body[0].expression.callee.body.body[0].expression.arguments[0].body.body;
+
+    var add_updatevar = function add_updatevar(name) {
+        var node = {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "AssignmentExpression",
+                "operator": "=",
+                "left": {
+                    "type": "Identifier",
+                    "name": name
+                },
+                "right": {
+                    "type": "CallExpression",
+                    "callee": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                            "type": "Identifier",
+                            "name": "REDSTONE"
+                        },
+                        "property": {
+                            "type": "Identifier",
+                            "name": "getFromUI"
+                        }
+                    },
+                    "arguments": [
+                        {
+                            "type": "Literal",
+                            "value": name,
+                            "raw": "\"" + name + "\""
+                        }
+                    ]
+                }
+            }
+        };
+
+        body.push(node);
+    };
+
+    var exposedValues = context.exposedValues;
+
+    for (var fieldname in exposedValues) {
+        if (exposedValues.hasOwnProperty(fieldname)) {
+            add_updatevar(fieldname);
+        }
+    }
+
+    return result;
+};
+
 /**
  * Generates the final clientside Javascript code, wrapped in a jQuery $(document).ready(...)
  * @private
@@ -33,22 +146,29 @@ var set_context = function set_context(newContext) {
  */
 var generate_innerjs = function generate_innerjs() {
     var js = context.js.reverse();
+    var clientJS = context.clientJS;
     var result = "";
 
     // Open $(document).ready()
     result += "$(document).ready(function() {\n// --> Begin generated";
 
-    js.forEach(function(block) {
-        result += "\n" + block;
-    });
+    result += "\n" + clientJS;
 
     // "Link" methods by name
     context.functionNames.forEach(function(functionName) {
         result += "\nREDSTONE.METHODS[\"" + functionName + "\"] = " + functionName + ";";
     });
 
+    // Create function to update GUI variables
+    result += "\n" + escodegen.generate(generate_update_gui_vars());
+
     // Add call to initialize GUI
     result += "\nREDSTONE.init();";
+
+    // Add remaning Javascript
+    js.forEach(function(block) {
+        result += "\n" + block;
+    });
 
     // Close $(document).ready()
     result += "\n// <-- End generated\n});";
@@ -219,6 +339,7 @@ var generate_crumbsjs = function generate_crumbsjs() {
     result += "REDSTONE.CRUMBS = " +  JSON.stringify(crumbs_to_mapping(context.crumbs)) + ";\n";
     result += "REDSTONE.VARTOCRUMBID = " + JSON.stringify(crumbs_to_varnamemapping(context.crumbs)) + ";\n";
     result += "REDSTONE.METHODS = {};\n"; // Added dynamically
+    result += "REDSTONE.EXPOSEDVALUES  = " + JSON.stringify(context.exposedValues) + ";\n";
     return result;
 };
 

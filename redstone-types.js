@@ -76,6 +76,8 @@ var ConverterContext = function ConverterContext(options) {
 	this.varname2declNode = {}; // Mapping from variable names (as strings) to their declaration nodes
 	this.stip = {}; // Information about Stip tool is temporary saved here
 	this.functionNames = []; // Array containing function names that are being used in crumbs
+	this.exposedValues = {};
+	this.clientJS = "";
 };
 
 /**
@@ -91,6 +93,12 @@ var Crumb = function Crumb(idName, variableNames, parsedExpression) {
 	this.parsedExpression = (parsedExpression ? parsedExpression : null); // Used while evaluating crumbs
 };
 
+// TODO: JSDoc
+var ExposedValue = function ExposedValues(idName, fieldname) {
+	this.idName = idName;
+	this.fieldname = fieldname;
+};
+
 /***********/
 /* Exports */
 /***********/
@@ -101,3 +109,4 @@ exports.ConverterContext = ConverterContext;
 exports.DynamicIfBlock = DynamicIfBlock;
 exports.DynamicEachBlock = DynamicEachBlock;
 exports.Crumb = Crumb;
+exports.ExposedValue = ExposedValue;

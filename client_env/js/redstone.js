@@ -1,4 +1,8 @@
+REDSTONE = {};
+
 (function() {
+	var NIL = function() {};
+
 	var updateCrumb = function updateCrumb(crumb, newValue) {
 		ractive.set(crumb.idName, newValue);
 	};
@@ -172,6 +176,11 @@
 			return;
 		}
 
+		// If this variable is a ui->client variable, update
+		if (variableName in REDSTONE.EXPOSEDVALUES) {
+			ractive.set(REDSTONE.EXPOSEDVALUES[variableName], value);
+		}
+
 		// Create info object if not yet created
 		if (!variableInfo.hasOwnProperty(variableName)) {
 			variableInfo[variableName] = {
@@ -203,6 +212,10 @@
 		variableInfo[variableName].value = value;
 
 		var crumbIds = REDSTONE.VARTOCRUMBID[variableName];
+
+		if (crumbIds === undefined) {
+			return;
+		}
 
 		var onInternalUpdate = function onInternalUpdate() {
 			crumbIds.map(function (crumbId) {
@@ -267,11 +280,22 @@
 	};
 
 	var getFromUI = function getFromUI(name) {
-		// TODO: Finish with correct value
-		return name;
+		return ractive.get(REDSTONE.EXPOSEDVALUES[name]);
 	};
 
-	REDSTONE = {};
+	var updateGUIvariables = NIL;
+	var createCallback = function createCallback(func) {
+		var callback = function(ev) {
+			updateGUIvariables();
+			func(ev);
+		};
+
+		return callback;
+	};
+
+	var setUpdateGUIvariables = function setUpdateGUIvariables(updateGuivariablesFunc) {
+		updateGUIvariables = updateGuivariablesFunc;
+	};
 
 	REDSTONE.init = init;
 	REDSTONE.updateVariable = updateVariable;
@@ -279,4 +303,8 @@
 	REDSTONE.getVarInfo = function (varname) {
 		return variableInfo[varname];
 	};
+	REDSTONE.setUpdateGUIvariables = setUpdateGUIvariables;
+	REDSTONE.updateFromUI = updateGUIvariables;
+	REDSTONE.createCallback = createCallback;
+
 })();

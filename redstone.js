@@ -163,7 +163,7 @@ var generate = function generate(input) {
 	debugEcho(serverJS);
 
 	// Add client code to <head> in result tree
-	context.js.push(clientJS);
+	context.clientJS = clientJS;
 
 	// Apply changes, "cached" in context
 	applier.applyContext(result_parse, context);

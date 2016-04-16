@@ -8,12 +8,13 @@
 
 /* @client */
 {
-	var name = "user" + (Math.floor(Math.random() * 9901) + 100);
-	var messages = [];
+	var name     = "user" + (Math.floor(Math.random() * 9901) + 100),
+	    messages = [],
+	    msg      = "";
 
 	function sendMessage() {
-		broadcast(name, $("#msg").val());
-		$("#msg").val("");
+		broadcast(name, msg);
+		msg = "";
 	}
 
 	function displayMessage(name, message) {
@@ -24,8 +25,8 @@
 
 /* @ui */
 body
-	div#log
-		{{#each messages}}
-			p {{name + " says: " + message}}
-	textarea#msg
+	{{#each messages}}
+		p {{name + " says: " + message}}
+	input[value={{name}}]
+	input[value={{msg}}][placeholder=Message]
 	button[@click=sendMessage]#send Send

@@ -6,6 +6,7 @@ var DynamicExpression = require("./redstone-types.js").DynamicExpression;
 var DynamicIfBlock    = require("./redstone-types.js").DynamicIfBlock;
 var DynamicEachBlock  = require("./redstone-types.js").DynamicEachBlock;
 var Tag               = require("./redstone-types.js").Tag;
+var ExposedValue      = require("./redstone-types.js").ExposedValue;
 
 
 /**********/
@@ -83,10 +84,19 @@ var generate_soras = function generate_soras(tag) {
     var attributes = tag.attributes;
     for (var name in attributes) {
         if (attributes.hasOwnProperty(name)) {
-            if (name[0] !== "@") {
-                // Assume it to be a normal HTML attribute.
-                resultHTML += " " + name + "=\"" + attributes[name] + "\"";
+            if (name[0] === "@") {
+                break;
             }
+
+            var value = attributes[name];
+
+            if (value instanceof ExposedValue) {
+                resultHTML += " " + name + "=\"{{" + value.idName + "}}\"";
+                break;
+            }
+
+            // Assume it to be a normal HTML attribute.
+            resultHTML += " " + name + "=\"" + value + "\"";
         }
     }
 

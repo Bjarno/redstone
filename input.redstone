@@ -20,7 +20,7 @@
 /* @client */
 {
 	var last      = {message: "no-message", author: "no-author"},
-	    name      = "user" + randomInt(100, 10000),
+	    username  = "user" + randomInt(100, 10000),
 	    text      = $("#msg"),
 	    messages  = [],
 	    testObj   = {};
@@ -38,7 +38,7 @@
 
 	function sendMessage() {
 	   var msg = text.val();
-	   broadcast(name, msg);
+	   broadcast(username, msg);
 	   text.val("");
 	}
 

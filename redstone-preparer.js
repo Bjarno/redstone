@@ -7,6 +7,7 @@ var DynamicIfBlock    = require("./redstone-types.js").DynamicIfBlock;
 var DynamicEachBlock  = require("./redstone-types.js").DynamicEachBlock;
 var Crumb             = require("./redstone-types.js").Crumb;
 var Tag               = require("./redstone-types.js").Tag;
+var ExposedValue      = require("./redstone-types.js").ExposedValue;
 
 var randomstring = require("randomstring");
 var esprima = require("esprima");
@@ -201,7 +202,7 @@ var generate_js_callback = function generate_js_callback(tag, ev, callback) {
     context.callbacks.push(callback); // Makes sure that Stip knows it is called on client-side
 
     var id = get_id(tag);
-    var js = "$(\"#" + id + "\")." + ev + "(" + callback + ");";
+    var js = "$(\"#" + id + "\")." + ev + "(REDSTONE.createCallback(" + callback + "));";
     context.js.push(js);
 };
 
@@ -335,26 +336,55 @@ var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
     }
 };
 
+// TODO: JSDoc
+var is_exposed_value = function is_exposed_value(value) {
+    return ( (value.indexOf("{{") === 0) && (value.indexOf("}}") === value.length - 2) );
+};
+
+// TODO: JSDoc
+var get_exposed_value_fieldname = function get_exposed_value_fieldname(value) {
+    return value.substring(2, value.length - 2).trim();
+};
+
+// TODO: JSDoc
+var parse_exposed_value = function parse_exposed_value(tag, name, value) {
+    var randomId = generate_randomRId();
+    var fieldname = get_exposed_value_fieldname(value);
+    tag.attributes[name] = new ExposedValue(randomId, fieldname);
+
+    context.exposedValues[fieldname] = randomId;
+};
+
 /**
  * Prepares a dynamic tag.
- * @param {Tag} tree The tag to prepare
+ * @param {Tag} tag The tag to prepare
  * @private
  */
-var prepare_tag = function prepare_tag(tree) {
+var prepare_tag = function prepare_tag(tag) {
     // Install callbacks
-    var attributes = tree.attributes;
+    var attributes = tag.attributes;
     for (var name in attributes) {
         if (attributes.hasOwnProperty(name)) {
             if (name[0] == "@") {
                 var ev = name.substring(1, name.length);
                 var callback = attributes[name];
-                generate_js_callback(tree, ev, callback);
+                generate_js_callback(tag, ev, callback);
+            }
+        }
+    }
+
+    // Check if it contains an exposed value
+    for (var name in attributes) {
+        if (attributes.hasOwnProperty(name)) {
+            var value = attributes[name];
+            if (is_exposed_value(value)) {
+                parse_exposed_value(tag, name, value);
             }
         }
     }
 
     // Loop over content of the tree.
-    tree.content.forEach(function(subtree) {
+    tag.content.forEach(function(subtree) {
         prepare(subtree);
     });
 };
