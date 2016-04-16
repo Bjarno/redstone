@@ -130,6 +130,12 @@ var find_varnames_expression = function find_varnames_expression(expression) {
             });
             break;
 
+        case esprima.Syntax.ConditionalExpression:
+            result = result.concat(find_varnames_expression(expression.test));
+            result = result.concat(find_varnames_expression(expression.consequent));
+            result = result.concat(find_varnames_expression(expression.alternate));
+            break;
+
         default:
             throw "Unknown ExpressionStatement type '" + expression.type + "'.";
     }
@@ -351,7 +357,7 @@ var prepare_tag = function prepare_tag(tree) {
     tree.content.forEach(function(subtree) {
         prepare(subtree);
     });
-}
+};
 
 /**
  * Returns whether the given object is a dynamic expression

@@ -136,6 +136,16 @@
 		return methodObj.apply(thisObj, arguments);
 	};
 
+	var evalConditionalExpression = function evalConditionalExpression(conditionalExpression) {
+		var test_value = eval(conditionalExpression.test);
+
+		if (test_value) {
+			return eval(conditionalExpression.consequent);
+		} else {
+			return eval(conditionalExpression.alternate);
+		}
+	};
+
 	var eval = function eval(ast) {
 		var type = ast.type;
 
@@ -160,6 +170,9 @@
 
 			case esprima.Syntax.CallExpression:
 				return evalCallExpression(ast);
+
+			case esprima.Syntax.ConditionalExpression:
+				return evalConditionalExpression(ast);
 
 			default:
 				console.log("!!! unknown type of expression: " + type);
