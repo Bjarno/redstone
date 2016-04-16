@@ -266,10 +266,16 @@
 		initGUI();
 	};
 
+	var getFromUI = function getFromUI(name) {
+		// TODO: Finish with correct value
+		return name;
+	};
+
 	REDSTONE = {};
 
 	REDSTONE.init = init;
 	REDSTONE.updateVariable = updateVariable;
+	REDSTONE.getFromUI = getFromUI;
 	REDSTONE.getVarInfo = function (varname) {
 		return variableInfo[varname];
 	};

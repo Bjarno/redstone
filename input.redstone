@@ -112,5 +112,5 @@ body
 		Your lucky number: {{randomInt(1, 1000)}}
 	p.
 		Test with member: {{testObj.display()}}
-
+	input[value={{username}}]
 	button[@click=clickIncrease]#countbutton I've been clicked {{count}} times.
