@@ -92,11 +92,10 @@ var generate_soras = function generate_soras(tag) {
 
             if (value instanceof ExposedValue) {
                 resultHTML += " " + name + "=\"{{" + value.idName + "}}\"";
-                break;
+            } else {
+                // Assume it to be a normal HTML attribute.
+                resultHTML += " " + name + "=\"" + value + "\"";
             }
-
-            // Assume it to be a normal HTML attribute.
-            resultHTML += " " + name + "=\"" + value + "\"";
         }
     }
 

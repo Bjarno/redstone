@@ -9,8 +9,8 @@
 /* @client */
 {
 	var name     = "user" + (Math.floor(Math.random() * 9901) + 100),
-	    messages = [],
-	    msg      = "";
+		msg      = ""
+	    messages = [];
 
 	function sendMessage() {
 		broadcast(name, msg);
