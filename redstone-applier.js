@@ -44,7 +44,7 @@ var generate_innerjs = function generate_innerjs() {
 
     // "Link" methods by name
     context.functionNames.forEach(function(functionName) {
-        result += "\nMETHODS[\"" + functionName + "\"] = " + functionName + ";";
+        result += "\nREDSTONE.METHODS[\"" + functionName + "\"] = " + functionName + ";";
     });
 
     // Add call to initialize GUI
@@ -216,9 +216,9 @@ var crumbs_to_varnamemapping = function crumbs_to_varnamemapping(crumbs) {
  */
 var generate_crumbsjs = function generate_crumbsjs() {
     var result = "";
-    result += "CRUMBS = " +  JSON.stringify(crumbs_to_mapping(context.crumbs)) + ";\n";
-    result += "VARTOCRUMBID = " + JSON.stringify(crumbs_to_varnamemapping(context.crumbs)) + ";\n";
-    result += "METHODS = {};\n"; // Added dynamically
+    result += "REDSTONE.CRUMBS = " +  JSON.stringify(crumbs_to_mapping(context.crumbs)) + ";\n";
+    result += "REDSTONE.VARTOCRUMBID = " + JSON.stringify(crumbs_to_varnamemapping(context.crumbs)) + ";\n";
+    result += "REDSTONE.METHODS = {};\n"; // Added dynamically
     return result;
 };
 

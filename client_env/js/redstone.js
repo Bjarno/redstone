@@ -107,7 +107,7 @@
 
 		switch (callee.type) {
 			case esprima.Syntax.Identifier:
-				methodObj = METHODS[callee.name];
+				methodObj = REDSTONE.METHODS[callee.name];
 
 				if (!methodObj) {
 					console.log("!!! method object undefined for " + callee.name);
@@ -207,11 +207,11 @@
 		variableInfo[variableName].finalValue = value;
 		variableInfo[variableName].value = value;
 
-		var crumbIds = VARTOCRUMBID[variableName];
+		var crumbIds = REDSTONE.VARTOCRUMBID[variableName];
 
 		var onInternalUpdate = function onInternalUpdate() {
 			crumbIds.map(function (crumbId) {
-				return CRUMBS[crumbId];
+				return REDSTONE.CRUMBS[crumbId];
 			}).forEach(function (crumb) {
 				var value = eval(crumb.parsedExpression);
 				updateCrumb(crumb, value);
@@ -246,9 +246,9 @@
 		loaded = true;
 
 		// Evaluate crumbs without any varnames
-		var crumbIds = Object.keys(CRUMBS);
+		var crumbIds = Object.keys(REDSTONE.CRUMBS);
 		crumbIds.map(function (crumbId) {
-			return CRUMBS[crumbId];
+			return REDSTONE.CRUMBS[crumbId];
 		}).forEach(function (crumb) {
 			var variableNames = crumb.variableNames;
 
