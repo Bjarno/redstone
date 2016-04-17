@@ -351,7 +351,16 @@ var is_exposed_value = function is_exposed_value(value) {
  * @returns {string} The fieldname only of this exposed value/variable
  */
 var get_exposed_value_fieldname = function get_exposed_value_fieldname(value) {
-    return value.substring(2, value.length - 2).trim();
+    var inbetween = value.substring(2, value.length - 2).trim();
+    var parsed_inbetween = esprima.parse(inbetween);
+
+    if (parsed_inbetween.body[0].type === esprima.Syntax.ExpressionStatement) {
+        if (parsed_inbetween.body[0].expression.type === esprima.Syntax.Identifier) {
+            return parsed_inbetween.body[0].expression.name;
+        }
+    }
+
+    throw "!!! Unsupported type of Program in argument of tag.";
 };
 
 /**
