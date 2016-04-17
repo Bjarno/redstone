@@ -294,11 +294,11 @@ var prepare_dynamic_if_block = function prepare_dynamic_if_block(dynamic) {
 };
 
 /**
- * Prepares a dynamic each block.
- * @param {DynamicEachBlock} dynamic The block to prepare
+ * Prepares a dynamic each or with block.
+ * @param {DynamicEachBlock|DynamicWithBlock} dynamic The block to prepare
  * @private
  */
-var prepare_dynamic_each_block = function prepare_dynamic_each_block(dynamic) {
+var prepare_dynamic_eachwith_block = function prepare_dynamic_eachwith_block(dynamic) {
     var randomId = generate_randomRId();
     var parsedObjectExpression = esprima.parse(dynamic.objectExpression);
     var body = dynamic.body;
@@ -319,29 +319,18 @@ var prepare_dynamic_each_block = function prepare_dynamic_each_block(dynamic) {
 };
 
 /**
+ * Prepares a dynamic each block.
+ * @param {DynamicEachBlock} dynamic The block to prepare
+ * @private
+ */
+var prepare_dynamic_each_block = prepare_dynamic_eachwith_block;
+
+/**
  * Prepares a dynamic with block.
  * @param {DynamicWithBlock} dynamic The block to prepare
  * @private
  */
-var prepare_dynamic_with_block = function prepare_dynamic_with_block(dynamic) {
-    var randomId = generate_randomRId();
-    var parsedObjectExpression = esprima.parse(dynamic.objectExpression);
-    var body = dynamic.body;
-
-    // Set/unset flag, so dynamic expressions are not parsed and taken for granted
-    var old_in_each_flag = is_in_with();
-    set_in_with_flag(true);
-    body.forEach(function (a) {
-        prepare(a);
-    });
-    set_in_with_flag(old_in_each_flag);
-
-    var variableNames = parse_ast_varnames(parsedObjectExpression);
-    var crumb = new Crumb(randomId, variableNames, parsedObjectExpression);
-
-    context.crumbs.push(crumb);
-    dynamic.crumb = crumb;
-};
+var prepare_dynamic_with_block = prepare_dynamic_eachwith_block;
 
 /**
  * Prepares a dynamic block.
