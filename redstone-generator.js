@@ -5,6 +5,7 @@
 var DynamicExpression = require("./redstone-types.js").DynamicExpression;
 var DynamicIfBlock    = require("./redstone-types.js").DynamicIfBlock;
 var DynamicEachBlock  = require("./redstone-types.js").DynamicEachBlock;
+var DynamicWithBlock  = require("./redstone-types.js").DynamicWithBlock;
 var Tag               = require("./redstone-types.js").Tag;
 var ExposedValue      = require("./redstone-types.js").ExposedValue;
 
@@ -270,22 +271,40 @@ var generate_dynamic_if_block = function generate_dynamic_if_block(dynamic, inde
 };
 
 /**
+ * Generates a dynamic each or with block.
+ * @param {DynamicEachBlock|DynamicWithBlock} dynamic The dynamic block to generate HTML code for.
+ * @param {Number} indent The current indentation level
+ * @private
+ * @returns {String} HTML for the given tag.
+ */
+var generate_dynamic_eachwith_block = function generate_dynamic_eachwith_block(dynamic, indent) {
+    var randomId = dynamic.crumb.idName;
+    var html = "";
+
+    html += create_indent(indent) + "{{#" + dynamic.type + " " + randomId + "}}\n";
+    html += generate_list(dynamic.body, indent + 1);
+    html += create_indent(indent) + "{{/" + dynamic.type + "}}\n";
+
+    return html;
+};
+
+/**
  * Generates a dynamic each block.
  * @param {DynamicEachBlock} dynamic The dynamic block to generate HTML code for.
  * @param {Number} indent The current indentation level
  * @private
  * @returns {String} HTML for the given tag.
  */
-var generate_dynamic_each_block = function generate_dynamic_each_block(dynamic, indent) {
-    var randomId = dynamic.crumb.idName;
-    var html = "";
+var generate_dynamic_each_block = generate_dynamic_eachwith_block;
 
-    html += create_indent(indent) + "{{#each " + randomId + "}}\n";
-    html += generate_list(dynamic.body, indent + 1);
-    html += create_indent(indent) + "{{/each}}\n";
-
-    return html;
-};
+/**
+ * Generates a dynamic with block.
+ * @param {DynamicWithBlock} dynamic The dynamic block to generate HTML code for.
+ * @param {Number} indent The current indentation level
+ * @private
+ * @returns {String} HTML for the given tag.
+ */
+var generate_dynamic_with_block = generate_dynamic_eachwith_block;
 
 /**
  * Returns the correct generator, given a tagname.
@@ -335,6 +354,10 @@ var generate_tree = function generate_tree(tree, indent) {
 
     if (tree instanceof DynamicEachBlock) {
         return generate_dynamic_each_block(tree, indent);
+    }
+
+    if (tree instanceof DynamicWithBlock) {
+        return generate_dynamic_with_block(tree, indent);
     }
 
     var tag = tree;

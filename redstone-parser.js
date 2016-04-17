@@ -6,6 +6,7 @@ var Tag               = require("./redstone-types.js").Tag;
 var DynamicExpression = require("./redstone-types.js").DynamicExpression;
 var DynamicIfBlock    = require("./redstone-types.js").DynamicIfBlock;
 var DynamicEachBlock  = require("./redstone-types.js").DynamicEachBlock;
+var DynamicWithBlock  = require("./redstone-types.js").DynamicWithBlock;
 
 
 /**********/
@@ -621,6 +622,42 @@ var parse_dynamicblock_each = function parse_dynamicblock_each(indentation, pars
 };
 
 /**
+ * Parses a dynamic with block, and the matching else block
+ * @param {Number} indentation The indentation of the block
+ * @param {Object} parsed_tag Object containing information about the tag (result of parse_dynamicblock_tag).
+ * @param {Number} idx The current index we are reading
+ * @private
+ * @returns Object containing the dynamic each block (key: result) and the next index to read (key: next_idx)
+ */
+var parse_dynamicblock_with = function parse_dynamicblock_with(indentation, parsed_tag, idx) {
+    var expression = parsed_tag.rest;
+    var result = new DynamicWithBlock(expression);
+
+    var body = parse_block(idx + 1);
+    var next_idx = body.next_idx;
+
+    var totalBody = [body.result];
+
+    // While there is more to read
+    while (next_idx < lines.length) {
+        var next = parse_line_indentation(lines[next_idx]);
+
+        if (next.indentation > indentation) {
+            var parsedblock = parse_block(next_idx);
+            totalBody.push(parsedblock.result);
+            next_idx = parsedblock.next_idx;
+        } else {
+            break;
+        }
+    }
+
+    result.body = totalBody;
+    result.object = expression;
+
+    return {"next_idx": next_idx, "result": result};
+};
+
+/**
  * Parses a dynamic block.
  * @param {Number} idx The current line that should be parsed
  * @private
@@ -642,6 +679,9 @@ var parse_dynamicblock = function parse_dynamicblock(idx) {
 
         case "each":
             return parse_dynamicblock_each(indentation, parsed_tag, idx);
+
+        case "with":
+            return parse_dynamicblock_with(indentation, parsed_tag, idx);
 
         default:
             throw "Unknown type of Dynamic Block '" + keyword + "'.";

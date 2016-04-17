@@ -61,6 +61,19 @@ var DynamicEachBlock = function DynamicEachBlock(objectExpression) {
 };
 
 /**
+ * Object keeping track of the contents of a dynamic with block.
+ * @constructor
+ * @param {String} objectExpression The raw, unparsed, expression for the object
+ */
+
+var DynamicWithBlock = function DynamicWithBlock(objectExpression) {
+	this.type = "with";
+	this.crumb = null;
+	this.objectExpression = objectExpression;
+	this.body = [];
+};
+
+/**
  * Object with options, and metadata of a conversion.
  * @constructor
  * @param {Object} options Object containing all the options, for possible
@@ -108,10 +121,11 @@ var ExposedValue = function ExposedValues(idName, fieldname) {
 /* Exports */
 /***********/
 
-exports.Tag = Tag;
+exports.Tag               = Tag;
 exports.DynamicExpression = DynamicExpression;
-exports.ConverterContext = ConverterContext;
-exports.DynamicIfBlock = DynamicIfBlock;
-exports.DynamicEachBlock = DynamicEachBlock;
-exports.Crumb = Crumb;
-exports.ExposedValue = ExposedValue;
+exports.ConverterContext  = ConverterContext;
+exports.DynamicIfBlock    = DynamicIfBlock;
+exports.DynamicEachBlock  = DynamicEachBlock;
+exports.DynamicWithBlock  = DynamicWithBlock;
+exports.Crumb             = Crumb;
+exports.ExposedValue      = ExposedValue;

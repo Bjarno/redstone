@@ -104,6 +104,9 @@ body
 		Last message: {{last.message}} by {{last.author + "a"}}.
 	p.
 		Last author only: {{last["author"]}}
+	{{#with last}}
+		p Last message: {{message}}
+		p Last author: {{author}}
 	p.
 		1 + 2 = {{1+2}}
 	p.

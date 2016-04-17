@@ -5,6 +5,7 @@
 var DynamicExpression = require("./redstone-types.js").DynamicExpression;
 var DynamicIfBlock    = require("./redstone-types.js").DynamicIfBlock;
 var DynamicEachBlock  = require("./redstone-types.js").DynamicEachBlock;
+var DynamicWithBlock  = require("./redstone-types.js").DynamicWithBlock;
 var Crumb             = require("./redstone-types.js").Crumb;
 var Tag               = require("./redstone-types.js").Tag;
 var ExposedValue      = require("./redstone-types.js").ExposedValue;
@@ -19,7 +20,7 @@ var escodegen = require("escodegen");
 /**********/
 
 var context = {};
-var flag_in_each = false;
+var flag_in_with = false;
 
 
 /***************/
@@ -40,8 +41,8 @@ var set_context = function set_context(newContext) {
  * @param {Boolean} flag The value of the flag.
  * @private
  */
-var set_in_each_flag = function set_in_each_flag(flag) {
-    flag_in_each = flag;
+var set_in_with_flag = function set_in_with_flag(flag) {
+    flag_in_with = flag;
 };
 
 /**
@@ -49,8 +50,8 @@ var set_in_each_flag = function set_in_each_flag(flag) {
  * @private
  * @returns {Boolean} Whether or not we are inside an {{#each block}}
  */
-var is_in_each = function is_in_each() {
-    return flag_in_each;
+var is_in_with = function is_in_with() {
+    return flag_in_with;
 };
 
 /**
@@ -250,7 +251,7 @@ var prepare_dynamic_expression = function prepare_dynamic_expression(dynamic) {
     }
 
     // Only do something when not in {{#each}}
-    if (is_in_each()) {
+    if (is_in_with()) {
         return;
     }
 
@@ -303,12 +304,37 @@ var prepare_dynamic_each_block = function prepare_dynamic_each_block(dynamic) {
     var body = dynamic.body;
 
     // Set/unset flag, so dynamic expressions are not parsed and taken for granted
-    var old_in_each_flag = is_in_each();
-    set_in_each_flag(true);
+    var old_in_each_flag = is_in_with();
+    set_in_with_flag(true);
     body.forEach(function (a) {
         prepare(a);
     });
-    set_in_each_flag(old_in_each_flag);
+    set_in_with_flag(old_in_each_flag);
+
+    var variableNames = parse_ast_varnames(parsedObjectExpression);
+    var crumb = new Crumb(randomId, variableNames, parsedObjectExpression);
+
+    context.crumbs.push(crumb);
+    dynamic.crumb = crumb;
+};
+
+/**
+ * Prepares a dynamic with block.
+ * @param {DynamicWithBlock} dynamic The block to prepare
+ * @private
+ */
+var prepare_dynamic_with_block = function prepare_dynamic_with_block(dynamic) {
+    var randomId = generate_randomRId();
+    var parsedObjectExpression = esprima.parse(dynamic.objectExpression);
+    var body = dynamic.body;
+
+    // Set/unset flag, so dynamic expressions are not parsed and taken for granted
+    var old_in_each_flag = is_in_with();
+    set_in_with_flag(true);
+    body.forEach(function (a) {
+        prepare(a);
+    });
+    set_in_with_flag(old_in_each_flag);
 
     var variableNames = parse_ast_varnames(parsedObjectExpression);
     var crumb = new Crumb(randomId, variableNames, parsedObjectExpression);
@@ -332,6 +358,10 @@ var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
 
         case "each":
             prepare_dynamic_each_block(dynamic);
+            break;
+        
+        case "with":
+            prepare_dynamic_with_block(dynamic);
             break;
     }
 };
@@ -436,7 +466,10 @@ var is_dynamicExpression = function is_dynamicExpression(obj) {
  * @returns boolean true when the given object is a dynamic block, false otherwise
  */
 var is_dynamicBlock = function is_dynamicBlock(obj) {
-    return ( (obj instanceof DynamicEachBlock) || (obj instanceof DynamicIfBlock) );
+    return ( (obj instanceof DynamicEachBlock) ||
+             (obj instanceof DynamicIfBlock)   ||
+             (obj instanceof DynamicWithBlock)
+    );
 };
 
 /**
