@@ -2,11 +2,14 @@
 /* Imports */
 /***********/
 
-var Tag               = require("./redstone-types.js").Tag;
-var DynamicExpression = require("./redstone-types.js").DynamicExpression;
-var DynamicIfBlock    = require("./redstone-types.js").DynamicIfBlock;
-var DynamicEachBlock  = require("./redstone-types.js").DynamicEachBlock;
-var DynamicWithBlock  = require("./redstone-types.js").DynamicWithBlock;
+var Tag                = require("./redstone-types.js").Tag;
+var DynamicExpression  = require("./redstone-types.js").DynamicExpression;
+var DynamicIfBlock     = require("./redstone-types.js").DynamicIfBlock;
+var DynamicUnlessBlock = require("./redstone-types.js").DynamicUnlessBlock;
+var DynamicEachBlock   = require("./redstone-types.js").DynamicEachBlock;
+var DynamicWithBlock   = require("./redstone-types.js").DynamicWithBlock;
+
+var explode            = require("./utils.js").explode;
 
 
 /**********/
@@ -514,7 +517,7 @@ var parse_dynamicblock_tag = function parse_dynamicblock_tag(data) {
     }
 
     rest = rest.substring(0, rest.length - 2);
-    var rests = rest.split(" ", 2);
+    var rests = explode(" ", rest, 2);
 
     return {"keyword": rests[0], "rest": rests[1]};
 };
@@ -549,9 +552,9 @@ var parse_dynamicblock_if = function parse_dynamicblock_if(indentation, parsed_t
             parsedBlock = parse_block(next_idx);
 
             if (at_true_branch) {
-                result.true_branch.push(parsedBlock.result)
+                result.true_branch.push(parsedBlock.result);
             } else {
-                result.false_branch.push(parsedBlock.result)
+                result.false_branch.push(parsedBlock.result);
             }
 
             next_idx = parsedBlock.next_idx;
@@ -579,6 +582,43 @@ var parse_dynamicblock_if = function parse_dynamicblock_if(indentation, parsed_t
             } else {
                 break;
             }
+        }
+    }
+
+    return {"next_idx": next_idx, "result": result};
+};
+
+/**
+ * Parses a dynamic if block, and the matching else block
+ * @param {Number} indentation The indentation of the block
+ * @param {Object} parsed_tag Object containing information about the tag (result of parse_dynamicblock_tag).
+ * @param {Number} idx The current index we are reading
+ * @private
+ * @returns {Object} containing the dynamic if block (key: result) and the next index to read (key: next_idx)
+ */
+var parse_dynamicblock_unless = function parse_dynamicblock_unless(indentation, parsed_tag, idx) {
+    var expression = parsed_tag.rest;
+    var result = new DynamicUnlessBlock(expression);
+
+    // Parse the first block
+    var true_branch = parse_block(idx + 1);
+    result.true_branch.push(true_branch.result);
+    var next_idx = true_branch.next_idx;
+
+    // Prepare the read more...
+    var parsedBlock;
+
+    // While there is more to read
+    while (next_idx < lines.length) {
+        var next = parse_line_indentation(lines[next_idx]);
+
+        // More in current branch
+        if (next.indentation > indentation) {
+            parsedBlock = parse_block(next_idx);
+            result.true_branch.push(parsedBlock.result);
+            next_idx = parsedBlock.next_idx;
+        } else {
+            break;
         }
     }
 
@@ -673,6 +713,9 @@ var parse_dynamicblock = function parse_dynamicblock(idx) {
     switch (keyword) {
         case "if":
             return parse_dynamicblock_if(indentation, parsed_tag, idx);
+        
+        case "unless":
+            return parse_dynamicblock_unless(indentation, parsed_tag, idx);
 
         case "else":
             throw "Standalone else is not allowed.";

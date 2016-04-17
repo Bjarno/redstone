@@ -2,12 +2,13 @@
 /* Imports */
 /***********/
 
-var DynamicExpression = require("./redstone-types.js").DynamicExpression;
-var DynamicIfBlock    = require("./redstone-types.js").DynamicIfBlock;
-var DynamicEachBlock  = require("./redstone-types.js").DynamicEachBlock;
-var DynamicWithBlock  = require("./redstone-types.js").DynamicWithBlock;
-var Tag               = require("./redstone-types.js").Tag;
-var ExposedValue      = require("./redstone-types.js").ExposedValue;
+var DynamicExpression  = require("./redstone-types.js").DynamicExpression;
+var DynamicIfBlock     = require("./redstone-types.js").DynamicIfBlock;
+var DynamicUnlessBlock = require("./redstone-types.js").DynamicUnlessBlock;
+var DynamicEachBlock   = require("./redstone-types.js").DynamicEachBlock;
+var DynamicWithBlock   = require("./redstone-types.js").DynamicWithBlock;
+var Tag                = require("./redstone-types.js").Tag;
+var ExposedValue       = require("./redstone-types.js").ExposedValue;
 
 
 /**********/
@@ -271,6 +272,26 @@ var generate_dynamic_if_block = function generate_dynamic_if_block(dynamic, inde
 };
 
 /**
+ * Generates a dynamic unless block.
+ * @param {DynamicUnlessBlock} dynamic The dynamic block to generate HTML code for.
+ * @param {Number} indent The current indentation level
+ * @private
+ * @returns {String} HTML for the given tag.
+ */
+var generate_dynamic_unless_block = function generate_dynamic_unless_block(dynamic, indent) {
+    var randomid = dynamic.crumb.idName;
+    var html = "";
+
+    html += create_indent(indent) + "{{#unless " + randomid + "}}\n";
+    html += generate_list(dynamic.true_branch, indent + 1);
+    html += "\n";
+
+    html += create_indent(indent) + "{{/unless}}\n";
+
+    return html;
+};
+
+/**
  * Generates a dynamic each or with block.
  * @param {DynamicEachBlock|DynamicWithBlock} dynamic The dynamic block to generate HTML code for.
  * @param {Number} indent The current indentation level
@@ -330,7 +351,7 @@ var find_generator = function find_generator(tagname) {
 
 /**
  * Generates for a given tree (Tag).
- * @param {Tag|DynamicExpression|DynamicIfBlock|DynamicEachBlock|String} tree The root of the tree.
+ * @param {Tag|DynamicExpression|DynamicIfBlock|DynamicEachBlock|String|DynamicWithBlock|DynamicUnlessBlock} tree The root of the tree.
  * @param {Number} (indent) The indentation level to use.
  * @private
  * @returns {String} HTML for the entire tree.
@@ -358,6 +379,10 @@ var generate_tree = function generate_tree(tree, indent) {
 
     if (tree instanceof DynamicWithBlock) {
         return generate_dynamic_with_block(tree, indent);
+    }
+
+    if (tree instanceof DynamicUnlessBlock) {
+        return generate_dynamic_unless_block(tree, indent);
     }
 
     var tag = tree;

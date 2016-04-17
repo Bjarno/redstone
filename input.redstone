@@ -115,5 +115,7 @@ body
 		Your lucky number: {{randomInt(1, 1000)}}
 	p.
 		Test with member: {{testObj.display()}}
+	{{#unless last.author == "Bjarno"}}
+		p Het laatste bericht is niet van Bjarno!
 	input[value={{username}}]
 	button[@click=clickIncrease]#countbutton I've been clicked {{count}} times.

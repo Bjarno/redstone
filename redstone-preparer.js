@@ -2,13 +2,14 @@
 /* Imports */
 /***********/
 
-var DynamicExpression = require("./redstone-types.js").DynamicExpression;
-var DynamicIfBlock    = require("./redstone-types.js").DynamicIfBlock;
-var DynamicEachBlock  = require("./redstone-types.js").DynamicEachBlock;
-var DynamicWithBlock  = require("./redstone-types.js").DynamicWithBlock;
-var Crumb             = require("./redstone-types.js").Crumb;
-var Tag               = require("./redstone-types.js").Tag;
-var ExposedValue      = require("./redstone-types.js").ExposedValue;
+var DynamicExpression  = require("./redstone-types.js").DynamicExpression;
+var DynamicIfBlock     = require("./redstone-types.js").DynamicIfBlock;
+var DynamicUnlessBlock = require("./redstone-types.js").DynamicUnlessBlock;
+var DynamicEachBlock   = require("./redstone-types.js").DynamicEachBlock;
+var DynamicWithBlock   = require("./redstone-types.js").DynamicWithBlock;
+var Crumb              = require("./redstone-types.js").Crumb;
+var Tag                = require("./redstone-types.js").Tag;
+var ExposedValue       = require("./redstone-types.js").ExposedValue;
 
 var randomstring = require("randomstring");
 var esprima = require("esprima");
@@ -294,6 +295,27 @@ var prepare_dynamic_if_block = function prepare_dynamic_if_block(dynamic) {
 };
 
 /**
+ * Prepares a dynamic unless block.
+ * @param {DynamicUnlessBlock} dynamic The block to prepare
+ * @private
+ */
+var prepare_dynamic_unless_block = function prepare_dynamic_unless_block(dynamic) {
+    var randomId = generate_randomRId();
+    var parsedPredicateExpression = esprima.parse(dynamic.predicateExpression);
+    var true_branch = dynamic.true_branch;
+
+    true_branch.forEach(function (expression) {
+        prepare(expression);
+    });
+
+    var varNames = parse_ast_varnames(parsedPredicateExpression);
+    var crumb = new Crumb(randomId, varNames, parsedPredicateExpression);
+
+    context.crumbs.push(crumb);
+    dynamic.crumb = crumb;
+};
+
+/**
  * Prepares a dynamic each or with block.
  * @param {DynamicEachBlock|DynamicWithBlock} dynamic The block to prepare
  * @private
@@ -334,7 +356,7 @@ var prepare_dynamic_with_block = prepare_dynamic_eachwith_block;
 
 /**
  * Prepares a dynamic block.
- * @param {DynamicIfBlock|DynamicEachBlock} dynamic The block to prepare
+ * @param {DynamicIfBlock|DynamicEachBlock|DynamicWithBlock|DynamicUnlessBlock} dynamic The block to prepare
  * @private
  */
 var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
@@ -343,6 +365,10 @@ var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
     switch (type) {
         case "if":
             prepare_dynamic_if_block(dynamic);
+            break;
+        
+        case "unless":
+            prepare_dynamic_unless_block(dynamic);
             break;
 
         case "each":
@@ -455,8 +481,9 @@ var is_dynamicExpression = function is_dynamicExpression(obj) {
  * @returns boolean true when the given object is a dynamic block, false otherwise
  */
 var is_dynamicBlock = function is_dynamicBlock(obj) {
-    return ( (obj instanceof DynamicEachBlock) ||
-             (obj instanceof DynamicIfBlock)   ||
+    return ( (obj instanceof DynamicEachBlock)   ||
+             (obj instanceof DynamicIfBlock)     ||
+             (obj instanceof DynamicUnlessBlock) ||
              (obj instanceof DynamicWithBlock)
     );
 };

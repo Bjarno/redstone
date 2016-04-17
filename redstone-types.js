@@ -48,6 +48,18 @@ var DynamicIfBlock = function DynamicIfBlock(predicateExpression) {
 };
 
 /**
+ * Object keeping track of the contents of a dynamic unless block.
+ * @constructor
+ * @param {String} predicateExpression The raw, unparsed, expression for the predicate
+ */
+var DynamicUnlessBlock = function DynamicUnlessBlock(predicateExpression) {
+	this.type = "unless";
+	this.crumb = null;
+	this.predicateExpression = predicateExpression;
+	this.true_branch = [];
+};
+
+/**
  * Object keeping track of the contents of a dynamic each block.
  * @constructor
  * @param {String} objectExpression The raw, unparsed, expression for the object
@@ -121,11 +133,12 @@ var ExposedValue = function ExposedValues(idName, fieldname) {
 /* Exports */
 /***********/
 
-exports.Tag               = Tag;
-exports.DynamicExpression = DynamicExpression;
-exports.ConverterContext  = ConverterContext;
-exports.DynamicIfBlock    = DynamicIfBlock;
-exports.DynamicEachBlock  = DynamicEachBlock;
-exports.DynamicWithBlock  = DynamicWithBlock;
-exports.Crumb             = Crumb;
-exports.ExposedValue      = ExposedValue;
+exports.Tag                = Tag;
+exports.DynamicExpression  = DynamicExpression;
+exports.ConverterContext   = ConverterContext;
+exports.DynamicIfBlock     = DynamicIfBlock;
+exports.DynamicUnlessBlock = DynamicUnlessBlock;
+exports.DynamicEachBlock   = DynamicEachBlock;
+exports.DynamicWithBlock   = DynamicWithBlock;
+exports.Crumb              = Crumb;
+exports.ExposedValue       = ExposedValue;
