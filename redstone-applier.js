@@ -424,7 +424,10 @@ var applyDefaultHead = function applyDefaultHead(head) {
     head.content.push(title);
 };
 
-// TODO: JSDoc
+/**
+ * Generates the HTML tree responsible for the loading overlay
+ * @returns {Tag} The HTML tree containing the elements needed for the loading overlay
+ */
 var generate_loading_html = function generate_loading_html() {
     var loading = new Tag("div", "loading");
     var loadingCircle = new Tag("div");

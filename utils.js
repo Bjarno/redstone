@@ -119,49 +119,64 @@ var writeFile = function writeFile(path, content) {
 	fs.writeFileSync(path, content, 'utf8', callback);
 };
 
-// License: https://github.com/kvz/phpjs/blob/master/LICENSE.txt
+/**
+ * Explodes a string into multiple bits (just as String.prototype.split), however when a limit is given, the remaining
+ * parts are concatenated at the last. Just like PHP's explode()
+ * @param {String} delimiter The delimiter to use
+ * @param {String} string The string to explode
+ * @param {String} (limit) The maximum amount of 'split's that may happen.
+ * @see {@link https://github.com/kvz/phpjs/blob/master/functions/strings/explode.js}
+ * @returns {Array} Array containing the bits and pieces
+ */
 var explode = function explode(delimiter, string, limit) {
-	//  discuss at: http://phpjs.org/functions/explode/
-	// original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-	//   example 1: explode(' ', 'Kevin van Zonneveld');
-	//   returns 1: {0: 'Kevin', 1: 'van', 2: 'Zonneveld'}
-
-	if (arguments.length < 2 || typeof delimiter === 'undefined' || typeof string === 'undefined') return null
-	if (delimiter === '' || delimiter === false || delimiter === null) return false
-	if (typeof delimiter === 'function' || typeof delimiter === 'object' || typeof string === 'function' || typeof string ===
-		'object') {
-		return {
-			0: ''
-		}
+	if (arguments.length < 2 || typeof delimiter === 'undefined' || typeof string === 'undefined') {
+		return null;
 	}
-	if (delimiter === true) delimiter = '1'
+
+	if (delimiter === '' || delimiter === false || delimiter === null) {
+		return false;
+	}
+
+	if (typeof delimiter === 'function' || typeof delimiter === 'object' || typeof string === 'function' || typeof string === 'object') {
+		return [''];
+	}
+
+	if (delimiter === true) {
+		delimiter = '1';
+	}
 
 	// Here we go...
-	delimiter += ''
-	string += ''
+	delimiter += '';
+	string += '';
 
-	var s = string.split(delimiter)
+	var s = string.split(delimiter);
 
-	if (typeof limit === 'undefined') return s
+	if (typeof limit === 'undefined') {
+		return s;
+	}
 
 	// Support for limit
-	if (limit === 0) limit = 1
+	if (limit == 0) {
+		limit = 1;
+	}
 
 	// Positive limit
 	if (limit > 0) {
-		if (limit >= s.length) return s
-		return s.slice(0, limit - 1)
-			.concat([s.slice(limit - 1)
-				.join(delimiter)
-			])
+		if (limit >= s.length) {
+			return s;
+		}
+
+		return s.slice(0, limit - 1).concat([s.slice(limit - 1).join(delimiter)]);
 	}
 
 	// Negative limit
-	if (-limit >= s.length) return []
-
-	s.splice(s.length + limit)
-	return s
-}
+	if (-limit >= s.length) {
+		return [];
+	} else {
+		s.splice(s.length + limit);
+		return s;
+	}
+};
 
 
 /***********/
