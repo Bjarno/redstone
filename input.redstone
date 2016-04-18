@@ -23,9 +23,8 @@
 	    username  = "user" + randomInt(100, 10000),
 	    text      = $("#msg"),
 	    messages  = [],
-	    testObj   = {};
-
-	var smiley = false;
+	    testObj   = {},
+	    smiley    = false;
 
 	testObj.a = 0;
 	testObj.display = function() {

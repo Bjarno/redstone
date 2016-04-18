@@ -75,29 +75,45 @@ var generate_innerHTML = function generate_innerHTML(content, indent) {
 };
 
 /**
- * Generate soras definitions for HTML.
- * @param {Tag} tag The tag to get id, classes and attributes for.
- * @returns {String} String containing the soras definitions in HTML.
+ * Generates the value for a certain attribute
+ * @param value The attribute
+ * @returns {String} The value of the attribute value
  */
-var generate_soras = function generate_soras(tag) {
+var generate_attribute_value = function generate_attribute_value(value) {
+    if (value instanceof ExposedValue) {
+        return "{{" + value.idName + "}}";
+    } else {
+        return value;
+    }
+};
+
+/**
+ * Generates a single attribute definition
+ * @param name The name of the attribute
+ * @param value The value of the attribute
+ * @returns {String} The attribute definition in HTML5
+ */
+var generate_attribute = function generate_attribute(name, value) {
+    if (name[0] === "@") {
+        return "";
+    }
+
+    return " " + name + "=\"" + generate_attribute_value(value) + "\"";
+};
+
+/**
+ * Generate attribute definitions for HTML.
+ * @param {Tag} tag The tag to get id, classes and attributes for.
+ * @returns {String} String containing the attribute definitions in HTML.
+ */
+var generate_attributes = function generate_attributes(tag) {
     var resultHTML = "";
 
     // Add attributes
     var attributes = tag.attributes;
     for (var name in attributes) {
         if (attributes.hasOwnProperty(name)) {
-            if (name[0] === "@") {
-                break;
-            }
-
-            var value = attributes[name];
-
-            if (value instanceof ExposedValue) {
-                resultHTML += " " + name + "=\"{{" + value.idName + "}}\"";
-            } else {
-                // Assume it to be a normal HTML attribute.
-                resultHTML += " " + name + "=\"" + value + "\"";
-            }
+            resultHTML += generate_attribute(name, attributes[name]);
         }
     }
 
@@ -117,7 +133,7 @@ var generate_soras = function generate_soras(tag) {
 };
 
 /**
- * Generate the opening tag, including the soras definitions.
+ * Generate the opening tag, including the attribute definitions.
  * @param {Tag} tag The tag to get id, classes and attributes for.
  * @param {Boolean} [selfclosing] Whether this tag is a self-closing tag.
  * @returns {String} String containing the opening tag for the given tag.
@@ -125,7 +141,7 @@ var generate_soras = function generate_soras(tag) {
 var generate_opentag = function generate_opentag(tag, selfclosing) {
     var tagname = tag.tagname;
 
-    var resultHTML = "<" + tagname + generate_soras(tag);
+    var resultHTML = "<" + tagname + generate_attributes(tag);
     if ( (selfclosing === true) && (context.options.selfclosing_backslash) ) {
         resultHTML += " /";
     }
