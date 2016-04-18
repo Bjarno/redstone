@@ -1,7 +1,6 @@
 /* @server */
 {
 	function broadcast(name, message) {
-		console.log(name + " said: " + message);
 		displayMessage(name, message);
 	}
 }
@@ -10,7 +9,7 @@
 {
 	var name     = "user" + (Math.floor(Math.random() * 9901) + 100),
 		msg      = "",
-	    messages = [];
+		messages = [];
 
 	function sendMessage() {
 		broadcast(name, msg);
@@ -18,8 +17,7 @@
 	}
 
 	function displayMessage(name, message) {
-		var m = {name: name, message: message};
-		messages.push(m);
+		messages.push({name: name, message: message});
 	}
 }
 
