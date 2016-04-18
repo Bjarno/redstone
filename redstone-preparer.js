@@ -57,11 +57,12 @@ var is_in_with = function is_in_with() {
 
 /**
  * Parses a MemberExpression to find the hierarchy of properties.
- * @param {MemberExpression} expression The expression to find the combination of the variable name (most-left) and the property hierarchy that is
- * requested from the MemberExpression.
+ * @param {MemberExpression} expression The expression to find the combination of the variable name (most-left) and the
+ * property hierarchy that is requested from the MemberExpression.
  * @private
  * @returns {Array} Array containing variable top-level variables name of things inside a MemberExpression
  */
+// TODO: Place this in find_varnames_expression(), instead of standalone function, has no need for seperate function (just complicates things)
 var parse_memberexpression_varname = function parse_memberexpression_varname(expression) {
     var result = [];
 
