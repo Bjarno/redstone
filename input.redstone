@@ -45,12 +45,10 @@
 		last.message = message; // Must be on client (!)
 		last.author  = name;
 
-		var m = {};
-		m.name = name;
-		m.message = message;
+		var m = {name: name, message: message};
 		messages.push(m);
 
-		smiley = true;
+		smiley = (message.indexOf(":D") != -1);
 	}
 
 	var bar = 123;
