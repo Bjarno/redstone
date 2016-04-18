@@ -348,6 +348,7 @@ REDSTONE = {};
 	};
 
 	var init = function init() {
+		console.log("initGUI()");
 		initGUI();
 	};
 

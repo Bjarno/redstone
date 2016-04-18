@@ -81,7 +81,11 @@ var parse_memberexpression_varname = function parse_memberexpression_varname(exp
             break;
 
         default:
-            throw "Only supports identifiers (or nested MemberExpressions) for MemberExpression's object.";
+            // throw "Only supports identifiers (or nested MemberExpressions) for MemberExpression's object.";
+            // TODO: Show warning?
+
+            result = result.concat(find_varnames_expression(expression));
+            break;
     }
 
     return result;
@@ -117,6 +121,9 @@ var find_varnames_expression = function find_varnames_expression(expression) {
         case esprima.Syntax.CallExpression:
             var calleeExpression = expression.callee;
             var arguments = expression.arguments;
+
+            console.log("!!!!!");
+            console.log(calleeExpression.type);
 
             switch (calleeExpression.type) {
                 case esprima.Syntax.Identifier:

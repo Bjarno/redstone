@@ -222,7 +222,7 @@ var parse_tagdata_to_tokens = function parse_tagdata_to_tokens(data) {
             }
             buffer += "c";
         } else {
-            throw "Unknown character '" + c + "'.";
+            throw "Unknown character '" + c + "', parsing '" + data + "'.";
         }
 
         idx++;
