@@ -175,15 +175,6 @@ REDSTONE = {};
 	};
 
 	var updateVariable = function updateVariable(variableName, value) {
-		// When not yet loaded, wait until loaded
-		if (!loaded) {
-			waitingUpdates.push({
-				variableName: variableName,
-				value: value
-			});
-			return;
-		}
-
 		// Create info object if not yet created
 		if (!variableInfo.hasOwnProperty(variableName)) {
 			variableInfo[variableName] = {
@@ -193,6 +184,15 @@ REDSTONE = {};
 			}
 		}
 
+		// When not yet loaded, wait until loaded
+		if (!loaded) {
+			waitingUpdates.push({
+				variableName: variableName,
+				value: value
+			});
+			return;
+		}
+		
 		// Don't do anything if blocked
 		if (variableInfo[variableName].blocked) {
 			console.log("!!! Variable " + variableName + " is blocked, not allowing nested updating GUI on same variable!");
