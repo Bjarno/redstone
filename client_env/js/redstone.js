@@ -205,8 +205,8 @@ REDSTONE = {};
 
 		// Clean up old value
 		var oldValue = variableInfo[variableName].value;
-		if (typeof oldvalue == 'object') {
-			OBJSPY.untrack(oldvalue, variableName);
+		if (typeof oldValue == 'object') {
+			OBJSPY.untrack(oldValue, variableName);
 		}
 
 		// Get crumbs belonging to this variable
