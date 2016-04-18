@@ -30,8 +30,16 @@ REDSTONE = {};
 	};
 
 	var evalIdentifier = function evalIdentifier(identifier) {
+		var varname = identifier.name;
 		if (identifier.hasOwnProperty("isInCrumb")) {
-			return variableInfo[identifier.name].value;
+			var varInfo = variableInfo[varname];
+
+			if (varInfo === undefined) {
+				console.log("!!! No definition for variable '" + varname + "'.");
+				return false;
+			}
+
+			return varInfo.value;
 		} else {
 			console.log("!!! I don't know what to do with identifier that is not in crumb");
 			return false;
@@ -166,11 +174,7 @@ REDSTONE = {};
 		}
 	};
 
-	var updateVariable = function updateVariable(variableName, value, doRactiveUpdateIfExposed) {
-		if (doRactiveUpdateIfExposed === undefined) {
-			doRactiveUpdateIfExposed = true;
-		}
-
+	var updateVariable = function updateVariable(variableName, value) {
 		// When not yet loaded, wait until loaded
 		if (!loaded) {
 			waitingUpdates.push({
@@ -178,11 +182,6 @@ REDSTONE = {};
 				value: value
 			});
 			return;
-		}
-
-		// If this variable is a ui->client variable, update
-		if ( (variableName in REDSTONE.EXPOSEDVALUES) && (doRactiveUpdateIfExposed) ) {
-			ractive.set(REDSTONE.EXPOSEDVALUES[variableName], value);
 		}
 
 		// Create info object if not yet created
@@ -212,9 +211,6 @@ REDSTONE = {};
 
 		// Get crumbs belonging to this variable
 		var crumbIds = REDSTONE.VARTOCRUMBID[variableName];
-		if (crumbIds === undefined) {
-			return;
-		}
 
 		// Block and set new value
 		variableInfo[variableName].blocked = true;
@@ -222,11 +218,20 @@ REDSTONE = {};
 		variableInfo[variableName].value = value;
 
 		var onInternalUpdate = function onInternalUpdate() {
-			crumbIds.map(function (crumbId) {
-				return REDSTONE.CRUMBS[crumbId];
-			}).forEach(function (crumb) {
-				var value = eval(crumb.parsedExpression);
-				updateCrumb(crumb, value);
+			if (crumbIds !== undefined) {
+				crumbIds.map(function (crumbId) {
+					return REDSTONE.CRUMBS[crumbId];
+				}).forEach(function (crumb) {
+					var value = eval(crumb.parsedExpression);
+					updateCrumb(crumb, value);
+				});
+			}
+
+			console.log("Updating variable '" + variableName + '".');
+			REDSTONE.EXPOSEDVALUES.forEach(function (exposedValue) {
+				if (exposedValue.variableNames.indexOf(variableName) !== -1) {
+					ractive.set(exposedValue.idName, eval(exposedValue.parsedExpression));
+				}
 			});
 		};
 
@@ -278,19 +283,67 @@ REDSTONE = {};
 		}
 		waitingUpdates = [];
 
-		// Install ractive observers
-		var exposedVariables = Object.keys(REDSTONE.EXPOSEDVALUES);
-		exposedVariables.forEach(function (varname) {
-			var rId = REDSTONE.EXPOSEDVALUES[varname];
+		// Install ractive observers on two-way variables
+		REDSTONE.EXPOSEDVALUES.forEach(function (exposedValue) {
+			var rId = exposedValue.idName;
+			var expression = getExposedExpression(exposedValue.parsedExpression);
 
 			ractive.observe(rId, function (newValue, oldValue) {
-				// Update client variable
-				REDSTONE.UPDATECLIENTVAR[varname](newValue);
-
-				// Update other crumbs
-				updateVariable(varname, newValue, false);
+				assignLValue(rId, expression, newValue);
 			});
 		});
+	};
+
+	var getExposedExpression = function getExposedExpression(ast) {
+		if (ast.type !== esprima.Syntax.Program) {
+			console.log("!!! AST doesn't start with Program");
+			return false;
+		}
+
+		if (ast.body.length != 1) {
+			console.log("!!! Program body length is not equal to 1.");
+			return false;
+		}
+
+		if (ast.body[0].type !== esprima.Syntax.ExpressionStatement) {
+			console.log("!!! Expected ExpressionStatement, instead of " + ast.body[0].type);
+			return false;
+		}
+
+		return ast.body[0].expression;
+	};
+
+	var assignLValue = function assignLValue(exposedId, expression, value) {
+		var type = expression.type;
+
+		switch (type) {
+			case esprima.Syntax.Identifier:
+				var varname = expression.name;
+
+				// Update client value
+				REDSTONE.UPDATECLIENTVAR[varname](value);
+
+				// Update other crumbs
+				updateVariable(varname, value);
+				break;
+
+			case esprima.Syntax.MemberExpression:
+				// Evaluate object
+				var object = eval(expression.object);
+				var property;
+
+				if (expression.computed) {
+					// Evaluate property
+					property = eval(expression.property);
+				} else {
+					// Get property name
+					property = expression.property.name;
+				}
+
+				// Let ObjWatch take care of updates
+				object[property] = value;
+				break;
+		}
 	};
 
 	var init = function init() {

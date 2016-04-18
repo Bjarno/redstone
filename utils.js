@@ -178,6 +178,10 @@ var explode = function explode(delimiter, string, limit) {
 	}
 };
 
+// TODO: JSDoc
+var uniq = function uniq(a) {
+	return Array.from(new Set(a));
+};
 
 /***********/
 /* Exports */
@@ -192,3 +196,4 @@ exports.debugEcho = debugEcho;
 exports.set_debug = set_debug;
 exports.writeFile = writeFile;
 exports.explode = explode;
+exports.uniq = uniq;

@@ -391,43 +391,31 @@ var is_exposed_value = function is_exposed_value(value) {
 };
 
 /**
- * Returns the fieldname/variable name of the exposed value, from an attribute value
+ * Returns the expression name of the exposed value, from an attribute value
  * @param value The attribute value
- * @returns {string} The fieldname only of this exposed value/variable
+ * @returns {String} The expression of an exposed value
  */
-var get_exposed_value_fieldname = function get_exposed_value_fieldname(value) {
-    var inbetween = value.substring(2, value.length - 2).trim();
-    var parsed_inbetween = esprima.parse(inbetween);
-
-    if (parsed_inbetween.body[0].type === esprima.Syntax.ExpressionStatement) {
-        if (parsed_inbetween.body[0].expression.type === esprima.Syntax.Identifier) {
-            return parsed_inbetween.body[0].expression.name;
-        }
-    }
-
-    throw "!!! Unsupported type of Program in argument of tag.";
+var get_exposed_value_expression = function get_exposed_value_expression(value) {
+    return value.substring(2, value.length - 2).trim();
 };
 
 /**
  * Parses an exposed value/variable attribute definition
- * @param tag The tag
- * @param name The name of the attribute
- * @param value The value of the attribute
+ * @param {Tag} tag The tag
+ * @param {String} name The name of the attribute
+ * @param {String} value The value of the attribute
+ * @private
+ * @returns {ExposedValue} The exposed value generated
  */
 var parse_exposed_value = function parse_exposed_value(tag, name, value) {
-    var randomId;
-    var fieldname = get_exposed_value_fieldname(value);
-
-    if (context.exposedValues[fieldname] === undefined) {
-        randomId = generate_randomRId();
-    } else {
-        // Steal it's random identifier
-        randomId = context.exposedValues[fieldname];
-    }
-
-    tag.attributes[name] = new ExposedValue(randomId, fieldname);
-
-    context.exposedValues[fieldname] = randomId;
+    var randomId = generate_randomRId();
+    var parsedExpression = esprima.parse(get_exposed_value_expression(value));
+    var variableNames = parse_ast_varnames(parsedExpression);
+    var exposedValue = new ExposedValue(randomId, variableNames, parsedExpression);
+    tag.attributes[name] = exposedValue;
+    
+    context.exposedValues.push(exposedValue);
+    return exposedValue;
 };
 
 /**

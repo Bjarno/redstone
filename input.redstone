@@ -116,5 +116,10 @@ body
 		Test with member: {{testObj.display()}}
 	{{#unless last.author == "Bjarno"}}
 		p Het laatste bericht is niet van Bjarno!
-	input[value={{username}}]
+	div
+		span Username
+		input[value={{username}}]
+	div
+		span Last message
+		input[value={{last.message}}]
 	button[@click=clickIncrease]#countbutton I've been clicked {{count}} times.

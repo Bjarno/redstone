@@ -101,7 +101,7 @@ var ConverterContext = function ConverterContext(options) {
 	this.varname2declNode = {}; // Mapping from variable names (as strings) to their declaration nodes
 	this.stip = {}; // Information about Stip tool is temporary saved here
 	this.functionNames = []; // Array containing function names that are being used in crumbs
-	this.exposedValues = {};
+	this.exposedValues = [];
 	this.clientJS = "";
 };
 
@@ -121,12 +121,13 @@ var Crumb = function Crumb(idName, variableNames, parsedExpression) {
 /**
  * An ExposedValue, which allows for two-way binding of the client interface
  * @param idName The randomly generated identifier for the ractive library
- * @param fieldname The name of the variable
+ * @param parsedExpression The parsed expression, showing where the exposed value should be stored
  * @constructor
  */
-var ExposedValue = function ExposedValues(idName, fieldname) {
-	this.idName = idName;
-	this.fieldname = fieldname;
+var ExposedValue = function ExposedValues(idName, variableNames, parsedExpression) {
+	this.idName = idName; // The randomly generated name of this crumb
+	this.variableNames = (variableNames ? variableNames : []); // Array containing all the top-level variable names (for static analysis)
+	this.parsedExpression = (parsedExpression ? parsedExpression : null); // Used while evaluating crumbs
 };
 
 /***********/

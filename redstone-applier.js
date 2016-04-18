@@ -5,6 +5,8 @@
 var Tag = require("./redstone-types.js").Tag;
 var escodegen = require("escodegen");
 
+var uniq = require("./utils.js").uniq;
+
 
 /**********/
 /* Fields */
@@ -34,8 +36,8 @@ var set_context = function set_context(newContext) {
 var generate_update_gui_vars = function generate_update_gui_vars() {
     var result = [];
 
-    var add_updatevar = function add_updatevar(name) {
-        var node = {
+    var create_updatevar = function create_updatevar(name) {
+        return {
             "type": "Program",
             "body": [
                 {
@@ -102,17 +104,19 @@ var generate_update_gui_vars = function generate_update_gui_vars() {
             ],
             "sourceType": "script"
         };
-
-        result.push(node);
     };
+    
+    var varnames = [];
+    
+    context.exposedValues.forEach(function (exposedValue) {
+        varnames = varnames.concat(exposedValue.variableNames);
+    });
 
-    var exposedValues = context.exposedValues;
+    varnames = uniq(varnames);
 
-    for (var fieldname in exposedValues) {
-        if (exposedValues.hasOwnProperty(fieldname)) {
-            add_updatevar(fieldname);
-        }
-    }
+    varnames.forEach(function (varname) {
+        result.push(create_updatevar(varname));
+    });
 
     return result;
 };
