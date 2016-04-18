@@ -280,6 +280,13 @@ var generate_reactivity = function generate_reactivity() {
         });
     });
 
+    context.exposedValues.forEach(function (exposedValue) {
+        push_kv(exposedValue.idName, {
+            "type": "Identifier",
+            "value": "undefined"
+        });
+    });
+
     return result;
 };
 

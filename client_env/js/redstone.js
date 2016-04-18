@@ -1,10 +1,10 @@
 REDSTONE = {};
 
 (function() {
-	var NIL = function() {};
 
-	var updateCrumb = function updateCrumb(crumb, newValue) {
-		ractive.set(crumb.idName, newValue);
+	var updateMustache = function updateMustache(idName, newValue) {
+		// TODO: Only update if value has changed (at the time of writing, this bugged in ractive)
+		ractive.set(idName, newValue);
 	};
 
 	var variableInfo = {};
@@ -222,15 +222,16 @@ REDSTONE = {};
 				crumbIds.map(function (crumbId) {
 					return REDSTONE.CRUMBS[crumbId];
 				}).forEach(function (crumb) {
-					var value = eval(crumb.parsedExpression);
-					updateCrumb(crumb, value);
+					var newValue = eval(crumb.parsedExpression);
+					updateMustache(crumb.idName, newValue);
 				});
 			}
 
 			console.log("Updating variable '" + variableName + '".');
 			REDSTONE.EXPOSEDVALUES.forEach(function (exposedValue) {
 				if (exposedValue.variableNames.indexOf(variableName) !== -1) {
-					ractive.set(exposedValue.idName, eval(exposedValue.parsedExpression));
+					var newValue = eval(exposedValue.parsedExpression);
+					updateMustache(exposedValue.idName, newValue);
 				}
 			});
 		};
@@ -272,7 +273,7 @@ REDSTONE = {};
 			// Immediate evaluate after loading
 			if (variableNames.length === 0) {
 				var value = eval(crumb.parsedExpression);
-				updateCrumb(crumb, value);
+				updateMustache(crumb, value);
 			}
 		});
 
