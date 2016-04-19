@@ -38,17 +38,13 @@
 			currentidx -= 1;
 		}
 	}
-
-	function getLine(idx) {
-		return lines[idx];
-	}
 }
 
 /* @ui */
 body
 	{{#each lines}}
 		p {{text}}
-	input[value={{getLine(currentidx).text}}]
+	input[value={{lines[currentidx].text}}]
 	button[@click=inc] ++
 	button[@click=dec] --
 	p Current idx = {{currentidx}}

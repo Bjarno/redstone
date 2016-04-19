@@ -178,7 +178,7 @@ REDSTONE = {};
 		// Create info object if not yet created
 		if (!variableInfo.hasOwnProperty(variableName)) {
 			variableInfo[variableName] = {
-				value: undefined,
+				value: value,
 				blocked: false,
 				finalValue: value
 			}
@@ -218,8 +218,6 @@ REDSTONE = {};
 		variableInfo[variableName].value = value;
 
 		var onInternalUpdate = function onInternalUpdate() {
-			console.log("Updating variable '" + variableName + '".');
-
 			if (crumbIds !== undefined) {
 				crumbIds.map(function (crumbId) {
 					return REDSTONE.CRUMBS[crumbId];
@@ -285,7 +283,6 @@ REDSTONE = {};
 			var expression = getExposedExpression(crumb.parsedExpression);
 
 			ractive.observe(rId, function (newValue, oldValue) {
-				console.log(rId);
 				assignLValue(rId, expression, newValue);
 			});
 		});

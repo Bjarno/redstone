@@ -91,6 +91,11 @@
 	};
 
 	OBJSPY.untrack = function (obj, key) {
+		// Don't do anything if not tracking
+		if (!(obj.hasOwnProperty("__objspy__"))) {
+			return;
+		}
+
 		var idx = -1;
 		obj.__objspy__.listeners.forEach(function (keyandlistener, i) {
 			if (keyandlistener.key === key) {
