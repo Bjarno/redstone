@@ -139,7 +139,7 @@ var generate_innerjs = function generate_innerjs() {
 
     // "Link" methods by name
     context.functionNames.forEach(function(functionName) {
-        result += "\nREDSTONE.registerMethod(\"" + functionName + "\"] = " + functionName + ");";
+        result += "\nREDSTONE.registerMethod(\"" + functionName + "\", " + functionName + ");";
     });
 
     // Create function to update GUI variables
