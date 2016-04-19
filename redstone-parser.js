@@ -3,6 +3,7 @@
 /***********/
 
 var Tag                = require("./redstone-types.js").Tag;
+var ExposedValue       = require("./redstone-types.js").ExposedValue;
 var DynamicExpression  = require("./redstone-types.js").DynamicExpression;
 var DynamicIfBlock     = require("./redstone-types.js").DynamicIfBlock;
 var DynamicUnlessBlock = require("./redstone-types.js").DynamicUnlessBlock;
@@ -134,6 +135,33 @@ var isNumber = function isNumber(str) {
     return (str.length === 1) && str.match(/[0-9]/);
 };
 
+// TODO: JSDoc
+var parse_exposed_value = function parse_exposed_value(data, idx) {
+    idx++;
+    var buffer = "";
+
+    while (idx < data.length) {
+        var c = data[idx];
+
+        if (c === "}") {
+            var next_idx = idx + 1;
+            var next_c = data[next_idx];
+
+            if (next_c === "}") {
+                return {
+                    "next_idx": next_idx,
+                    "exposed_expression": buffer
+                };
+            }
+        }
+
+        buffer += c;
+        idx++;
+    }
+
+    throw "Exposed value definition did not end";
+};
+
 /**
  * Reads a string, starting from a certain index, and finds the attribute
  * name and the attribute value, until it finds a ].
@@ -154,7 +182,9 @@ var parse_tagdata_attribute = function parse_tagdata_attribute(data, idx) {
 
         if (c === "]") {
             if (read_value) {
-                value = buffer;
+                if (value === "") { // Can also contain an exposed value definition
+                    value = buffer;
+                }
             } else {
                 name = buffer;
             }
@@ -174,6 +204,16 @@ var parse_tagdata_attribute = function parse_tagdata_attribute(data, idx) {
             name = buffer;
             buffer = "";
             read_value = true;
+        } else if (c === "{") {
+            var next_idx = idx + 1;
+            var next_c = data[next_idx];
+            if (next_c !== "{") {
+                throw "Did not expect single {";
+            }
+
+            var parsedExposed = parse_exposed_value(data, next_idx);
+            idx = parsedExposed.next_idx;
+            value = new ExposedValue(parsedExposed.exposed_expression);
         } else if (isNumber(c)) {
             if ( (!(read_value)) && (buffer === "") ) {
                 throw "Attribute name can't start with a number.";
@@ -262,7 +302,7 @@ var parse_tagdata = function parse_tagdata(data) {
 
         switch (type) {
             case "string":
-                throw "Unable to apply string on position '" + idx + "'.";
+                throw "Unable to apply string on position '" + idx + "' with tagdata '" + data + "'.";
 
             case "seperator":
                 if (idx + 1 >= tokens.length) {

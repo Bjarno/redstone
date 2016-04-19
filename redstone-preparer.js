@@ -391,39 +391,26 @@ var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
 
 /**
  * Checks whether the given attribute value is an exposed value/variable
- * @param value The attribute value to check
+ * @param {String|ExposedValue} value The attribute value to check
  * @returns {boolean} true if it is an exposed value/variable, false otherwise
  */
 var is_exposed_value = function is_exposed_value(value) {
-    return ( (value.indexOf("{{") === 0) && (value.indexOf("}}") === value.length - 2) );
-};
-
-/**
- * Returns the expression name of the exposed value, from an attribute value
- * @param value The attribute value
- * @returns {String} The expression of an exposed value
- */
-var get_exposed_value_expression = function get_exposed_value_expression(value) {
-    return value.substring(2, value.length - 2).trim();
+    return value instanceof ExposedValue;
 };
 
 /**
  * Parses an exposed value/variable attribute definition
- * @param {Tag} tag The tag
- * @param {String} name The name of the attribute
- * @param {String} value The value of the attribute
+ * @param {ExposedValue} value The value of the attribute
  * @private
- * @returns {ExposedValue} The exposed value generated
  */
-var parse_exposed_value = function parse_exposed_value(tag, name, value) {
+var parse_exposed_value = function parse_exposed_value(value) {
     var randomId = generate_randomRId();
-    var parsedExpression = esprima.parse(get_exposed_value_expression(value));
+    var parsedExpression = esprima.parse(value.expression);
     var variableNames = parse_ast_varnames(parsedExpression);
-    var exposedValue = new ExposedValue(randomId, variableNames, parsedExpression);
-    tag.attributes[name] = exposedValue;
-    
-    context.exposedValues.push(exposedValue);
-    return exposedValue;
+    var crumb = new Crumb(randomId, variableNames, parsedExpression, "");
+    value.crumb = crumb;
+    context.crumbs.push(crumb);
+    context.exposedValues.push(value);
 };
 
 /**
@@ -449,7 +436,7 @@ var prepare_tag = function prepare_tag(tag) {
         if (attributes.hasOwnProperty(name)) {
             var value = attributes[name];
             if (is_exposed_value(value)) {
-                parse_exposed_value(tag, name, value);
+                parse_exposed_value(value);
             }
         }
     }

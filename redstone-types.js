@@ -11,7 +11,6 @@
  * @param {Object} [attributes] - Object containing the attributes and values
  * of this tag.
  * @param {Array} [content] - The contents of this tag.
- * @param {Array} [idNames] - The idNames and idNames that are being used.
  * @private
  */
 var Tag = function Tag(tagname, id, classes, attributes, content) {
@@ -111,23 +110,23 @@ var ConverterContext = function ConverterContext(options) {
  * @param {String} idName The id of the crumb
  * @param {Array} variableNames Array containing the variable names
  * @param {Object} parsedExpression The parsed expression
+ * @param {String|undefined} (defaultValue) The default value, before running client code
  */
-var Crumb = function Crumb(idName, variableNames, parsedExpression) {
+var Crumb = function Crumb(idName, variableNames, parsedExpression, defaultValue) {
 	this.idName = idName; // The randomly generated name of this crumb
 	this.variableNames = (variableNames ? variableNames : []); // Array containing all the top-level variable names (for static analysis)
 	this.parsedExpression = (parsedExpression ? parsedExpression : null); // Used while evaluating crumbs
+	this.defaultValue = defaultValue; // Can be undefined
 };
 
 /**
  * An ExposedValue, which allows for two-way binding of the client interface
- * @param idName The randomly generated identifier for the ractive library
- * @param parsedExpression The parsed expression, showing where the exposed value should be stored
+ * @param {String} expression The unparsed expression, showing where the exposed value should be stored
  * @constructor
  */
-var ExposedValue = function ExposedValues(idName, variableNames, parsedExpression) {
-	this.idName = idName; // The randomly generated name of this crumb
-	this.variableNames = (variableNames ? variableNames : []); // Array containing all the top-level variable names (for static analysis)
-	this.parsedExpression = (parsedExpression ? parsedExpression : null); // Used while evaluating crumbs
+var ExposedValue = function ExposedValues(expression) {
+	this.expression = expression;
+	this.crumb = null;
 };
 
 /***********/

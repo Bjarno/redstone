@@ -218,6 +218,8 @@ REDSTONE = {};
 		variableInfo[variableName].value = value;
 
 		var onInternalUpdate = function onInternalUpdate() {
+			console.log("Updating variable '" + variableName + '".');
+
 			if (crumbIds !== undefined) {
 				crumbIds.map(function (crumbId) {
 					return REDSTONE.CRUMBS[crumbId];
@@ -226,14 +228,6 @@ REDSTONE = {};
 					updateMustache(crumb.idName, newValue);
 				});
 			}
-
-			console.log("Updating variable '" + variableName + '".');
-			REDSTONE.EXPOSEDVALUES.forEach(function (exposedValue) {
-				if (exposedValue.variableNames.indexOf(variableName) !== -1) {
-					var newValue = eval(exposedValue.parsedExpression);
-					updateMustache(exposedValue.idName, newValue);
-				}
-			});
 		};
 
 		// Do initial update
@@ -286,10 +280,12 @@ REDSTONE = {};
 
 		// Install ractive observers on two-way variables
 		REDSTONE.EXPOSEDVALUES.forEach(function (exposedValue) {
-			var rId = exposedValue.idName;
-			var expression = getExposedExpression(exposedValue.parsedExpression);
+			var crumb = exposedValue.crumb;
+			var rId = crumb.idName;
+			var expression = getExposedExpression(crumb.parsedExpression);
 
 			ractive.observe(rId, function (newValue, oldValue) {
+				console.log(rId);
 				assignLValue(rId, expression, newValue);
 			});
 		});

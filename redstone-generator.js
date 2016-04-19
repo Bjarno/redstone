@@ -81,7 +81,7 @@ var generate_innerHTML = function generate_innerHTML(content, indent) {
  */
 var generate_attribute_value = function generate_attribute_value(value) {
     if (value instanceof ExposedValue) {
-        return "{{" + value.idName + "}}";
+        return "{{" + value.crumb.idName + "}}";
     } else {
         return value;
     }

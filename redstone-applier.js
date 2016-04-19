@@ -109,7 +109,8 @@ var generate_update_gui_vars = function generate_update_gui_vars() {
     var varnames = [];
     
     context.exposedValues.forEach(function (exposedValue) {
-        varnames = varnames.concat(exposedValue.variableNames);
+        var crumb = exposedValue.crumb;
+        varnames = varnames.concat(crumb.variableNames);
     });
 
     varnames = uniq(varnames);
@@ -274,17 +275,25 @@ var generate_reactivity = function generate_reactivity() {
 
     // Add all crumbs with a currently undefined value.
     context.crumbs.forEach(function (crumb) {
-        push_kv(crumb.idName, {
-            "type": "Identifier",
-            "value": "undefined"
-        });
-    });
+        var defaultValue = crumb.defaultValue;
+        var value;
 
-    context.exposedValues.forEach(function (exposedValue) {
-        push_kv(exposedValue.idName, {
-            "type": "Identifier",
-            "value": "undefined"
-        });
+        if (defaultValue === undefined) {
+            value = {
+                "type": "Identifier",
+                "value": "undefined"
+            };
+        } else if (typeof defaultValue === "string") {
+            value = {
+                "type": "Literal",
+                "value": defaultValue,
+                "raw": "\"" + defaultValue + "\""
+            };
+        } else {
+            throw "Unknown type of default value for crumb " + defaultValue;
+        }
+
+        push_kv(crumb.idName, value);
     });
 
     return result;
