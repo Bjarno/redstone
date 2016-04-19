@@ -198,25 +198,6 @@ var get_id = function get_id(tag) {
 };
 
 /**
- * Generates Javascript code to install an event listener.
- * @param {Tag} tag The tag that should be used to link the callback to the event.
- * @param {String} ev The event to use. Assumes $(...).<event> exists.
- * @param {String} callback Name of the global callback function.
- * @private
- */
-var generate_js_callback = function generate_js_callback(tag, ev, callback) {
-    if (tag.tagname === "html") {
-        throw "NYI";
-    }
-
-    context.callbacks.push(callback); // Makes sure that Stip knows it is called on client-side
-
-    var id = get_id(tag);
-    var js = "$(\"#" + id + "\")." + ev + "(REDSTONE.createCallback(" + callback + "));";
-    context.js.push(js);
-};
-
-/**
  * Generates a random identifier for a dynamic (reactive) block/segment.
  * @private
  * @returns {String} A random string
@@ -419,25 +400,46 @@ var parse_exposed_value = function parse_exposed_value(value) {
  * @private
  */
 var prepare_tag = function prepare_tag(tag) {
+    var onChangeEvent = false;
+
     // Install callbacks
     var attributes = tag.attributes;
     for (var name in attributes) {
         if (attributes.hasOwnProperty(name)) {
             if (name[0] == "@") {
                 var ev = name.substring(1, name.length);
-                var callback = attributes[name];
-                generate_js_callback(tag, ev, callback);
+                var eventName = attributes[name];
+                var randomId = generate_randomRId();
+
+                // Delete attribute itself and move to event
+                delete attributes[name];
+
+                var event = {
+                    name: eventName,
+                    type: ev,
+                    idName: randomId
+                };
+
+                context.callbacks.push(event);
+                tag.events.push(event);
+
+                switch (event.type) {
+                    case "change":
+                        onChangeEvent = event;
+                        break;
+                }
             }
         }
     }
 
     // Check if it contains an exposed value
-    for (var name in attributes) {
-        if (attributes.hasOwnProperty(name)) {
-            var value = attributes[name];
-            if (is_exposed_value(value)) {
-                parse_exposed_value(value);
-            }
+    var value = attributes["value"];
+    if (is_exposed_value(value)) {
+        parse_exposed_value(value);
+
+        // Check for events/callbacks that apply on changes of exposed value
+        if (onChangeEvent) {
+            value.onChangeEvent = onChangeEvent;
         }
     }
 

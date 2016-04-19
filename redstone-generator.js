@@ -129,6 +129,14 @@ var generate_attributes = function generate_attributes(tag) {
         resultHTML += " id=\"" + id + "\"";
     }
 
+    // Add events
+    tag.events.forEach(function (event) {
+        switch (event.type) {
+            case "click":
+                resultHTML += " on-click=\"" + event.idName + "\"";
+        }
+    });
+
     return resultHTML;
 };
 

@@ -1,4 +1,6 @@
 REDSTONE = {};
+REDSTONE.METHODS = {};
+REDSTONE.UPDATECLIENTVAR = {};
 
 (function() {
 
@@ -283,8 +285,28 @@ REDSTONE = {};
 			var expression = getExposedExpression(crumb.parsedExpression);
 
 			ractive.observe(rId, function (newValue, oldValue) {
-				assignLValue(rId, expression, newValue);
+				var continueAssignment = true;
+
+				// If exposedValue has an change observer
+				if (exposedValue.onChangeEvent) {
+					var functionName = exposedValue.onChangeEvent.name;
+					var result = REDSTONE.METHODS[functionName](newValue);
+
+					if (result !== undefined) {
+						if (result === false) {
+							continueAssignment = false;
+						} else if (typeof result === "string") {
+							newValue = result;
+						}
+					}
+				}
+
+				if (continueAssignment) {
+					assignLValue(rId, expression, newValue);
+				}
 			});
+
+
 		});
 	};
 
@@ -339,14 +361,27 @@ REDSTONE = {};
 				break;
 		}
 	};
+	
+	var installEventProxies = function installEventProxies() {
+		REDSTONE.EVENTS.forEach(function (event) {
+			switch (event.type) {
+				case "click":
+					ractive.on(event.idName, function (ev) {
+						REDSTONE.METHODS[event.name](ev);
+					});
+					break;
+			}
+		});
+	};
 
 	var init = function init() {
 		console.log("initGUI()");
 		initGUI();
+		installEventProxies();
 	};
 
-	var createCallback = function(func) {
-		return func;
+	var registerMethod = function (name, func) {
+		REDSTONE.METHODS[name] = func;
 	};
 
 	REDSTONE.init = init;
@@ -354,6 +389,6 @@ REDSTONE = {};
 	REDSTONE.getVarInfo = function (varname) {
 		return variableInfo[varname];
 	};
-	REDSTONE.createCallback = createCallback;
+	REDSTONE.registerMethod = registerMethod;
 
 })();

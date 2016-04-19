@@ -19,6 +19,7 @@ var Tag = function Tag(tagname, id, classes, attributes, content) {
 	this.id = (id === undefined ? false : id);
 	this.classes = (classes === undefined ? [] : classes);
 	this.content = (content === undefined ? [] : content);
+	this.events = [];
 };
 
 /**
@@ -127,6 +128,7 @@ var Crumb = function Crumb(idName, variableNames, parsedExpression, defaultValue
 var ExposedValue = function ExposedValues(expression) {
 	this.expression = expression;
 	this.crumb = null;
+	this.onChangeEvent = false;
 };
 
 /***********/

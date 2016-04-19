@@ -139,10 +139,8 @@ var generate_innerjs = function generate_innerjs() {
 
     // "Link" methods by name
     context.functionNames.forEach(function(functionName) {
-        result += "\nREDSTONE.METHODS[\"" + functionName + "\"] = " + functionName + ";";
+        result += "\nREDSTONE.registerMethod(\"" + functionName + "\"] = " + functionName + ");";
     });
-
-    result += "\nREDSTONE.UPDATECLIENTVAR = {};";
 
     // Create function to update GUI variables
     var updateClientVars = generate_update_gui_vars();
@@ -151,13 +149,19 @@ var generate_innerjs = function generate_innerjs() {
         result += "\n" + escodegen.generate(ast);
     });
 
-    // Add call to initialize GUI
-    result += "\nREDSTONE.init();";
+    // Add methods that "expose" the callbacks
+    context.callbacks.forEach(function (event) {
+        // TODO: Do something if callback variable changes definition (needs to be done somewhere else)
+        result += "\nREDSTONE.registerMethod(\"" + event.name + "\", " + event.name + ");";
+    });
 
     // Add remaning Javascript
     js.forEach(function(block) {
         result += "\n" + block;
     });
+
+    // Add call to initialize GUI
+    result += "\nREDSTONE.init();";
 
     // Show result
     result += "\n$(\"#loading\").fadeOut(250);";
@@ -346,8 +350,8 @@ var generate_crumbsjs = function generate_crumbsjs() {
     var result = "";
     result += "REDSTONE.CRUMBS = " +  JSON.stringify(crumbs_to_mapping(context.crumbs)) + ";\n";
     result += "REDSTONE.VARTOCRUMBID = " + JSON.stringify(crumbs_to_varnamemapping(context.crumbs)) + ";\n";
-    result += "REDSTONE.METHODS = {};\n"; // Added dynamically
     result += "REDSTONE.EXPOSEDVALUES  = " + JSON.stringify(context.exposedValues) + ";\n";
+    result += "REDSTONE.EVENTS = " + JSON.stringify(context.callbacks) + ";\n";
     return result;
 };
 

@@ -26,7 +26,6 @@
 	lines.push({text: "line18"});
 	lines.push({text: "line19"});
 
-
 	function inc() {
 		if (currentidx < lines_length - 1) {
 			currentidx += 1;
