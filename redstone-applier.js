@@ -155,7 +155,7 @@ var generate_innerjs = function generate_innerjs() {
         result += "\nREDSTONE.registerMethod(\"" + event.name + "\", " + event.name + ");";
     });
 
-    // Add remaning Javascript
+    // Add remaining Javascript
     js.forEach(function(block) {
         result += "\n" + block;
     });

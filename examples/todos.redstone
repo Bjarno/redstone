@@ -1,0 +1,30 @@
+/* @server */
+{
+
+}
+
+/* @client */
+{
+	var tasks = [],
+		newTaskDescription = "";
+
+	function toggleTask(ev) {
+		// TODO: Get task object
+	}
+
+	function addTask() {
+		tasks.push({
+			description: newTaskDescription
+		});
+		newTaskDescription = "";
+	}
+}
+
+/* @ui */
+body
+	{{#each tasks}}
+		div
+			input[@click=toggleTask][type=checkbox]
+			span {{description}}
+	input[value={{newTaskDescription}}]
+	button[@click=addTask] Add task
