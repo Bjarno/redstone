@@ -239,7 +239,7 @@ var parse_tagdata_attribute = function parse_tagdata_attribute(data, idx) {
             return {
                 token: {
                     type: "attributevalue",
-                    name: name,
+                    name: name.trim(),
                     value: []
                 },
                 "next_idx": idx
