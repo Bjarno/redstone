@@ -3,7 +3,6 @@
 	var colors = ["red", "green", "blue"];
 	var idx = 0;
 
-
 	function next() {
 		idx += 1;
 		if (idx == colors.length) {
