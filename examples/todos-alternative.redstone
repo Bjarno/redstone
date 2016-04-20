@@ -1,6 +1,11 @@
 /* @server */
 {
+  var taskIds = 0;
 
+  function getNewTaskId() {
+    taskIds = taskIds + 1;
+    return (taskIds - 1);
+  }
 }
 
 /* @client */
@@ -13,20 +18,28 @@
 		// Get task object and "set" state
 	}
 
-	function addTask() {
+	function addNewTask(desc) {
+		var taskId = getNewTaskId();
+		var taskDesc = desc;
 		tasks.push({
-			description: newTaskDescription,
-			checked: false
+			description: taskDesc,
+			checked: false,
+			id: taskId
 		});
+	}
+
+	function addTask() {
+		addNewTask(newTaskDescription);
 		newTaskDescription = "";
 	}
 }
 
 /* @ui */
 body
-	{{#each tasks:num}}
-		div[data-idx={{num}}]
+	{{#each tasks}}
+		div
 			input[@click=toggleTask][type=checkbox]
 			span {{description}}
+			span {{id}}
 	input[value={{newTaskDescription}}]
 	button[@click=addTask] Add task
