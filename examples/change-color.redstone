@@ -5,8 +5,8 @@
 
 
 	function next() {
-		idx++;
-		if (idx == colors.length - 1) {
+		idx += 1;
+		if (idx == colors.length) {
 			idx = 0;
 		}
 	}
@@ -14,7 +14,7 @@
 
 /* @ui */
 body
-	div#color[style=background-color:{{colors[idx]}};]
+	div#color[style=background-color: {{colors[idx]}};]
 	button[@click=next] Change color
 
 /* @css */

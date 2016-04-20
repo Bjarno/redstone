@@ -291,8 +291,9 @@ var parse_tagdata_to_tokens = function parse_tagdata_to_tokens(data) {
     var buffer = "";
 
     var idx = 0;
+    var stop = false;
 
-    while (idx < data.length) {
+    while ( (idx < data.length) && (!stop) ) {
         var c = data[idx];
         if ( (c === "#") || (c === ".") || (c === "[") ) {
             if (buffer !== "") {
@@ -313,6 +314,8 @@ var parse_tagdata_to_tokens = function parse_tagdata_to_tokens(data) {
                 throw "Tagname, or attribute, can't start with '" + c + "'";
             }
             buffer += "c";
+        } else if (c === " ") {
+            stop = true;
         } else {
             throw "Unknown character '" + c + "', parsing '" + data + "'.";
         }
@@ -320,9 +323,12 @@ var parse_tagdata_to_tokens = function parse_tagdata_to_tokens(data) {
         idx++;
     }
 
+    // Store last token
     if (buffer !== "") {
         result.push({type: "string", data: buffer});
     }
+
+    result.push({type: "end", "idx": idx});
 
     return result;
 };
@@ -336,6 +342,7 @@ var parse_tagdata_to_tokens = function parse_tagdata_to_tokens(data) {
  */
 var parse_tagdata = function parse_tagdata(data) {
     var tokens = parse_tagdata_to_tokens(data);
+    var next_type = NextBlockType.BLOCK;
 
     if (tokens[0].type !== "string") {
         throw "Tagdata should start with type of tag.";
@@ -348,7 +355,9 @@ var parse_tagdata = function parse_tagdata(data) {
 
     var idx = 1;
 
-    while (idx < tokens.length) {
+    var stop = false;
+
+    while ( (idx < tokens.length) && (!stop) ) {
         var token = tokens[idx];
         var type = token.type;
 
@@ -365,6 +374,23 @@ var parse_tagdata = function parse_tagdata(data) {
                 var nexttoken = tokens[idx + 1];
 
                 if (nexttoken.type !== "string") {
+                    if (nexttoken.type === "end") {
+                        next_type = NextBlockType.TEXT;
+                        stop = true;
+                        break;
+                    }
+
+                    if (nexttoken.type === "seperator") {
+                        var nextnexttoken = tokens[idx + 2];
+                        if (nextnexttoken.type === "end") {
+                            next_type = NextBlockType.EXTENDED_TEXT;
+                            stop = true;
+                            break;
+                        } else {
+                            throw "Did not expect '..', but not at the end in '" + data + "'";
+                        }
+                    }
+
                     throw "Next token is not a string.";
                 }
 
@@ -400,7 +426,15 @@ var parse_tagdata = function parse_tagdata(data) {
         idx++;
     }
 
-    return new Tag(tagname, id, classes, attributes);
+    // Now copy remaining (should be normal content)
+    var rest_idx = tokens[tokens.length - 1].idx;
+    var rest = data.substring(rest_idx);
+
+    return {
+        tag: new Tag(tagname, id, classes, attributes),
+        rest: rest,
+        next_type: next_type
+    };
 };
 
 /**
@@ -871,12 +905,10 @@ var parse_block = function parse_block(idx) {
         return parse_comment(idx);
     }
 
-    var tagdata = parse_tagline(lineData);
-    var next_type = tagdata.next_type;
-    var data = tagdata.data;
-    var content = tagdata.content;
-
-    var tag = parse_tagdata(data);
+    var parsedTag = parse_tagdata(lineData);
+    var tag = parsedTag.tag;
+    var content = parsedTag.rest;
+    var next_type = parsedTag.next_type;
     var next_idx = idx + 1;
 
     if (content.length > 0) {
