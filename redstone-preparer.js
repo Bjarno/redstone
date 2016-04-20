@@ -174,6 +174,7 @@ var parse_ast_varnames = function parse_ast_varnames(AST) {
 
     var statement = body[0];
     if (statement.type !== esprima.Syntax.ExpressionStatement) {
+        require("./utils.js").dump(AST);
         throw "The inner contents of an dynamic expression should be an expression.";
     }
 
@@ -276,8 +277,8 @@ var prepare_dynamic_if_block = function prepare_dynamic_if_block(dynamic) {
         prepare(expression);
     });
 
-    var varNames = parse_ast_varnames(parsedPredicateExpression);
-    var crumb = new Crumb(randomId, varNames, parsedPredicateExpression);
+    var variableNames = parse_ast_varnames(parsedPredicateExpression);
+    var crumb = new Crumb(randomId, variableNames, parsedPredicateExpression);
 
     context.crumbs.push(crumb);
     dynamic.crumb = crumb;
@@ -372,34 +373,64 @@ var prepare_dynamic_block = function prepare_dynamic_block(dynamic) {
 
 /**
  * Checks whether the given attribute value is an exposed value/variable
- * @param {String|ExposedValue} value The attribute value to check
+ * @param {Array} attributeDef The attribute value to check
+ * @private
  * @returns {boolean} true if it is an exposed value/variable, false otherwise
  */
-var is_exposed_value = function is_exposed_value(value) {
-    return value instanceof ExposedValue;
+var is_exposed_value = function is_exposed_value(attributeDef) {
+    // If it doesn't exit: return false
+    if (attributeDef === undefined) {
+        return false;
+    }
+
+    // If it contains more, it cannot be an exposed value
+    if (attributeDef.length != 1) {
+        return false;
+    }
+
+    // See if the attribute content exists only from a DynamicExpression
+    var attribute = attributeDef[0];
+    return attribute instanceof DynamicExpression;
 };
 
 /**
  * Parses an exposed value/variable attribute definition
- * @param {ExposedValue} value The value of the attribute
+ * @param {Tag} tag The tag to change it's attribute definition to an exposed value
+ * @param {Array} attributeDef The value of the attribute
  * @private
  */
-var parse_exposed_value = function parse_exposed_value(value) {
+var parse_exposed_value = function parse_exposed_value(tag, attributeDef) {
     var randomId = generate_randomRId();
-    var parsedExpression = esprima.parse(value.expression);
+    var parsedExpression = esprima.parse(attributeDef[0].expression);
+    tag.attributes["value"][0] = new ExposedValue(attributeDef[0].expression);
     var variableNames = parse_ast_varnames(parsedExpression);
     var crumb = new Crumb(randomId, variableNames, parsedExpression, "");
-    value.crumb = crumb;
+    attributeDef.crumb = crumb;
     context.crumbs.push(crumb);
-    context.exposedValues.push(value);
+    context.exposedValues.push(attributeDef);
 };
 
 /**
- * Prepares a dynamic tag.
- * @param {Tag} tag The tag to prepare
- * @private
+ * Returns the name of an event handler, out of an attribute definition
+ * @param attributeDef The attribute definitions
+ * @returns {string} The name of the event handler
  */
-var prepare_tag = function prepare_tag(tag) {
+var getEventName = function getEventName(attributeDef) {
+    if (attributeDef.length != 1) {
+        throw "Event name definition can only allow a single event name";
+    }
+
+    var attribute = attributeDef[0];
+
+    if (typeof attribute !== 'string') {
+        throw "Event name must be a string";
+    }
+
+    return attribute.trim();
+};
+
+// TODO: JSDoc
+var prepare_tag_events_and_value = function prepare_tag_events_and_value(tag) {
     var onChangeEvent = false;
 
     // Install callbacks
@@ -408,7 +439,8 @@ var prepare_tag = function prepare_tag(tag) {
         if (attributes.hasOwnProperty(name)) {
             if (name[0] == "@") {
                 var ev = name.substring(1, name.length);
-                var eventName = attributes[name];
+                var eventName = getEventName(attributes[name]);
+
                 var randomId = generate_randomRId();
 
                 // Delete attribute itself and move to event
@@ -435,13 +467,49 @@ var prepare_tag = function prepare_tag(tag) {
     // Check if it contains an exposed value
     var value = attributes["value"];
     if (is_exposed_value(value)) {
-        parse_exposed_value(value);
+        parse_exposed_value(tag, value);
 
         // Check for events/callbacks that apply on changes of exposed value
         if (onChangeEvent) {
             value.onChangeEvent = onChangeEvent;
         }
     }
+};
+
+// TODO: JSDoc
+var prepare_attribute = function prepare_attribute(tag, name) {
+    var attribute = tag.attributes[name];
+
+    attribute.forEach(function(part) {
+        if (typeof part === "string") {
+            return;
+        }
+
+        if (part instanceof DynamicExpression) {
+            prepare(part);
+        }
+    });
+};
+
+// TODO: JSDoc
+var prepare_tag_attributes = function prepare_tag_attributes(tag) {
+    var attributes = tag.attributes;
+    // For all attributes: prepare the dynamic expressions in them
+    for (var name in attributes) {
+        if (attributes.hasOwnProperty(name)) {
+            prepare_attribute(tag, name);
+        }
+    }
+};
+
+/**
+ * Prepares a dynamic tag.
+ * @param {Tag} tag The tag to prepare
+ * @private
+ */
+var prepare_tag = function prepare_tag(tag) {
+    prepare_tag_events_and_value(tag);
+    prepare_tag_attributes(tag);
 
     // Loop over content of the tree.
     tag.content.forEach(function(subtree) {

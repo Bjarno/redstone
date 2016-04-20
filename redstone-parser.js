@@ -136,7 +136,7 @@ var isNumber = function isNumber(str) {
 };
 
 // TODO: JSDoc
-var parse_exposed_value = function parse_exposed_value(data, idx) {
+var parse_exposed_expression_in_argument = function parse_exposed_expression_in_argument(data, idx) {
     idx++;
     var buffer = "";
 
@@ -150,7 +150,7 @@ var parse_exposed_value = function parse_exposed_value(data, idx) {
             if (next_c === "}") {
                 return {
                     "next_idx": next_idx,
-                    "exposed_expression": buffer
+                    "expression": buffer
                 };
             }
         }
@@ -160,6 +160,61 @@ var parse_exposed_value = function parse_exposed_value(data, idx) {
     }
 
     throw "Exposed value definition did not end";
+};
+
+/**
+ * Reads a string, starting from a certain index, and finds the attribute value (until the first ] that is not in a
+ * {{..}}).
+ * @param {String} data The string to use to find an attribute name/value.
+ * @param {Number} idx The index the opening character ('[') starts on.
+ * @returns {Object} Object with the resulting token (key: token) and the
+ * next index to continue parsing (key: next_idx).
+ */
+var parse_tagdata_attribute_value = function parse_tagdata_attribute_value(data, idx) {
+    idx++;
+
+    var result = [];
+    var buffer = "";
+
+    // Sends whatever is in buffer to result.
+    var to_buffer = function to_buffer() {
+        if (buffer.length > 0) {
+            result.push(buffer);
+            buffer = "";
+        }
+    };
+
+    while (idx < data.length) {
+        var c = data[idx];
+
+        if (c === "{") {
+            var next_idx = idx + 1;
+            var next_c = data[next_idx];
+
+            if (c !== "{") {
+                throw "Did not expect single { in '" + data + "'.";
+            }
+
+            to_buffer();
+
+            var parsedExposed = parse_exposed_expression_in_argument(data, next_idx);
+            idx = parsedExposed.next_idx;
+            result.push(new DynamicExpression(parsedExposed.expression));
+
+        } else if (c === "]") {
+            to_buffer();
+            return {
+                next_idx: idx,
+                value: result
+            };
+        } else {
+            buffer += c;
+        }
+
+        idx++;
+    }
+
+    throw "Did not find ] to end attribute definition: '" + data + "'";
 };
 
 /**
@@ -173,7 +228,6 @@ var parse_exposed_value = function parse_exposed_value(data, idx) {
 var parse_tagdata_attribute = function parse_tagdata_attribute(data, idx) {
     idx++;
     var name = "";
-    var value = "";
     var read_value = false;
     var buffer = "";
 
@@ -181,29 +235,27 @@ var parse_tagdata_attribute = function parse_tagdata_attribute(data, idx) {
         var c = data[idx];
 
         if (c === "]") {
-            if (read_value) {
-                if (value === "") { // Can also contain an exposed value definition
-                    value = buffer;
-                }
-            } else {
-                name = buffer;
-            }
+            name = buffer;
+            return {
+                token: {
+                    type: "attributevalue",
+                    name: name,
+                    value: []
+                },
+                "next_idx": idx
+            };
+        } else if (c === "=") {
+            name = buffer;
+            var parsedValue = parse_tagdata_attribute_value(data, idx);
 
             return {
                 token: {
                     type: "attributevalue",
                     name: name,
-                    value: value
+                    value: parsedValue.value
                 },
-                "next_idx": idx
+                "next_idx": parsedValue.next_idx
             };
-        } else if (c === "=") {
-            if (read_value) {
-                throw "Already reading value.";
-            }
-            name = buffer;
-            buffer = "";
-            read_value = true;
         } else if (c === "{") {
             var next_idx = idx + 1;
             var next_c = data[next_idx];

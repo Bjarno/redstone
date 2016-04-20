@@ -30,4 +30,5 @@ If server fails to start, run `npm install` first in `server_env` folder.
 - Basic chat example in 32 lines of code: [minimal-example.redstone](https://github.com/Bjarno/redstone/blob/master/examples/minimal-example.redstone)
 - Example showing advanced two-way binding, having 20 lines of text and a cursor to change a specific line: [twoway-arrays.redstone](https://github.com/Bjarno/redstone/blob/master/examples/twoway-arrays.redstone)
 - Example where validation is being used before propagating changes to client layer: [twoway-checking.redstone](https://github.com/Bjarno/redstone/blob/master/examples/twoway-checking.redstone)
+- Change the color of a div using a button in 25 lines of code: [change-color.redstone](https://github.com/Bjarno/redstone/blob/master/examples/change-color.redstone)
 - More advanced example, showcasing most of the features: [full-example.redstone](https://github.com/Bjarno/redstone/blob/master/examples/full-example.redstone)

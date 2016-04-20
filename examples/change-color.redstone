@@ -1,0 +1,24 @@
+/* @client */
+{
+	var colors = ["red", "green", "blue"];
+	var idx = 0;
+
+
+	function next() {
+		idx++;
+		if (idx == colors.length - 1) {
+			idx = 0;
+		}
+	}
+}
+
+/* @ui */
+body
+	div#color[style=background-color:{{colors[idx]}};]
+	button[@click=next] Change color
+
+/* @css */
+#color {
+	width: 100px;
+	height: 100px;
+}

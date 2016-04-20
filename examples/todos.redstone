@@ -24,7 +24,7 @@
 
 /* @ui */
 body
-	{{#each tasks:num}}
+	{{#each tasks}}
 		div[data-idx={{num}}]
 			input[@click=toggleTask][type=checkbox]
 			span {{description}}

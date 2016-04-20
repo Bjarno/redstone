@@ -80,11 +80,26 @@ var generate_innerHTML = function generate_innerHTML(content, indent) {
  * @returns {String} The value of the attribute value
  */
 var generate_attribute_value = function generate_attribute_value(value) {
-    if (value instanceof ExposedValue) {
-        return "{{" + value.crumb.idName + "}}";
-    } else {
-        return value;
+    // If string, convert it to a singleton array
+    if (typeof value === 'string') {
+        value = [value];
     }
+
+    return value.map(function (part) {
+        if (part instanceof ExposedValue) {
+            return "{{" + value.crumb.idName + "}}";
+        }
+
+        if (part instanceof DynamicExpression) {
+            return generate_dynamic_expression(part, 0);
+        }
+
+        if (typeof part === "string") {
+            return part;
+        }
+
+        throw "Unknown type of part '" + part + "'.";
+    }).join("");
 };
 
 /**
@@ -234,7 +249,7 @@ var generate_selfclosing = function generate_selfclosing(tag, indentation) {
 };
 
 /**
- * Generates HTML for some code.
+ * Generates HTML for a comment.
  * @param {DynamicExpression} dynamic The comment to generate code for.
  * @param {Number} indentation The indentation level of the given segment.
  * @private
