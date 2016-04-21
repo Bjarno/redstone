@@ -11,6 +11,7 @@
 	function toggleTask(ev) {
 		// TODO: Get index from div
 		// Get task object and "set" state
+		console.log("toggled!");
 	}
 
 	function addTask() {
