@@ -271,6 +271,8 @@ REDSTONE.UPDATECLIENTVAR = {};
 			}
 		});
 
+		console.log(waitingUpdates);
+
 		// Evaluate those that were waiting until loaded
 		for (var i = 0; i < waitingUpdates.length; i++) {
 			var upd = waitingUpdates[i];

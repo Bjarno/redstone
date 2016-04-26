@@ -6,6 +6,8 @@
   "dependencies": {
     "debug": "^2.2.0",
     "errio": "^1.2.1",
+    "looping": "^1.2.0",
+    "many": "^1.0.2",
     "rpc": "git+https://github.com/lphilips/asyncCall.js.git"
   },
   "devDependencies": {},
