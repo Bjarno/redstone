@@ -263,15 +263,12 @@ REDSTONE.UPDATECLIENTVAR = {};
 			return REDSTONE.CRUMBS[crumbId];
 		}).forEach(function (crumb) {
 			var variableNames = crumb.variableNames;
-
 			// Immediate evaluate after loading
 			if (variableNames.length === 0) {
 				var value = eval(crumb.parsedExpression);
 				updateMustache(crumb, value);
 			}
 		});
-
-		console.log(waitingUpdates);
 
 		// Evaluate those that were waiting until loaded
 		for (var i = 0; i < waitingUpdates.length; i++) {

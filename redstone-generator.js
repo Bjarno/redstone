@@ -87,7 +87,7 @@ var generate_attribute_value = function generate_attribute_value(value) {
 
     return value.map(function (part) {
         if (part instanceof ExposedValue) {
-            return "{{" + value.crumb.idName + "}}";
+            return "{{" + part.crumb.idName + "}}";
         }
 
         if (part instanceof DynamicExpression) {

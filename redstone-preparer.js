@@ -402,12 +402,19 @@ var is_exposed_value = function is_exposed_value(attributeDef) {
 var parse_exposed_value = function parse_exposed_value(tag, attributeDef) {
     var randomId = generate_randomRId();
     var parsedExpression = esprima.parse(attributeDef[0].expression);
-    tag.attributes["value"][0] = new ExposedValue(attributeDef[0].expression);
+    var exposedValue = new ExposedValue(attributeDef[0].expression);
+
+    // Overwrite
+    tag.attributes["value"][0] = exposedValue;
+
+    // Create crumb
     var variableNames = parse_ast_varnames(parsedExpression);
     var crumb = new Crumb(randomId, variableNames, parsedExpression, "");
-    attributeDef.crumb = crumb;
+
+    // Store
+    exposedValue.crumb = crumb;
     context.crumbs.push(crumb);
-    context.exposedValues.push(attributeDef);
+    context.exposedValues.push(exposedValue);
 };
 
 /**
