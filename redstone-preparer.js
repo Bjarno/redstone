@@ -390,7 +390,7 @@ var is_exposed_value = function is_exposed_value(attributeDef) {
 
     // See if the attribute content exists only from a DynamicExpression
     var attribute = attributeDef[0];
-    return attribute instanceof DynamicExpression;
+    return (attribute instanceof DynamicExpression);
 };
 
 /**
@@ -478,7 +478,7 @@ var prepare_tag_events_and_value = function prepare_tag_events_and_value(tag) {
 
         // Check for events/callbacks that apply on changes of exposed value
         if (onChangeEvent) {
-            value.onChangeEvent = onChangeEvent;
+            value[0].onChangeEvent = onChangeEvent;
         }
     }
 };
