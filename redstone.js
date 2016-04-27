@@ -46,7 +46,11 @@ var preprocess_settings = function preprocess_settings(settings) {
  * @returns {string} The compound Javascript code for Stip.js
  */
 var build_js = function build_js(chunks) {
-	var output = chunks.unknown + "\n";
+	var output = "";
+	
+	output += "/* @shared */\n{\n";
+	output += chunks.unknown + "\n";
+	output += "}\n";
 
 	output += "/* @client */";
 	if (chunks.client.length > 0) {

@@ -4,27 +4,9 @@
 		lines = [],
 	    lines_length = 20;
 
-	// TODO: Replace with for() (but fails in STiP.JS at first glance)
-	lines.push({text: "line0"});
-	lines.push({text: "line1"});
-	lines.push({text: "line2"});
-	lines.push({text: "line3"});
-	lines.push({text: "line4"});
-	lines.push({text: "line5"});
-	lines.push({text: "line6"});
-	lines.push({text: "line7"});
-	lines.push({text: "line8"});
-	lines.push({text: "line9"});
-	lines.push({text: "line10"});
-	lines.push({text: "line11"});
-	lines.push({text: "line12"});
-	lines.push({text: "line13"});
-	lines.push({text: "line14"});
-	lines.push({text: "line15"});
-	lines.push({text: "line16"});
-	lines.push({text: "line17"});
-	lines.push({text: "line18"});
-	lines.push({text: "line19"});
+	for (var i = 0; i < lines_length; i++) {
+		lines.push({text: "line" + i});
+	}
 
 	function inc() {
 		if (currentidx < lines_length - 1) {
