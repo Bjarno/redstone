@@ -331,31 +331,22 @@ var generate_dynamic_unless_block = function generate_dynamic_unless_block(dynam
 };
 
 /**
- * Generates a dynamic each or with block.
- * @param {DynamicEachBlock|DynamicWithBlock} dynamic The dynamic block to generate HTML code for.
- * @param {Number} indent The current indentation level
- * @private
- * @returns {String} HTML for the given tag.
- */
-var generate_dynamic_eachwith_block = function generate_dynamic_eachwith_block(dynamic, indent) {
-    var randomId = dynamic.crumb.idName;
-    var html = "";
-
-    html += create_indent(indent) + "{{#" + dynamic.type + " " + randomId + "}}\n";
-    html += generate_list(dynamic.body, indent + 1);
-    html += create_indent(indent) + "{{/" + dynamic.type + "}}\n";
-
-    return html;
-};
-
-/**
  * Generates a dynamic each block.
  * @param {DynamicEachBlock} dynamic The dynamic block to generate HTML code for.
  * @param {Number} indent The current indentation level
  * @private
  * @returns {String} HTML for the given tag.
  */
-var generate_dynamic_each_block = generate_dynamic_eachwith_block;
+var generate_dynamic_each_block = function generate_dynamic_each_block(dynamic, indent) {
+    var randomId = dynamic.crumb.idName;
+    var html = "";
+
+    html += create_indent(indent) + "{{#each " + randomId + " : __idx__}}\n";
+    html += generate_list(dynamic.body, indent + 1);
+    html += create_indent(indent) + "{{/each}}\n";
+
+    return html;
+};
 
 /**
  * Generates a dynamic with block.
@@ -364,7 +355,16 @@ var generate_dynamic_each_block = generate_dynamic_eachwith_block;
  * @private
  * @returns {String} HTML for the given tag.
  */
-var generate_dynamic_with_block = generate_dynamic_eachwith_block;
+var generate_dynamic_with_block = function generate_dynamic_with_block(dynamic, indent) {
+    var randomId = dynamic.crumb.idName;
+    var html = "";
+
+    html += create_indent(indent) + "{{#with " + randomId + "}}\n";
+    html += generate_list(dynamic.body, indent + 1);
+    html += create_indent(indent) + "{{/with}}\n";
+
+    return html;
+};
 
 /**
  * Returns the correct generator, given a tagname.
