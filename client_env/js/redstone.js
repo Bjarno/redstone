@@ -176,7 +176,12 @@ REDSTONE.UPDATECLIENTVAR = {};
 		}
 	};
 
-	var updateVariable = function updateVariable(variableName, value) {
+	var updateVariable = function updateVariable(variableName, value, shared) {
+		// Fill in default variable if none given
+		if (shared === undefined) {
+			shared = false;
+		}
+
 		// Create info object if not yet created
 		if (!variableInfo.hasOwnProperty(variableName)) {
 			variableInfo[variableName] = {
@@ -190,7 +195,8 @@ REDSTONE.UPDATECLIENTVAR = {};
 		if (!loaded) {
 			waitingUpdates.push({
 				variableName: variableName,
-				value: value
+				value: value,
+				shared: shared
 			});
 			return;
 		}
@@ -240,17 +246,19 @@ REDSTONE.UPDATECLIENTVAR = {};
 		value = variableInfo[variableName].finalValue;
 		variableInfo[variableName].value = value;
 
-		// Track value
-		if (typeof value == 'object') {
-			OBJSPY.track(
-				value,
-				function (prop, action, difference, oldvalue, fullnewvalue) {
-					onInternalUpdate();
-				},
-				variableName
-			);
+		// Track value (if shared: don't track, rely on static analysis of sending updates)
+		if (!shared) {
+			if (typeof value == 'object') {
+				OBJSPY.track(
+					value,
+					function (prop, action, difference, oldvalue, fullnewvalue) {
+						onInternalUpdate();
+					},
+					variableName
+				);
+			}
 		}
-
+		
 		return true;
 	};
 
@@ -273,7 +281,7 @@ REDSTONE.UPDATECLIENTVAR = {};
 		// Evaluate those that were waiting until loaded
 		for (var i = 0; i < waitingUpdates.length; i++) {
 			var upd = waitingUpdates[i];
-			updateVariable(upd.variableName, upd.value);
+			updateVariable(upd.variableName, upd.value, upd.shared);
 		}
 		waitingUpdates = [];
 
