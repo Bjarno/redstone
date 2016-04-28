@@ -123,9 +123,6 @@ var find_varnames_expression = function find_varnames_expression(expression) {
             var calleeExpression = expression.callee;
             var arguments = expression.arguments;
 
-            console.log("!!!!!");
-            console.log(calleeExpression.type);
-
             switch (calleeExpression.type) {
                 case esprima.Syntax.Identifier:
                     context.functionNames.push(calleeExpression.name);
@@ -241,7 +238,7 @@ var prepare_dynamic_expression = function prepare_dynamic_expression(dynamic) {
         return;
     }
 
-    // Only do something when not in {{#each}}
+    // Only do something when not in {{#each}} or {{#with}}
     if (is_in_with()) {
         return;
     }
@@ -264,7 +261,6 @@ var prepare_dynamic_expression = function prepare_dynamic_expression(dynamic) {
  * @private
  */
 var prepare_dynamic_if_block = function prepare_dynamic_if_block(dynamic) {
-    var randomId = generate_randomRId();
     var parsedPredicateExpression = esprima.parse(dynamic.predicateExpression);
     var true_branch = dynamic.true_branch;
     var false_branch = dynamic.false_branch;
@@ -277,6 +273,12 @@ var prepare_dynamic_if_block = function prepare_dynamic_if_block(dynamic) {
         prepare(expression);
     });
 
+    // Only generate crumb when not in {{#each}} or {{#with}}
+    if (is_in_with()) {
+        return;
+    }
+
+    var randomId = generate_randomRId();
     var variableNames = parse_ast_varnames(parsedPredicateExpression);
     var crumb = new Crumb(randomId, variableNames, parsedPredicateExpression);
 
@@ -290,7 +292,6 @@ var prepare_dynamic_if_block = function prepare_dynamic_if_block(dynamic) {
  * @private
  */
 var prepare_dynamic_unless_block = function prepare_dynamic_unless_block(dynamic) {
-    var randomId = generate_randomRId();
     var parsedPredicateExpression = esprima.parse(dynamic.predicateExpression);
     var true_branch = dynamic.true_branch;
 
@@ -298,6 +299,12 @@ var prepare_dynamic_unless_block = function prepare_dynamic_unless_block(dynamic
         prepare(expression);
     });
 
+    // Only generate crumb when not in {{#each}} or {{#with}}
+    if (is_in_with()) {
+        return;
+    }
+
+    var randomId = generate_randomRId();
     var varNames = parse_ast_varnames(parsedPredicateExpression);
     var crumb = new Crumb(randomId, varNames, parsedPredicateExpression);
 
@@ -311,8 +318,6 @@ var prepare_dynamic_unless_block = function prepare_dynamic_unless_block(dynamic
  * @private
  */
 var prepare_dynamic_eachwith_block = function prepare_dynamic_eachwith_block(dynamic) {
-    var randomId = generate_randomRId();
-    var parsedObjectExpression = esprima.parse(dynamic.objectExpression);
     var body = dynamic.body;
 
     // Set/unset flag, so dynamic expressions are not parsed and taken for granted
@@ -323,6 +328,13 @@ var prepare_dynamic_eachwith_block = function prepare_dynamic_eachwith_block(dyn
     });
     set_in_with_flag(old_in_each_flag);
 
+    // Only generate crumb when not in {{#each}} or {{#with}}
+    if (is_in_with()) {
+        return;
+    }
+
+    var randomId = generate_randomRId();
+    var parsedObjectExpression = esprima.parse(dynamic.objectExpression);
     var variableNames = parse_ast_varnames(parsedObjectExpression);
     var crumb = new Crumb(randomId, variableNames, parsedObjectExpression);
 

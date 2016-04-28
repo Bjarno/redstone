@@ -113,7 +113,15 @@ var generate_attribute = function generate_attribute(name, value) {
         return "";
     }
 
-    return " " + name + "=\"" + generate_attribute_value(value) + "\"";
+    var html = "";
+
+    html += " " + name;
+
+    if (value.length > 0) {
+        html += "=\"" + generate_attribute_value(value) + "\"";
+    }
+
+    return html;
 };
 
 /**
@@ -292,10 +300,10 @@ var generate_dynamic_expression = function generate_dynamic_expression(dynamic, 
  * @returns {String} HTML for the given tag.
  */
 var generate_dynamic_if_block = function generate_dynamic_if_block(dynamic, indent) {
-    var randomid = dynamic.crumb.idName;
+    var has_crumb = (dynamic.crumb !== null);
     var html = "";
 
-    html += create_indent(indent) + "{{#if " + randomid + "}}\n";
+    html += create_indent(indent) + "{{#if " + (has_crumb ? dynamic.crumb.idName : dynamic.predicateExpression) + "}}\n";
     html += generate_list(dynamic.true_branch, indent + 1);
     html += "\n";
 
@@ -318,10 +326,10 @@ var generate_dynamic_if_block = function generate_dynamic_if_block(dynamic, inde
  * @returns {String} HTML for the given tag.
  */
 var generate_dynamic_unless_block = function generate_dynamic_unless_block(dynamic, indent) {
-    var randomid = dynamic.crumb.idName;
+    var has_crumb = (dynamic.crumb !== null);
     var html = "";
 
-    html += create_indent(indent) + "{{#unless " + randomid + "}}\n";
+    html += create_indent(indent) + "{{#unless " + (has_crumb ? dynamic.crumb.idName : dynamic.predicateExpression) + "}}\n";
     html += generate_list(dynamic.true_branch, indent + 1);
     html += "\n";
 
@@ -338,10 +346,10 @@ var generate_dynamic_unless_block = function generate_dynamic_unless_block(dynam
  * @returns {String} HTML for the given tag.
  */
 var generate_dynamic_each_block = function generate_dynamic_each_block(dynamic, indent) {
-    var randomId = dynamic.crumb.idName;
+    var has_crumb = (dynamic.crumb !== null);
     var html = "";
 
-    html += create_indent(indent) + "{{#each " + randomId + " : __idx__}}\n";
+    html += create_indent(indent) + "{{#each " + (has_crumb ? (dynamic.crumb.idName + ":__idx__") : dynamic.objectExpression) + "}}\n";
     html += generate_list(dynamic.body, indent + 1);
     html += create_indent(indent) + "{{/each}}\n";
 
@@ -356,10 +364,10 @@ var generate_dynamic_each_block = function generate_dynamic_each_block(dynamic, 
  * @returns {String} HTML for the given tag.
  */
 var generate_dynamic_with_block = function generate_dynamic_with_block(dynamic, indent) {
-    var randomId = dynamic.crumb.idName;
+    var has_crumb = (dynamic.crumb !== null);
     var html = "";
 
-    html += create_indent(indent) + "{{#with " + randomId + "}}\n";
+    html += create_indent(indent) + "{{#with " + (has_crumb ? dynamic.crumb.idName : dynamic.objectExpression) + "}}\n";
     html += generate_list(dynamic.body, indent + 1);
     html += create_indent(indent) + "{{/with}}\n";
 

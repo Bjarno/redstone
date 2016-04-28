@@ -1,17 +1,12 @@
-/* @server */
-{
-
-}
+var tasks = [];
 
 /* @client */
 {
-	var tasks = [],
-		newTaskDescription = "";
+	var newTaskDescription = "";
 
 	function toggleTask(ev) {
-		// TODO: Get index from div
-		// Get task object and "set" state
-		console.log("toggled!");
+		var idx = ev.node.parentNode.dataset.idx;
+		tasks[idx].checked = !tasks[idx].checked;
 	}
 
 	function addTask() {
@@ -26,8 +21,11 @@
 /* @ui */
 body
 	{{#each tasks}}
-		div[data-idx={{num}}]
-			input[@click=toggleTask][type=checkbox]
+		div[data-idx={{__idx__}}]
+			{{#if checked}}
+				input[@click=toggleTask][type=checkbox][checked]
+			{{#else}}
+				input[@click=toggleTask][type=checkbox]
 			span {{description}}
 	input[value={{newTaskDescription}}]
 	button[@click=addTask] Add task

@@ -137,11 +137,6 @@ var generate_innerjs = function generate_innerjs() {
 
     result += "\n" + clientJS;
 
-    // "Link" methods by name
-    context.functionNames.forEach(function(functionName) {
-        result += "\nREDSTONE.registerMethod(\"" + functionName + "\", " + functionName + ");";
-    });
-
     // Create function to update GUI variables
     var updateClientVars = generate_update_gui_vars();
 
@@ -149,10 +144,18 @@ var generate_innerjs = function generate_innerjs() {
         result += "\n" + escodegen.generate(ast);
     });
 
-    // Add methods that "expose" the callbacks
+    // Expose methods used by callbacks and functions used in crumbs
+    var exposed_functions = uniq(context.functionNames);
     context.callbacks.forEach(function (event) {
-        // TODO: Do something if callback variable changes definition (needs to be done somewhere else)
-        result += "\nREDSTONE.registerMethod(\"" + event.name + "\", " + event.name + ");";
+        var name = event.name;
+        if (exposed_functions.indexOf(name) != -1) {
+            return;
+        }
+        exposed_functions.push(name);
+    });
+
+    exposed_functions.forEach(function(functionName) {
+        result += "\nREDSTONE.registerMethod(\"" + functionName + "\", " + functionName + ");";
     });
 
     // Add remaining Javascript
