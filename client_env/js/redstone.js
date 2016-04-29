@@ -391,11 +391,24 @@ REDSTONE.UPDATECLIENTVAR = {};
 		REDSTONE.METHODS[name] = func;
 	};
 
+	var onConnected = function() {
+		$("#loading").fadeOut(250);
+		$("#render-target").fadeIn(250);
+		console.log("Connected with server!");
+	};
+
+	var onDisconnected = function() {
+		$("#loading").fadeIn(100);
+		console.log("Lost connection with server!");
+	};
+
 	REDSTONE.init = init;
 	REDSTONE.updateVariable = updateVariable;
 	REDSTONE.getVarInfo = function (varname) {
 		return variableInfo[varname];
 	};
 	REDSTONE.registerMethod = registerMethod;
+	REDSTONE.onConnected = onConnected;
+	REDSTONE.onDisconnected = onDisconnected;
 
 })();

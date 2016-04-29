@@ -166,10 +166,6 @@ var generate_innerjs = function generate_innerjs() {
     // Add call to initialize GUI
     result += "\nREDSTONE.init();";
 
-    // Show result
-    result += "\n$(\"#loading\").fadeOut(250);";
-    result += "\n$(\"#render-target\").fadeIn(250);";
-
     // Close $(document).ready()
     result += "\n// <-- End generated\n});";
 
