@@ -113,6 +113,10 @@ var generate_update_gui_vars = function generate_update_gui_vars() {
         varnames = varnames.concat(crumb.variableNames);
     });
 
+    context.shared_variables.forEach(function (varname) {
+        varnames = varnames.concat(varname);
+    });
+
     varnames = uniq(varnames);
 
     varnames.forEach(function (varname) {

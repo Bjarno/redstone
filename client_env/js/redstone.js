@@ -246,17 +246,22 @@ REDSTONE.UPDATECLIENTVAR = {};
 		value = variableInfo[variableName].finalValue;
 		variableInfo[variableName].value = value;
 
-		// Track value (if shared: don't track, rely on static analysis of sending updates)
-		if (!shared) {
-			if (typeof value == 'object') {
-				OBJSPY.track(
-					value,
-					function (prop, action, difference, oldvalue, fullnewvalue) {
-						onInternalUpdate();
-					},
-					variableName
-				);
-			}
+		// Track value
+		if (typeof value == 'object') {
+			OBJSPY.track(
+				value,
+				function (prop, action, difference, oldvalue, fullnewvalue) {
+					onInternalUpdate();
+
+					// Send update (if static analysis didn't catch it)
+					if (shared) {
+						console.log(variableName + "->");
+						console.log(value);
+						REDSTONE.store.set(variableName, value);
+					}
+				},
+				variableName
+			);
 		}
 		
 		return true;
@@ -402,6 +407,11 @@ REDSTONE.UPDATECLIENTVAR = {};
 		console.log("Lost connection with server!");
 	};
 
+	var receiveStoreUpdate = function(name, val) {
+		REDSTONE.UPDATECLIENTVAR[name](val);
+		updateVariable(name, val, true);
+	};
+
 	REDSTONE.init = init;
 	REDSTONE.updateVariable = updateVariable;
 	REDSTONE.getVarInfo = function (varname) {
@@ -410,5 +420,6 @@ REDSTONE.UPDATECLIENTVAR = {};
 	REDSTONE.registerMethod = registerMethod;
 	REDSTONE.onConnected = onConnected;
 	REDSTONE.onDisconnected = onDisconnected;
+	REDSTONE.receiveStoreUpdate = receiveStoreUpdate;
 
 })();

@@ -6,6 +6,7 @@ var tasks = [];
 
 	function toggleTask(ev) {
 		var idx = ev.node.parentNode.dataset.idx;
+		console.log(idx);
 		tasks[idx].checked = !tasks[idx].checked;
 	}
 
