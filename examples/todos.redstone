@@ -4,9 +4,15 @@ var tasks = [];
 {
 	var newTaskDescription = "";
 
+	function toggleTask(ev) {
+		var idx = ev.node.parentNode.dataset.idx;
+		tasks[idx].checked = !tasks[idx].checked;
+	}
+
 	function addTask() {
 		tasks.push({
-			description: newTaskDescription
+			description: newTaskDescription,
+			checked: false
 		});
 		newTaskDescription = "";
 	}
@@ -14,11 +20,12 @@ var tasks = [];
 
 /* @ui */
 body
-	div#tasks
-		{{#each tasks}}
-			div.task
-				input[type=checkbox]
-				span {{__idx__ + 1}}. {{description}}
-	div#newtask
-		input[value={{newTaskDescription}}]
-		button[@click=addTask] Add task
+	{{#each tasks}}
+		div[data-idx={{__idx__}}]
+			{{#if checked}}
+				input[@click=toggleTask][type=checkbox][checked]
+			{{#else}}
+				input[@click=toggleTask][type=checkbox]
+			span {{description}}
+	input[value={{newTaskDescription}}]
+	button[@click=addTask] Add task

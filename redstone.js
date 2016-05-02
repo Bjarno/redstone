@@ -47,10 +47,8 @@ var preprocess_settings = function preprocess_settings(settings) {
  */
 var build_js = function build_js(chunks) {
 	var output = "";
-	
-	output += "/* @shared */\n{\n";
-	output += chunks.unknown + "\n";
-	output += "}\n";
+
+	output += chunks.unknown;
 
 	output += "/* @client */";
 	if (chunks.client.length > 0) {
@@ -67,6 +65,32 @@ var build_js = function build_js(chunks) {
 	}
 	
 	return output;
+};
+
+// TODO: JSDoc
+var scan_toplevel_variables = function scan_toplevel_variables(shared) {
+	var result = [];
+
+	shared.forEach(function (expression) {
+		if (expression.type == esprima.Syntax.VariableDeclaration) {
+			var declarations = expression.declarations;
+
+			declarations.forEach(function (declarator) {
+				if (declarator.id.type == esprima.Syntax.Identifier) {
+					result.push(declarator.id.name);
+				}
+			});
+		}
+	});
+
+	return result;
+};
+
+// TODO: JSDoc
+var get_shared_variables = function get_shared_variables(unknown) {
+	var parsed = esprima.parse(unknown);
+	var vars = scan_toplevel_variables(parsed.body);
+	return vars;
 };
 
 /**
@@ -107,6 +131,45 @@ var build_settings = function build_settings(chunks) {
 var build_ui = function build_ui(chunks) {
 	return chunks.ui.join("\n");
 };
+
+// TODO: JSDoc
+var generate_toGenerate = function generate_toGenerate(context) {
+	// Generate list of all identifiers that should be generated
+	var toGenerateCallbacks = [];
+	var toGenerateIdentifiers = [];
+	var toGenerateMethods = context.functionNames;
+
+	// Add callbacks from callbacks
+	context.callbacks.forEach(function (callback) {
+		toGenerateCallbacks.push(callback.name);
+	});
+
+	// Add identifiers from crumbs
+	context.crumbs.forEach(function (crumb) {
+		crumb.variableNames.forEach(function (varname) {
+			toGenerateIdentifiers.push(varname);
+		});
+	});
+
+	// Aid function, so the list with identifiers are unique
+	var uniq = function uniq(a) {
+		return Array.from(new Set(a));
+	};
+
+	// Join them in one object
+	var toGenerate = {
+		methodCalls: uniq(toGenerateCallbacks.concat(toGenerateMethods)),
+		identifiers: uniq(toGenerateIdentifiers),
+		shared_variables: context.shared_variables
+	};
+
+	return toGenerate
+};
+
+// TODO: JSDoc
+var calculate_shared_variables = function calculate_shared_variables(context, unknown) {
+	context.shared_variables = get_shared_variables(unknown);
+}
 
 /**
  * Runs the redstone tool on the given input
@@ -154,9 +217,23 @@ var generate = function generate(input) {
 	subhead("Context");
 	dump(context);
 
+	// Calculate shared variables from unknown chunks block
+	calculate_shared_variables(context, chunks.unknown);
+
+	// Pass context to Reactify transpiler before starting Stip, so it has access to the crumbs
+	require("./jspdg/stip/transpiler/Reactify.js").setContext(context);
+	require("./jspdg/stip/transpiler/Node_parse.js").setContext(context);
+	var storeInContext = function(a) {
+		context.stip = a;
+	};
+	var storeDeclNode = function (name, declNode) {
+		context.varname2declNode[name] = declNode;
+	};
+	var toGenerate = generate_toGenerate(context);
+
 	// Parse Javascript code using Stip.js
 	head("Running Stip");
-	var stip_result = tiersplit(js, context); // Passes context for callbacks and reactive information
+	var stip_result = tiersplit(js, 'redstone', toGenerate, storeInContext, storeDeclNode); // Passes context for callbacks and reactive information
 	var clientJS = escodegen.generate(stip_result[0].program);
 	var serverJS = escodegen.generate(stip_result[1].program);
 

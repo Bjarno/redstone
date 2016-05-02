@@ -1,0 +1,24 @@
+var tasks = [];
+
+/* @client */
+{
+	var newTaskDescription = "";
+
+	function addTask() {
+		tasks.push({
+			description: newTaskDescription
+		});
+		newTaskDescription = "";
+	}
+}
+
+/* @ui */
+body
+	div#tasks
+		{{#each tasks}}
+			div.task
+				input[type=checkbox]
+				span {{__idx__ + 1}}. {{description}}
+	div#newtask
+		input[value={{newTaskDescription}}]
+		button[@click=addTask] Add task
