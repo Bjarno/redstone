@@ -111,7 +111,9 @@ var generate_update_gui_vars = function generate_update_gui_vars() {
     
     context.exposedValues.forEach(function (exposedValue) {
         var crumb = exposedValue.crumb;
-        varnames = varnames.concat(crumb.variableNames);
+        if (crumb !== null) {
+            varnames = varnames.concat(crumb.variableNames);
+        }
     });
 
     context.shared_variables.forEach(function (varname) {

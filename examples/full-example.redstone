@@ -61,7 +61,6 @@
 		return bar * 2;
 	}
 
-	// TODO: Use a shared variable (stores)
 	var count = 0;
     function clickIncrease() { testObj.a += 1; sendIncrease(); }
     function handshake() { sendCounter(); }

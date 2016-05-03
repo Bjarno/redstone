@@ -178,7 +178,11 @@ var explode = function explode(delimiter, string, limit) {
 	}
 };
 
-// TODO: JSDoc
+/**
+ * Removes all doubles from an array by creating a new array
+ * @param a The array to use
+ * @returns {Array} Array without doubles
+ */
 var uniq = function uniq(a) {
 	return Array.from(new Set(a));
 };

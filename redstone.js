@@ -67,11 +67,15 @@ var build_js = function build_js(chunks) {
 	return output;
 };
 
-// TODO: JSDoc
-var scan_toplevel_variables = function scan_toplevel_variables(shared) {
+/**
+ * Scans top-level variable definitions given a parsed expression
+ * @param expressions Expressions parsed by Esprima to look for variable declarations.
+ * @returns {Array} Array containing variable names
+ */
+var scan_toplevel_variables = function scan_toplevel_variables(expressions) {
 	var result = [];
 
-	shared.forEach(function (expression) {
+	expressions.forEach(function (expression) {
 		if (expression.type == esprima.Syntax.VariableDeclaration) {
 			var declarations = expression.declarations;
 
@@ -86,11 +90,14 @@ var scan_toplevel_variables = function scan_toplevel_variables(shared) {
 	return result;
 };
 
-// TODO: JSDoc
+/**
+ * Returns the shared variables given an 'unknown' block.
+ * @param {String} unknown The unknown block
+ * @returns {Array} Array containing shared variables
+ */
 var get_shared_variables = function get_shared_variables(unknown) {
 	var parsed = esprima.parse(unknown);
-	var vars = scan_toplevel_variables(parsed.body);
-	return vars;
+	return scan_toplevel_variables(parsed.body);
 };
 
 /**
@@ -132,7 +139,13 @@ var build_ui = function build_ui(chunks) {
 	return chunks.ui.join("\n");
 };
 
-// TODO: JSDoc
+/**
+ * Generates the object that is going to be passed to STiP of variables, callbacks and shared variables that are going
+ * to be generated.
+ * @param context The context to use
+ * @returns {{methodCalls, identifiers, shared_variables: *}} Object containing variables/expressions that need to be
+ * generated in STiP during pre-analysis.
+ */
 var generate_toGenerate = function generate_toGenerate(context) {
 	// Generate list of all identifiers that should be generated
 	var toGenerateCallbacks = [];
@@ -163,13 +176,17 @@ var generate_toGenerate = function generate_toGenerate(context) {
 		shared_variables: context.shared_variables
 	};
 
-	return toGenerate
+	return toGenerate;
 };
 
-// TODO: JSDoc
+/**
+ * Given the unknown block definition from a chunk, parses and stores the shared variables
+ * @param context The context to save the shared variables in
+ * @param unknown The unknown block definition
+ */
 var calculate_shared_variables = function calculate_shared_variables(context, unknown) {
 	context.shared_variables = get_shared_variables(unknown);
-}
+};
 
 /**
  * Runs the redstone tool on the given input

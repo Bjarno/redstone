@@ -56,43 +56,6 @@ var is_in_with = function is_in_with() {
 };
 
 /**
- * Parses a MemberExpression to find the hierarchy of properties.
- * @param {MemberExpression} expression The expression to find the combination of the variable name (most-left) and the
- * property hierarchy that is requested from the MemberExpression.
- * @private
- * @returns {Array} Array containing variable top-level variables name of things inside a MemberExpression
- */
-// TODO: Place this in find_varnames_expression(), instead of standalone function, has no need for seperate function (just complicates things)
-var parse_memberexpression_varname = function parse_memberexpression_varname(expression) {
-    var result = [];
-
-    switch (expression.type) {
-        case esprima.Syntax.Identifier:
-            expression.isInCrumb = true; // While evaluating, make sure we know this identifier name should be looked up locally
-            result.push(expression.name);
-            break;
-
-        case esprima.Syntax.MemberExpression:
-            // Get the next level
-            if (expression.computed) {
-                result = result.concat(find_varnames_expression(expression.property));
-            }
-
-            result = result.concat(parse_memberexpression_varname(expression.object));
-            break;
-
-        default:
-            // throw "Only supports identifiers (or nested MemberExpressions) for MemberExpression's object.";
-            // TODO: Show warning?
-
-            result = result.concat(find_varnames_expression(expression));
-            break;
-    }
-
-    return result;
-};
-
-/**
  * Recursively finds all the (top-level) variable names in the given expression
  * @param {Expression} expression The expression to look for variable names for.
  * @private
@@ -111,7 +74,12 @@ var find_varnames_expression = function find_varnames_expression(expression) {
             break;
 
         case esprima.Syntax.MemberExpression:
-            result = result.concat(parse_memberexpression_varname(expression));
+            // Get the next level
+            if (expression.computed) {
+                result = result.concat(find_varnames_expression(expression.property));
+            }
+
+            result = result.concat(find_varnames_expression(expression.object));
             break;
 
         case esprima.Syntax.BinaryExpression:
@@ -413,19 +381,26 @@ var is_exposed_value = function is_exposed_value(attributeDef) {
  */
 var parse_exposed_value = function parse_exposed_value(tag, attributeDef) {
     var randomId = generate_randomRId();
-    var parsedExpression = esprima.parse(attributeDef[0].expression);
-    var exposedValue = new ExposedValue(attributeDef[0].expression);
+    var parsedExpression, exposedValue;
 
-    // Overwrite
-    tag.attributes["value"][0] = exposedValue;
+    if (attributeDef === undefined) { // If no attribute, then no two-way variable, but using onchange event for passing new value
+        exposedValue = new ExposedValue(null);
+    } else {
+        parsedExpression = esprima.parse(attributeDef[0].expression);
+        exposedValue = new ExposedValue(attributeDef[0].expression);
 
-    // Create crumb
-    var variableNames = parse_ast_varnames(parsedExpression);
-    var crumb = new Crumb(randomId, variableNames, parsedExpression, "");
+        // Overwrite
+        tag.attributes["value"][0] = exposedValue;
+
+        // Create crumb
+        var variableNames = parse_ast_varnames(parsedExpression);
+        var crumb = new Crumb(randomId, variableNames, parsedExpression, "");
+
+        exposedValue.crumb = crumb;
+        context.crumbs.push(crumb);
+    }
 
     // Store
-    exposedValue.crumb = crumb;
-    context.crumbs.push(crumb);
     context.exposedValues.push(exposedValue);
 };
 
@@ -448,7 +423,10 @@ var getEventName = function getEventName(attributeDef) {
     return attribute.trim();
 };
 
-// TODO: JSDoc
+/**
+ * Prepares the events and value attributes of a tag
+ * @param tag The tag to process
+ */
 var prepare_tag_events_and_value = function prepare_tag_events_and_value(tag) {
     var onChangeEvent = false;
 
@@ -459,7 +437,6 @@ var prepare_tag_events_and_value = function prepare_tag_events_and_value(tag) {
             if (name[0] == "@") {
                 var ev = name.substring(1, name.length);
                 var eventName = getEventName(attributes[name]);
-
                 var randomId = generate_randomRId();
 
                 // Delete attribute itself and move to event
@@ -484,14 +461,14 @@ var prepare_tag_events_and_value = function prepare_tag_events_and_value(tag) {
     }
 
     // Check if it contains an exposed value
-    var value = attributes["value"];
-    if (is_exposed_value(value)) {
-        parse_exposed_value(tag, value);
-
-        // Check for events/callbacks that apply on changes of exposed value
-        if (onChangeEvent) {
-            value[0].onChangeEvent = onChangeEvent;
+    if ( (is_exposed_value(attributes["value"])) || (onChangeEvent !== false) ) {
+        if (attributes["value"] === undefined) {
+            attributes["value"] = [new ExposedValue(generate_randomRId())];
         }
+
+        parse_exposed_value(tag, attributes["value"]);
+
+        attributes["value"][0].onChangeEvent = onChangeEvent;
     }
 };
 

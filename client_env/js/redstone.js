@@ -297,10 +297,10 @@ REDSTONE.UPDATECLIENTVAR = {};
 			var expression = getExposedExpression(crumb.parsedExpression);
 
 			ractive.observe(rId, function (newValue, oldValue) {
-				var continueAssignment = true;
+				var continueAssignment = (expression !== false);
 
 				// If exposedValue has an change observer
-				if (exposedValue.onChangeEvent) {
+				if (exposedValue.onChangeEvent !== null) {
 					var functionName = exposedValue.onChangeEvent.name;
 					var result = REDSTONE.METHODS[functionName](newValue);
 
@@ -317,12 +317,14 @@ REDSTONE.UPDATECLIENTVAR = {};
 					assignLValue(rId, expression, newValue);
 				}
 			});
-
-
 		});
 	};
 
 	var getExposedExpression = function getExposedExpression(ast) {
+		if (typeof ast !== 'object') {
+			return false;
+		}
+
 		if (ast.type !== esprima.Syntax.Program) {
 			console.log("!!! AST doesn't start with Program");
 			return false;
