@@ -1,13 +1,13 @@
 /* @client */
 {
-	var r = "", test = "abc";
+	var cached = "";
 
-	function read(newv) {
-		r = newv;
+	function read(newvalue) {
+		cached = newvalue;
 	}
 
 	function write() {
-		console.log(r);
+		console.log(cached);
 	}
 }
 
