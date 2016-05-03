@@ -135,7 +135,12 @@ var isNumber = function isNumber(str) {
     return (str.length === 1) && str.match(/[0-9]/);
 };
 
-// TODO: JSDoc
+/**
+ * Parses the contents of an exposed expression in an argument definition
+ * @param {String} data The data containing the tag definition
+ * @param {Number} idx The index in the data string
+ * @returns {{next_idx: *, expression: string}} Object containing next index, and the parsed expression
+ */
 var parse_exposed_expression_in_argument = function parse_exposed_expression_in_argument(data, idx) {
     idx++;
     var buffer = "";

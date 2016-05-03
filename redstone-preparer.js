@@ -472,7 +472,11 @@ var prepare_tag_events_and_value = function prepare_tag_events_and_value(tag) {
     }
 };
 
-// TODO: JSDoc
+/**
+ * Prepares an attribute given a tag and the attribute name
+ * @param {Tag} tag The tag to prepare
+ * @param {String} name The name of the attribute
+ */
 var prepare_attribute = function prepare_attribute(tag, name) {
     var attribute = tag.attributes[name];
 
@@ -487,7 +491,10 @@ var prepare_attribute = function prepare_attribute(tag, name) {
     });
 };
 
-// TODO: JSDoc
+/**
+ * Prepares the attributes of a tag
+ * @param tag The tag to prepare
+ */
 var prepare_tag_attributes = function prepare_tag_attributes(tag) {
     var attributes = tag.attributes;
     // For all attributes: prepare the dynamic expressions in them
