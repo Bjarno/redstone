@@ -498,8 +498,16 @@ var generate_body = function generate_body(input) {
  */
 var generate = function generate(input, newContext) {
     set_context(newContext);
+    
+    var html = "";
+    
+    if (context.options.include_source) {
+        html += "<!--\n";
+        html += context.raw_source;
+        html += "\n-->\n";
+    }
 
-    var html = "<!DOCTYPE html>\n";
+    html += "<!DOCTYPE html>\n";
     html += "<html>\n";
     html += generate_head(input) + "\n";
     html += generate_body(input) + "\n";

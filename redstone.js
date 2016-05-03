@@ -18,26 +18,30 @@ var debugEcho = require("./utils.js").debugEcho;
  * Fills in the default values for an settings object. It will create (and
  * return) an empty settings object with all default settings, if an invalid
  * one is given.
- * @param {Object} settings Object containing settings.
+ * @param {Object} options Object containing settings.
+ * @returns {Object} Settings object
  */
-var preprocess_settings = function preprocess_settings(settings) {
-	if (typeof settings !== "object") {
-		settings = {};
+var preprocess_settings = function preprocess_settings(options) {
+	if (typeof options !== "object") {
+		options = {};
 	}
-	if (!settings.hasOwnProperty("random_length")) {
-		settings.random_length = 32;
+	if (!options.hasOwnProperty("random_length")) {
+		options.random_length = 32;
 	}
-	if (!settings.hasOwnProperty("selfclosing_backslash")) {
-		settings.selfclosing_backslash = false;
+	if (!options.hasOwnProperty("selfclosing_backslash")) {
+		options.selfclosing_backslash = false;
 	}
-	if (!settings.hasOwnProperty("server_hostname")) {
-		settings.server_hostname = "localhost";
+	if (!options.hasOwnProperty("server_hostname")) {
+		options.server_hostname = "localhost";
 	}
-	if (!settings.hasOwnProperty("server_port")) {
-		settings.server_port = 3000;
+	if (!options.hasOwnProperty("server_port")) {
+		options.server_port = 3000;
+	}
+	if(!options.hasOwnProperty("include_source")) {
+		options.include_source = true;
 	}
 
-	return settings;
+	return options;
 };
 
 /**
@@ -200,7 +204,7 @@ var generate = function generate(input) {
 	var ui       = build_ui(chunks);
 	var js       = build_js(chunks),
 		css      = build_css(chunks),
-		settings = build_settings(chunks);
+		options  = build_settings(chunks);
 
 	head("Raw chunks");
 	dump(chunks);
@@ -213,13 +217,16 @@ var generate = function generate(input) {
 	subhead("CSS");
 	debugEcho(css ? css : "none");
 	subhead("Settings");
-	dump(settings);
+	dump(options);
 
 	// Pre-process the settings, by supplying the default values
-	settings = JSON.parse(settings);
-	settings = preprocess_settings(settings);
-	var context = new ConverterContext(settings);
+	options = JSON.parse(options);
+	options = preprocess_settings(options);
+	var context = new ConverterContext(options);
 	context.css = css;
+
+	// Store raw_input in context
+	context.raw_source = input;
 
 	// Parse the tree
 	var result_parse = parser.parse(ui);

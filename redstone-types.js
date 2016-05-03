@@ -103,6 +103,7 @@ var ConverterContext = function ConverterContext(options) {
 	this.functionNames = []; // Array containing function names that are being used in crumbs
 	this.exposedValues = [];
 	this.clientJS = "";
+	this.raw_source = "";
 };
 
 /**
