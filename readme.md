@@ -2,7 +2,7 @@
 
 ## Install
 
-Solve d`ependen`cies using npm.
+Solve dependencies using npm.
 
 ```
 $ npm install
