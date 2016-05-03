@@ -528,8 +528,8 @@ var applyContext = function applyContext(input, newContext) {
     // If neither head nor body was seen, generate body with contents
     if ( (!seenBody) && (!seenHead) ) {
         newBody = new Tag("body");
-        applyBody(newBody);
         newBody.content = input;
+        applyBody(newBody);
 
         newHead = new Tag("head");
         applyDefaultHead(newHead);
