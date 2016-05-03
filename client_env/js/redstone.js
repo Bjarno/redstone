@@ -253,10 +253,8 @@ REDSTONE.UPDATECLIENTVAR = {};
 				function (prop, action, difference, oldvalue, fullnewvalue) {
 					onInternalUpdate();
 
-					// Send update (if static analysis didn't catch it)
+					// Send update if shared (if static analysis didn't catch it)
 					if (shared) {
-						console.log(variableName + "->");
-						console.log(value);
 						REDSTONE.store.set(variableName, value);
 					}
 				},
@@ -300,7 +298,7 @@ REDSTONE.UPDATECLIENTVAR = {};
 				var continueAssignment = (expression !== false);
 
 				// If exposedValue has an change observer
-				if (exposedValue.onChangeEvent !== null) {
+				if (exposedValue.onChangeEvent !== false) {
 					var functionName = exposedValue.onChangeEvent.name;
 					var result = REDSTONE.METHODS[functionName](newValue);
 
@@ -425,3 +423,6 @@ REDSTONE.UPDATECLIENTVAR = {};
 	REDSTONE.receiveStoreUpdate = receiveStoreUpdate;
 
 })();
+
+// Disable Ractive debug
+Ractive.DEBUG = false;

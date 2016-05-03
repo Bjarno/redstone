@@ -368,6 +368,11 @@ var generate_crumbsjs = function generate_crumbsjs() {
 var generate_head_content = function generate_head_content() {
     var result = [];
 
+    // Add UTF-8 encoding
+    var charset = new Tag("meta");
+    charset.attributes.charset = "UTF-8";
+    result.push(charset);
+
     // Add jQuery
     var jquery = new Tag("script");
     jquery.attributes.src = "js/jquery-2.2.1.min.js";
