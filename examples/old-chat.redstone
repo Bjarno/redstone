@@ -22,9 +22,8 @@
 }
 
 /* @ui */
-body
-	{{#each messages}}
-		p {{name + " says: " + message}}
-	input[value={{name}}]
-	input[value={{msg}}][placeholder=Message]
-	button[@click=sendMessage]#send Send "{{msg}}"
+{{#each messages}}
+	p {{name + " says: " + message}}
+input[value={{name}}]
+input[value={{msg}}][placeholder=Message]
+button[@click=sendMessage]#send Send "{{msg}}"

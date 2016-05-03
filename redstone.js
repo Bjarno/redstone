@@ -247,7 +247,7 @@ var generate = function generate(input) {
 	context.clientJS = clientJS;
 
 	// Apply changes, "cached" in context
-	applier.applyContext(result_parse, context);
+	result_parse = applier.applyContext(result_parse, context);
 
 	// Generate the resulting HTML
 	var result_html = generator.generate(result_parse, context);

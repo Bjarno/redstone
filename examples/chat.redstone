@@ -12,9 +12,8 @@ var messages = [];
 }
 
 /* @ui */
-body
-	{{#each messages}}
-		p {{name + " says: " + message}}
-	input[value={{name}}]
-	input[value={{msg}}][placeholder=Message]
-	button[@click=chat]#send Send
+{{#each messages}}
+	p {{name + " says: " + message}}
+input[value={{name}}]
+input[value={{msg}}][placeholder=Message]
+button[@click=chat]#send Send

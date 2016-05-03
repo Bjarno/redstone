@@ -37,6 +37,7 @@ var generate_update_gui_vars = function generate_update_gui_vars() {
     var result = [];
 
     var create_updatevar = function create_updatevar(name) {
+        var param_name = ((name === "newvalue") ? "newv" : "newvalue");
         return {
             "type": "Program",
             "body": [
@@ -72,7 +73,7 @@ var generate_update_gui_vars = function generate_update_gui_vars() {
                             "params": [
                                 {
                                     "type": "Identifier",
-                                    "name": ((name === "newvalue") ? "newv" : "newvalue")
+                                    "name": param_name
                                 }
                             ],
                             "defaults": [],
@@ -90,7 +91,7 @@ var generate_update_gui_vars = function generate_update_gui_vars() {
                                             },
                                             "right": {
                                                 "type": "Identifier",
-                                                "name": ((name === "newvalue") ? "newv" : "newvalue")
+                                                "name": param_name
                                             }
                                         }
                                     }
@@ -519,25 +520,40 @@ var applyContext = function applyContext(input, newContext) {
                 seenBody = true;
                 applyBody(tree);
                 break;
-
-            default:
-                throw "Not allowing " + tree.tagname + " to be top-level.";
         }
     });
 
-    // If head was not seen, add it
-    if (!seenHead) {
-        var newHead = new Tag("head");
+    var newHead, newBody;
+
+    // If neither head nor body was seen, generate body with contents
+    if ( (!seenBody) && (!seenHead) ) {
+        newBody = new Tag("body");
+        applyBody(newBody);
+        newBody.content = input;
+
+        newHead = new Tag("head");
         applyDefaultHead(newHead);
         applyHead(newHead);
-        input.push(newHead);
+
+        input = [newHead, newBody];
+    } else {
+        // If head was not seen, add it
+        if (!seenHead) {
+            newHead = new Tag("head");
+            applyDefaultHead(newHead);
+            applyHead(newHead);
+            input.push(newHead);
+        }
+
+        // If body was not seen, add it
+        if (!seenBody) {
+            newBody = new Tag("body");
+            applyBody(newBody);
+            input.push(newBody);
+        }
     }
 
-    if (!seenBody) {
-        var newBody = new Tag("body");
-        applyBody(newBody);
-        input.push(newBody);
-    }
+    return input;
 };
 
 

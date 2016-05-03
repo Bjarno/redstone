@@ -9,9 +9,8 @@
 }
 
 /* @ui */
-body
-	div#color[style=background-color: {{colors[idx]}};]
-	button[@click=next] Change color
+div#color[style=background-color: {{colors[idx]}};]
+button[@click=next] Change color
 
 /* @css */
 #color {
