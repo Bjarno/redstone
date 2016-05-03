@@ -261,16 +261,6 @@ var parse_tagdata_attribute = function parse_tagdata_attribute(data, idx) {
                 },
                 "next_idx": parsedValue.next_idx
             };
-        } else if (c === "{") {
-            var next_idx = idx + 1;
-            var next_c = data[next_idx];
-            if (next_c !== "{") {
-                throw "Did not expect single {";
-            }
-
-            var parsedExposed = parse_exposed_value(data, next_idx);
-            idx = parsedExposed.next_idx;
-            value = new ExposedValue(parsedExposed.exposed_expression);
         } else if (isNumber(c)) {
             if ( (!(read_value)) && (buffer === "") ) {
                 throw "Attribute name can't start with a number.";
@@ -343,7 +333,7 @@ var parse_tagdata_to_tokens = function parse_tagdata_to_tokens(data) {
  * and creates a new Tag (with empty contents).
  * @param {String} data The tag definition.
  * @private
- * @returns {Tag} The tag with id, classes and attributes filled in.
+ * @returns {{tag: (any), rest: string, next_type: number}} The tag with id, classes and attributes filled in.
  */
 var parse_tagdata = function parse_tagdata(data) {
     var tokens = parse_tagdata_to_tokens(data);

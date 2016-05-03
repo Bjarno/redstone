@@ -97,7 +97,7 @@ var find_varnames_expression = function find_varnames_expression(expression) {
                     break;
 
                 case esprima.Syntax.MemberExpression:
-                    result = result.concat(parse_memberexpression_varname(calleeExpression));
+                    result = result.concat(find_varnames_expression(calleeExpression));
                     break;
             }
 
