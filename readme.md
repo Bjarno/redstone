@@ -2,7 +2,7 @@
 
 ## Install
 
-Solve dependencies using npm.
+Solve d`ependen`cies using npm.
 
 ```
 $ npm install
@@ -14,7 +14,7 @@ $ npm install
 $ node main.js <filename>
 ```
 
-Replace filename with the name of the input file (e.g. `input.redstone`), the tool automatically saves the output in `client_env/index.html` (for clientside) and `server_env/server.js` (for serverside: in Node.js).
+Replace filename with the name of the input file (e.g. `examples/todos.redstone`), the tool automatically saves the output in `client_env/index.html` (for clientside) and `server_env/server.js` (for serverside: in Node.js).
 
 Running the server:
 
@@ -23,7 +23,9 @@ $ cd server_env
 $ node server.js
 ```
 
-If server fails to start, run `npm install` first in `server_env` folder.
+Substitute `node` with whatever name you normally call it (sometimes just `node`, other times `nodejs`, depending on your distribution or Operating System)
+
+If server fails to start, run `npm install` first in `server_env` folder, as all the libraries needed to run the application need to be fetched first. Client-side libraries are included by default, and don't need bower to install.
 
 ## Examples
 
