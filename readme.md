@@ -27,8 +27,12 @@ If server fails to start, run `npm install` first in `server_env` folder.
 
 ## Examples
 
-- Basic chat example in 32 lines of code: [minimal-example.redstone](https://github.com/Bjarno/redstone/blob/master/examples/minimal-example.redstone)
-- Example showing advanced two-way binding, having 20 lines of text and a cursor to change a specific line: [twoway-arrays.redstone](https://github.com/Bjarno/redstone/blob/master/examples/twoway-arrays.redstone)
-- Example where validation is being used before propagating changes to client layer: [twoway-checking.redstone](https://github.com/Bjarno/redstone/blob/master/examples/twoway-checking.redstone)
-- Change the color of a div using a button in 25 lines of code: [change-color.redstone](https://github.com/Bjarno/redstone/blob/master/examples/change-color.redstone)
-- More advanced example, showcasing most of the features: [full-example.redstone](https://github.com/Bjarno/redstone/blob/master/examples/full-example.redstone)
+These example should suffice to understand how programs are written using this tool.
+
+- Basic chat example by using shared stores: [chat.redstone](https://github.com/Bjarno/redstone/blob/master/examples/chat.redstone) (16 sloc)
+- Basic chat example by using remote procedures: [old-chat.redstone](https://github.com/Bjarno/redstone/blob/master/examples/old-chat.redstone) (25 sloc)
+- Simple todo list application: [todos.redstone](https://github.com/Bjarno/redstone/blob/master/examples/todos.redstone) (26 sloc)
+- Example showing how two-way binding works [twoway-arrays.redstone](https://github.com/Bjarno/redstone/blob/master/examples/twoway-arrays.redstone) (26 sloc)
+- Validating input from a two-way binded field: [twoway-checking.redstone](https://github.com/Bjarno/redstone/blob/master/examples/twoway-checking.redstone) (31 sloc)
+- Basic example by using arrays as a dynamic expression: [change-color.redstone](https://github.com/Bjarno/redstone/blob/master/examples/change-color.redstone) (16 sloc)
+- More advanced example, showcasing most of the features: [full-example.redstone](https://github.com/Bjarno/redstone/blob/master/examples/full-example.redstone) (109 sloc)
