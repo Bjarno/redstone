@@ -500,18 +500,18 @@ var generate = function generate(input, newContext) {
     set_context(newContext);
     
     var html = "";
-    
-    if (context.options.include_source) {
-        html += "<!--\n";
-        html += context.raw_source;
-        html += "\n-->\n";
-    }
-
     html += "<!DOCTYPE html>\n";
     html += "<html>\n";
     html += generate_head(input) + "\n";
     html += generate_body(input) + "\n";
     html += "\n</html>";
+
+    if (context.options.include_source) {
+        html += "\n<!--\n";
+        html += context.raw_source;
+        html += "\n-->\n";
+    }
+
     return html;
 };
 
