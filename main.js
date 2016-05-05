@@ -30,8 +30,18 @@ var client = result.client;
 var server = result.server;
 
 // Output the result in files
-utils.writeFile("server_env/server.js", server);
-utils.writeFile("client_env/index.html", client);
+
+if (server) {
+	utils.writeFile("server_env/server.js", server);
+} else {
+	console.log("!! No server!");
+}
+
+if (client) {
+	utils.writeFile("client_env/index.html", client);
+} else {
+	console.log("!! no client!");
+}
 
 // Exit
 process.exit(0);

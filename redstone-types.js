@@ -104,6 +104,7 @@ var ConverterContext = function ConverterContext(options) {
 	this.exposedValues = [];
 	this.clientJS = "";
 	this.raw_source = "";
+	this.has_server = true;
 };
 
 /**

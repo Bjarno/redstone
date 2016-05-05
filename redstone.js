@@ -184,15 +184,6 @@ var generate_toGenerate = function generate_toGenerate(context) {
 };
 
 /**
- * Given the unknown block definition from a chunk, parses and stores the shared variables
- * @param context The context to save the shared variables in
- * @param unknown The unknown block definition
- */
-var calculate_shared_variables = function calculate_shared_variables(context, unknown) {
-	context.shared_variables = get_shared_variables(unknown);
-};
-
-/**
  * Runs the redstone tool on the given input
  * @param {String} input The text input file
  * @returns {Object} Object containing the client HTML code (key: client), server Javascript code (key: server) and the
@@ -242,7 +233,12 @@ var generate = function generate(input) {
 	dump(context);
 
 	// Calculate shared variables from unknown chunks block
-	calculate_shared_variables(context, chunks.unknown);
+	var shared_variables = get_shared_variables(chunks.unknown);
+	context.shared_variables = shared_variables;
+	
+	// Disable server creation context if no shared variables, and no server tier defined
+	var has_server = !((shared_variables.length == 0) && (chunks.server.length == 0));
+	context.has_server = has_server;
 
 	// Pass context to Reactify transpiler before starting Stip, so it has access to the crumbs
 	require("./jspdg/stip/transpiler/Reactify.js").setContext(context);
@@ -259,7 +255,7 @@ var generate = function generate(input) {
 	head("Running Stip");
 	var stip_result = tiersplit(js, 'redstone', toGenerate, storeInContext, storeDeclNode); // Passes context for callbacks and reactive information
 	var clientJS = escodegen.generate(stip_result[0].program);
-	var serverJS = escodegen.generate(stip_result[1].program);
+	var serverJS = (has_server ? escodegen.generate(stip_result[1].program) : "none");
 
 	head("Stip result");
 	subhead("Client");
@@ -284,7 +280,11 @@ var generate = function generate(input) {
 	debugEcho(serverJS);
 
 	// Return result
-	return {client: result_html, server: serverJS, "context": context};
+	return {
+		client: result_html,
+		server: (has_server ? serverJS : false),
+		context: context
+	};
 };
 
 exports.generate = generate;

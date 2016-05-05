@@ -2,6 +2,16 @@ REDSTONE = {};
 REDSTONE.METHODS = {};
 REDSTONE.UPDATECLIENTVAR = {};
 
+REDSTONE.DUMMYCLIENT = function() {
+	var nil = function() {};
+	this.expose = nil;
+	this.onConnected = function(x) {
+		console.log("onConnected!");
+		x();
+	};
+	this.onDisconnected = nil;
+};
+
 (function() {
 
 	var updateMustache = function updateMustache(idName, newValue) {
